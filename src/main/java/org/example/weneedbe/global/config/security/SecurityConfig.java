@@ -1,4 +1,4 @@
-package org.example.weneedbe.global.security;
+package org.example.weneedbe.global.config.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
