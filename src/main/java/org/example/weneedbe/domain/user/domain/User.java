@@ -49,6 +49,9 @@ public class User extends BaseTimeEntity {
     @CollectionTable(name = "user_links", joinColumns = @JoinColumn(name = "user_id"))
     private List<String> link;
 
+    @Column(name = "about_me", nullable = true)
+    private String aboutMe ;
+
     @Column(name = "has_registered", nullable = false)
     private LocalDateTime hasRegistered;
 
