@@ -42,7 +42,7 @@ public class User extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "interest_field", nullable = true)
-    private Interests interestField;
+    private Fields interestField;
 
     @ElementCollection
     @CollectionTable(name = "user_links", joinColumns = @JoinColumn(name = "user_id"))
