@@ -57,7 +57,7 @@ public class User extends BaseTimeEntity {
     @Column(name = "deleted_at", nullable = true)
     private LocalDateTime deletedAt;
 
-    @OneToMany(mappedBy = "users")
+    @OneToMany(mappedBy = "user")
     private List<UserArticle> userArticles = new ArrayList<>();
 
 }

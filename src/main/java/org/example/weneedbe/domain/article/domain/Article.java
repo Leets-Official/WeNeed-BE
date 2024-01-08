@@ -5,9 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import org.example.weneedbe.domain.File.domain.File;
+import org.example.weneedbe.domain.comment.domain.Comment;
 import org.example.weneedbe.domain.user.domain.User;
 import org.example.weneedbe.domain.user.domain.UserArticle;
 import org.example.weneedbe.global.shared.entity.BaseTimeEntity;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -51,8 +53,8 @@ public class Article extends BaseTimeEntity {
     private LocalDateTime deletedAt;
 
     @ElementCollection
-    @CollectionTable(name = "related_links", joinColumns = @JoinColumn(name = "article_id"))
-    private List<String> relatedLinks;
+    @CollectionTable(name = "article_links", joinColumns = @JoinColumn(name = "article_id"))
+    private List<String> articleLinks;
 
     @ElementCollection
     @CollectionTable(name = "detail_skills", joinColumns = @JoinColumn(name = "article_id"))
@@ -67,4 +69,8 @@ public class Article extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "article", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
     private List<File> files;
+
+    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Where(clause = "parent_id is null")
+    private List<Comment> commentList = new ArrayList<>();
 }
