@@ -4,9 +4,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
+import org.example.weneedbe.domain.article.domain.Article;
 import org.example.weneedbe.global.shared.entity.BaseTimeEntity;
-import org.hibernate.annotations.ColumnDefault;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -47,7 +46,7 @@ public class User extends BaseTimeEntity {
 
     @ElementCollection
     @CollectionTable(name = "user_links", joinColumns = @JoinColumn(name = "user_id"))
-    private List<String> link;
+    private List<String> links;
 
     @Column(name = "about_me", nullable = true)
     private String aboutMe ;
@@ -57,5 +56,9 @@ public class User extends BaseTimeEntity {
 
     @Column(name = "deleted_at", nullable = true)
     private LocalDateTime deletedAt;
+
+    @ManyToOne
+    @JoinColumn(name = "article_id")
+    private Article article;
 
 }
