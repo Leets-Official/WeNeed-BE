@@ -52,7 +52,7 @@ public class User extends BaseTimeEntity {
     private String aboutMe ;
 
     @Column(name = "has_registered", nullable = false)
-    private LocalDateTime hasRegistered;
+    private Boolean hasRegistered;
 
     @Column(name = "deleted_at", nullable = true)
     private LocalDateTime deletedAt;
