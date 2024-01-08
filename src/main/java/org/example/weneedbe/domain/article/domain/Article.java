@@ -1,10 +1,29 @@
 package org.example.weneedbe.domain.article.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.example.weneedbe.domain.File.domain.File;
+import org.example.weneedbe.domain.article.dto.request.AddArticleRequest;
 import org.example.weneedbe.domain.comment.domain.Comment;
 import org.example.weneedbe.domain.user.domain.Fields;
 import org.example.weneedbe.domain.user.domain.User;
@@ -12,14 +31,12 @@ import org.example.weneedbe.domain.user.domain.UserArticle;
 import org.example.weneedbe.global.shared.entity.BaseTimeEntity;
 import org.hibernate.annotations.Where;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@EqualsAndHashCode(callSuper = true)
 @Table(name="article")
 public class Article extends BaseTimeEntity {
     @Id
@@ -78,4 +95,18 @@ public class Article extends BaseTimeEntity {
     @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
     @Where(clause = "parent_id is null")
     private List<Comment> commentList = new ArrayList<>();
+
+    public static Article from(AddArticleRequest request) {
+        return Article.builder()
+            .articleType(request.getArticleType())
+            .thumbnail(request.getThumbnail())
+            .title(request.getTitle())
+            .content(request.getContent())
+            .articleField(request.getArticleField())
+            .articleLinks(request.getLinks())
+            .detailSkills(request.getSkills())
+            .detailTags(request.getTags())
+            .files(request.getFiles())
+            .build();
+    }
 }
