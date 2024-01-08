@@ -4,17 +4,20 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
+import org.example.weneedbe.domain.File.domain.File;
 import org.example.weneedbe.domain.user.domain.User;
+import org.example.weneedbe.domain.user.domain.UserArticle;
 import org.example.weneedbe.global.shared.entity.BaseTimeEntity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name="users")
+@Table(name="article")
 public class Article extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -59,7 +62,9 @@ public class Article extends BaseTimeEntity {
     @CollectionTable(name = "detail_tags", joinColumns = @JoinColumn(name = "article_id"))
     private List<String> detailTags;
 
-    @OneToMany(mappedBy = "Article", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
-    private List<User> users;
+    @OneToMany(mappedBy = "article")
+    private List<UserArticle> userArticles = new ArrayList<>();
 
+    @OneToMany(mappedBy = "article", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
+    private List<File> files;
 }

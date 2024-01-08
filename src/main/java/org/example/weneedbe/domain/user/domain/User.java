@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.example.weneedbe.domain.article.domain.Article;
 import org.example.weneedbe.global.shared.entity.BaseTimeEntity;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -57,8 +58,7 @@ public class User extends BaseTimeEntity {
     @Column(name = "deleted_at", nullable = true)
     private LocalDateTime deletedAt;
 
-    @ManyToOne
-    @JoinColumn(name = "article_id")
-    private Article article;
+    @OneToMany(mappedBy = "users")
+    private List<UserArticle> userArticles = new ArrayList<>();
 
 }

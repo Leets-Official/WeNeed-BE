@@ -2,7 +2,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/weneed
     username: root
-    password: 112900
+    password:
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     show-sql: true
