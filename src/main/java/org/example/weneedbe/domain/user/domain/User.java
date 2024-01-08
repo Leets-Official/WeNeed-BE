@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
+import org.example.weneedbe.domain.bookmark.domain.Bookmark;
 import org.example.weneedbe.global.shared.entity.BaseTimeEntity;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -59,5 +60,8 @@ public class User extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "user")
     private List<UserArticle> userArticles = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    private List<Bookmark> bookmarks = new ArrayList<>();
 
 }
