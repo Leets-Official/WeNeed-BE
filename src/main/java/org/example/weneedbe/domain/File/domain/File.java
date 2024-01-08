@@ -20,7 +20,7 @@ public class File {
     @Column(name = "file_url")
     private String fileUrl;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "article_id")
     private Article article;
 }

@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
-import org.example.weneedbe.domain.article.domain.Article;
 import org.example.weneedbe.global.shared.entity.BaseTimeEntity;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
