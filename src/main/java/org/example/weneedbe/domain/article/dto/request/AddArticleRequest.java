@@ -2,8 +2,8 @@ package org.example.weneedbe.domain.article.dto.request;
 
 import java.util.List;
 import lombok.Data;
-import org.example.weneedbe.domain.article.domain.article.Type;
-import org.example.weneedbe.domain.article.domain.content.ContentData;
+import org.example.weneedbe.domain.article.domain.Type;
+import org.example.weneedbe.domain.article.domain.ContentData;
 import org.example.weneedbe.domain.user.domain.Fields;
 
 @Data

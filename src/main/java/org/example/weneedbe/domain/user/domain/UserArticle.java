@@ -12,7 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.example.weneedbe.domain.article.domain.article.Article;
+import org.example.weneedbe.domain.article.domain.Article;
 
 @Entity
 @Getter

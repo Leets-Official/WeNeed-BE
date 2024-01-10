@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.example.weneedbe.domain.article.domain.article.Article;
+import org.example.weneedbe.domain.article.domain.Article;
 import org.example.weneedbe.domain.article.dto.request.AddArticleRequest;
 import org.example.weneedbe.domain.article.dto.response.MemberInfoResponse;
 import org.example.weneedbe.domain.article.repository.ArticleRepository;
