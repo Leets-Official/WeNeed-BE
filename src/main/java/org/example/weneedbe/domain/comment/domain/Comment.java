@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
-import org.example.weneedbe.domain.article.domain.Article;
+import org.example.weneedbe.domain.article.domain.article.Article;
 import org.example.weneedbe.domain.user.domain.User;
 
 import java.time.LocalDateTime;
