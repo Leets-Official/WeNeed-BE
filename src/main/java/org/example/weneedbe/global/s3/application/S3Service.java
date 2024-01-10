@@ -11,11 +11,11 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.weneedbe.global.s3.exception.FileUploadErrorException;
+import org.example.weneedbe.global.s3.exception.InvalidImageFileException;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -42,8 +42,38 @@ public class S3Service {
           objectMetadata);
       return getS3(bucketName, fileName);
     } else {
-      throw new IllegalArgumentException("PNG, JPEG, JPG 이미지 파일만 가능합니다.");
+      throw new InvalidImageFileException();
     }
+  }
+
+  public List<String> uploadImages(List<MultipartFile> multipartFiles) throws IOException {
+
+    List<String> fileNameList = new ArrayList<>();
+
+    multipartFiles.forEach(file -> {
+      String fileName = createFileName(file.getOriginalFilename());
+      String fileExtension = getFileExtension(fileName);
+
+      if (fileExtension.equalsIgnoreCase(".png") || fileExtension.equalsIgnoreCase(".jpeg")
+          || fileExtension.equalsIgnoreCase(".jpg")) {
+
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        objectMetadata.setContentLength(file.getSize());
+        objectMetadata.setContentType(file.getContentType());
+
+        try (InputStream inputStream = file.getInputStream()) {
+          amazonS3Client.putObject(
+              new PutObjectRequest(bucketName, fileName, inputStream, objectMetadata)
+                  .withCannedAcl(CannedAccessControlList.PublicRead));
+        } catch (IOException e) {
+          throw new FileUploadErrorException();
+        }
+        fileNameList.add(getS3(bucketName, fileName));
+      } else {
+        throw new InvalidImageFileException();
+      }
+    });
+    return fileNameList;
   }
 
   public List<String> uploadFile(List<MultipartFile> multipartFiles){
@@ -61,7 +91,7 @@ public class S3Service {
             new PutObjectRequest(bucketName, fileName, inputStream, objectMetadata)
                 .withCannedAcl(CannedAccessControlList.PublicRead));
       } catch (IOException e) {
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
+        throw new FileUploadErrorException();
       }
       fileNameList.add(getS3(bucketName, fileName));
     });
@@ -76,7 +106,7 @@ public class S3Service {
     try{
       return fileName.substring(fileName.lastIndexOf("."));
     } catch (StringIndexOutOfBoundsException e){
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 형식의 파일" + fileName + ") 입니다.");
+      throw new InvalidImageFileException();
     }
   }
 
