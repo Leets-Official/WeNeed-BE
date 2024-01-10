@@ -1,9 +1,6 @@
 package org.example.weneedbe.global.config.jwt;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Header;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import org.example.weneedbe.domain.user.domain.User;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,6 +20,12 @@ public class TokenProvider {
 
     public String generateToken(User user, Duration expiredAt) {
         Date now = new Date();
+        return makeToken(new Date(now.getTime() + expiredAt.toMillis()), user);
+    }
+
+    public String generateRefreshToken(User user) {
+        Date now = new Date();
+        Duration expiredAt = Duration.ofDays(7);
         return makeToken(new Date(now.getTime() + expiredAt.toMillis()), user);
     }
 
@@ -49,7 +52,7 @@ public class TokenProvider {
                     .parseClaimsJws(token)
                     .getBody();
             return !claims.getExpiration().before(new Date());
-        } catch (Exception e) {
+        } catch (ExpiredJwtException) {
             return false;
         }
     }
