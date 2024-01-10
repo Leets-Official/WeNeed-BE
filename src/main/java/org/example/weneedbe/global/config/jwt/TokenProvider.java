@@ -44,10 +44,11 @@ public class TokenProvider {
     // 토큰의 유효성을 검증한다
     public boolean validToken(String token) {
         try {
-            Jwts.parser()
+            Claims claims = Jwts.parser()
                     .setSigningKey(jwtProperties.getSecretKey())
-                    .parseClaimsJws(token);
-            return true;
+                    .parseClaimsJws(token)
+                    .getBody();
+            return !claims.getExpiration().before(new Date());
         } catch (Exception e) {
             return false;
         }
