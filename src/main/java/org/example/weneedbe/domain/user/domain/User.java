@@ -38,8 +38,8 @@ public class User extends BaseTimeEntity {
     @Column(name = "user_grade", nullable = true)
     private Integer grade;
 
-    @Column(name = "user_age", nullable = true)
-    private Integer age;
+    @Column(name = "user_profile", nullable = true)
+    private String profile;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "interest_field", nullable = true)
@@ -50,7 +50,7 @@ public class User extends BaseTimeEntity {
     private List<String> links;
 
     @Column(name = "about_me", nullable = true)
-    private String aboutMe ;
+    private String aboutMe;
 
     @Column(name = "has_registered", nullable = false)
     private Boolean hasRegistered;
