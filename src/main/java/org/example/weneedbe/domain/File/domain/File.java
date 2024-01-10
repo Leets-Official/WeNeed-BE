@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
-import org.example.weneedbe.domain.article.domain.Article;
+import org.example.weneedbe.domain.article.domain.article.Article;
 
 @Entity
 @AllArgsConstructor
@@ -23,4 +23,9 @@ public class File {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "article_id")
     private Article article;
+
+    public File(String fileUrl, Article article) {
+        this.fileUrl = fileUrl;
+        this.article = article;
+    }
 }
