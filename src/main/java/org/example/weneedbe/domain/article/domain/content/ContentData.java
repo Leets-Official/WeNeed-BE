@@ -11,10 +11,6 @@ import lombok.Setter;
 public class ContentData {
   private Long id;
   private String type;
-
-  @Embedded
-  private ParagraphData paragraph; // paragraph 데이터를 위한 클래스
-
-  @Embedded
-  private ImageData image; // image 데이터를 위한 클래스
+  private String textData;
+  private String imageData;
 }
