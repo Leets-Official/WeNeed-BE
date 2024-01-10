@@ -15,5 +15,5 @@ spring:
       hibernate:
         format_sql: true
 jwt:
-  issuer: jeongwan.noh@gmail.com
-  secret_key: WeNeed
+  issuer: ENC(bbdtWueEsh7LW+PrGzB46UwfJKBJW8DMJcbn9cAkLrk=)
+  secret_key: ENC(3P9HeDamaRYl9h4zz9M7Vy7xoQZ23d4t)
