@@ -3,6 +3,7 @@ package org.example.weneedbe.global.config.jwt;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import org.example.weneedbe.domain.user.domain.User;
+import org.example.weneedbe.global.config.jwt.exception.ExpiredTokenException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -52,7 +53,7 @@ public class TokenProvider {
                     .parseClaimsJws(token)
                     .getBody();
             return !claims.getExpiration().before(new Date());
-        } catch (ExpiredJwtException) {
+        } catch (ExpiredJwtException | ExpiredTokenException e) {
             return false;
         }
     }

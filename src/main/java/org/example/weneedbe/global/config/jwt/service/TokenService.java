@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.weneedbe.domain.user.domain.User;
 import org.example.weneedbe.domain.user.service.UserService;
 import org.example.weneedbe.global.config.jwt.TokenProvider;
+import org.example.weneedbe.global.config.jwt.exception.InvalidTokenException;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -17,7 +18,7 @@ public class TokenService {
 
     public String createNewAccessToken(String refreshToken) {
         if (!tokenProvider.validToken(refreshToken)) {
-            throw new IllegalArgumentException();
+            throw new InvalidTokenException();
         }
 
         Long userId = refreshTokenService.findByRefreshToken(refreshToken).getUserId();
