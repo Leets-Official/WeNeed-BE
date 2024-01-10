@@ -1,4 +1,4 @@
-package org.example.weneedbe.domain.article.domain.article;
+package org.example.weneedbe.domain.article.domain;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

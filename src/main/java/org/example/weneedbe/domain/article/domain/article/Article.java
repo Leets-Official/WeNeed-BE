@@ -1,4 +1,4 @@
-package org.example.weneedbe.domain.article.domain.article;
+package org.example.weneedbe.domain.article.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -12,7 +12,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.example.weneedbe.domain.File.domain.File;
-import org.example.weneedbe.domain.article.domain.content.ContentData;
 import org.example.weneedbe.domain.article.dto.request.AddArticleRequest;
 import org.example.weneedbe.domain.comment.domain.Comment;
 import org.example.weneedbe.domain.user.domain.Fields;
