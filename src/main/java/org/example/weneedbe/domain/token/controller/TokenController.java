@@ -1,0 +1,27 @@
+package org.example.weneedbe.domain.token.controller;
+
+import lombok.RequiredArgsConstructor;
+import org.example.weneedbe.domain.token.dto.CreateAccessTokenRequest;
+import org.example.weneedbe.domain.token.dto.CreateAccessTokenResponse;
+import org.example.weneedbe.global.config.jwt.service.TokenService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+@RequiredArgsConstructor
+@RestController
+public class TokenController {
+    private final TokenService tokenService;
+
+    // 추후 URI 변경 필요
+    @PostMapping("/api/token")
+    public ResponseEntity<CreateAccessTokenResponse> createNewAccessToken
+    (@RequestBody CreateAccessTokenRequest request) {
+        String newAccessToken = tokenService.createNewAccessToken(request.getRefreshToken());
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new CreateAccessTokenResponse(newAccessToken));
+    }
+}
