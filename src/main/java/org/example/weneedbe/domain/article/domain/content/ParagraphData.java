@@ -9,7 +9,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ParagraphData {
-  @Column(length = 1000)
+  @Column(columnDefinition = "text")
   private String text;
 }
-
