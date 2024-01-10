@@ -3,6 +3,7 @@ package org.example.weneedbe.domain.user.domain;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.weneedbe.domain.bookmark.domain.Bookmark;
 import org.example.weneedbe.global.shared.entity.BaseTimeEntity;
@@ -13,6 +14,7 @@ import java.util.List;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
 @Builder
 @Table(name="users")
 public class User extends BaseTimeEntity {
