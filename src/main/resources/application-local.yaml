@@ -14,3 +14,6 @@ spring:
     properties:
       hibernate:
         format_sql: true
+jwt:
+  issuer: jeongwan.noh@gmail.com
+  secret_key: WeNeed
