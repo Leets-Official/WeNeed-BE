@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -88,23 +89,37 @@ public class Article extends BaseTimeEntity {
     @Where(clause = "parent_id is null")
     private List<Comment> commentList = new ArrayList<>();
 
-    public static Article of(AddArticleRequest request, User user) {
+    public static Article of(String thumbnail, List<String> images, List<String> files,
+        AddArticleRequest request, User user) {
 
         Article article = Article.builder()
             .user(user)
             .articleType(request.getArticleType())
-            .thumbnail(request.getThumbnail())
+            .thumbnail(thumbnail)
             .title(request.getTitle())
-            .content(request.getContent())
             .articleField(request.getArticleField())
             .articleLinks(request.getLinks())
             .detailSkills(request.getSkills())
             .detailTags(request.getTags())
             .build();
 
+        /* content 관련 */
+        List<ContentData> contentDatas = request.getContent();
+        Iterator<String> imagesIterator = images.iterator();
+
+        for (ContentData contentData : contentDatas) {
+            if ("image".equals(contentData.getType()) && imagesIterator.hasNext()) {
+                contentData.setImageData(imagesIterator.next());
+            }
+        }
+        article.setContent(contentDatas);
+
+        /* file 관련 */
         List<File> fileList = new ArrayList<>();
-        for (String fileUrl : request.getFiles()) {
-            fileList.add(new File(fileUrl, article));
+
+        for (String fileUrl : files) {
+            File file = new File(fileUrl, article);
+            fileList.add(file);
         }
         article.setFiles(fileList);
 
