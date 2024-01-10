@@ -1,5 +1,6 @@
 package org.example.weneedbe.domain.article.application;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -9,8 +10,11 @@ import org.example.weneedbe.domain.article.dto.response.MemberInfoResponse;
 import org.example.weneedbe.domain.article.repository.ArticleRepository;
 import org.example.weneedbe.domain.user.domain.User;
 import org.example.weneedbe.domain.user.domain.UserArticle;
+import org.example.weneedbe.domain.user.exception.UserNotFoundException;
 import org.example.weneedbe.domain.user.repository.UserRepository;
+import org.example.weneedbe.global.s3.application.S3Service;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -18,12 +22,20 @@ public class ArticleService {
 
   private final ArticleRepository articleRepository;
   private final UserRepository userRepository;
+  private final S3Service s3Service;
 
-  public void createPortfolio(AddArticleRequest request) {
+  public void createPortfolio(MultipartFile thumbnail, List<MultipartFile> images,
+      List<MultipartFile> files, AddArticleRequest request) throws IOException {
+
+    String thumbnailUrl = s3Service.uploadImage(thumbnail);
+    List<String> imageUrls = s3Service.uploadImages(images);
+    List<String> fileUrls = s3Service.uploadFile(files);
+
     /* 토큰을 통한 user 객체를 불러옴 */
     /* 아직 토큰이 없기 때문에 임시 객체를 사용 */
     User mockUser = userRepository.findById(1L).orElseThrow();
-    Article article = Article.of(request, mockUser);
+
+    Article article = Article.of(thumbnailUrl, imageUrls, fileUrls, request, mockUser);
 
     List<UserArticle> userArticles = new ArrayList<>();
     /* 개인 프로젝트일 경우, 본인만 추가한다. */
@@ -33,7 +45,7 @@ public class ArticleService {
     if (!request.getTeamMembersId().isEmpty()) {
       for (Long memberId : request.getTeamMembersId()) {
         User user = userRepository.findById(memberId)
-            .orElseThrow(() -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다."));
+            .orElseThrow(UserNotFoundException::new);
         userArticles.add(new UserArticle(user, article));
       }
     }
@@ -41,11 +53,18 @@ public class ArticleService {
     articleRepository.save(article);
   }
 
-  public void createRecruit(AddArticleRequest request) {
+  public void createRecruit(MultipartFile thumbnail, List<MultipartFile> images,
+      List<MultipartFile> files, AddArticleRequest request) throws IOException {
+
+    String thumbnailUrl = s3Service.uploadImage(thumbnail);
+    List<String> imageUrls = s3Service.uploadImages(images);
+    List<String> fileUrls = s3Service.uploadFile(files);
+
     /* 토큰을 통한 user 객체를 불러옴 */
     /* 아직 토큰이 없기 때문에 임시 객체를 사용 */
-    User mockUser = userRepository.findById(1L).get();
-    Article article = Article.of(request, mockUser);
+    User mockUser = userRepository.findById(1L).orElseThrow();
+
+    Article article = Article.of(thumbnailUrl, imageUrls, fileUrls, request, mockUser);
     article.setUserArticles(List.of(new UserArticle(mockUser, article)));
 
     articleRepository.save(article);
