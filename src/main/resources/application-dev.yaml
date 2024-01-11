@@ -30,3 +30,6 @@ cloud:
       static: ap-northeast-2
     stack:
       auto: false
+jwt:
+  issuer: ENC(bbdtWueEsh7LW+PrGzB46UwfJKBJW8DMJcbn9cAkLrk=)
+  secret_key: ENC(3P9HeDamaRYl9h4zz9M7Vy7xoQZ23d4t)

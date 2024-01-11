@@ -41,8 +41,8 @@ public class User extends BaseTimeEntity {
     @Column(name = "user_grade", nullable = true)
     private Integer grade;
 
-    @Column(name = "user_age", nullable = true)
-    private Integer age;
+    @Column(name = "user_profile", nullable = true)
+    private String profile;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "interest_field", nullable = true)
