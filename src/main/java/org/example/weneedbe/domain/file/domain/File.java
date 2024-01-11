@@ -1,4 +1,4 @@
-package org.example.weneedbe.domain.File.domain;
+package org.example.weneedbe.domain.file.domain;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
