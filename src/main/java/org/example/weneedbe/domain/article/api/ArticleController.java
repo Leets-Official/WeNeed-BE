@@ -16,6 +16,7 @@ import org.example.weneedbe.global.error.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -72,5 +73,31 @@ public class ArticleController {
   @GetMapping("/portfolio/team-member")
   public ResponseEntity<List<MemberInfoResponse>> getTeamMember(@RequestParam String nickname) {
     return ResponseEntity.ok(articleService.getMemberList(nickname));
+  }
+
+  @Operation(summary = "좋아요 기능", description = "좋아요를 추가, 제거할 수 있습니다.")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200"),
+      @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+      @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+      @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+  })
+  @PostMapping("/likes/{articleId}")
+  public ResponseEntity<Void> likeArticle(@PathVariable Long articleId) {
+    articleService.likeArticle(articleId);
+    return ResponseEntity.ok().build();
+  }
+
+  @Operation(summary = "북마크 기능", description = "북마크를 추가, 제거할 수 있습니다.")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200"),
+      @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+      @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+      @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+  })
+  @PostMapping("/bookmarks/{articleId}")
+  public ResponseEntity<Void> bookmarkArticle(@PathVariable Long articleId) {
+    articleService.bookmarkArticle(articleId);
+    return ResponseEntity.ok().build();
   }
 }

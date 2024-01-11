@@ -25,4 +25,9 @@ public class Bookmark {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "article_id")
     private Article article;
+
+    public Bookmark(User user, Article article) {
+        this.user = user;
+        this.article = article;
+    }
 }
