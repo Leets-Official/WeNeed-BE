@@ -53,9 +53,6 @@ public class Article extends BaseTimeEntity {
     @OrderColumn(name = "content_sequence")
     private List<ContentData> content;
 
-    @Column(name = "heart_count")
-    private int heartCount;
-
     @Column(name = "view_count")
     private int viewCount;
 
