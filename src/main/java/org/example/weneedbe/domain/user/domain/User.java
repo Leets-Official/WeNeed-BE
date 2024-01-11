@@ -1,16 +1,19 @@
 package org.example.weneedbe.domain.user.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import org.example.weneedbe.domain.bookmark.domain.Bookmark;
-import org.example.weneedbe.global.shared.entity.BaseTimeEntity;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.example.weneedbe.domain.bookmark.domain.Bookmark;
+import org.example.weneedbe.global.shared.entity.BaseTimeEntity;
 
 @Entity
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -50,7 +53,7 @@ public class User extends BaseTimeEntity {
     private List<String> links;
 
     @Column(name = "about_me", nullable = true)
-    private String aboutMe ;
+    private String aboutMe;
 
     @Column(name = "has_registered", nullable = false)
     private Boolean hasRegistered;
@@ -59,6 +62,7 @@ public class User extends BaseTimeEntity {
     private LocalDateTime deletedAt;
 
     @OneToMany(mappedBy = "user")
+    @JsonIgnore
     private List<UserArticle> userArticles = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")

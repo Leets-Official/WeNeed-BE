@@ -23,4 +23,9 @@ public class File {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "article_id")
     private Article article;
+
+    public File(String fileUrl, Article article) {
+        this.fileUrl = fileUrl;
+        this.article = article;
+    }
 }

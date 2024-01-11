@@ -13,3 +13,20 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+  servlet:
+    multipart:
+      max-file-size: 20MB # 파일 하나당 크기
+      max-request-size: 20MB # 전송하려는 총 파일 크기
+
+cloud:
+  aws:
+    credentials:
+      accessKey: ENC(ovlMiS3z8h4ibksrBpL1LTJIvDhaVUK88zQtSMYIkDw=)
+      secretKey: ENC(Xcox3M12b78LKg7nyEvHAVfJv586pGXDuNszoTXOdop5bJFWCiNwQSsJxJtgV5WGN/3yTGxlLUw=)
+    s3:
+      bucket: weneedbucket/files
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
