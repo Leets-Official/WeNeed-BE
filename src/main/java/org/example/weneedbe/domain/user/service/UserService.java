@@ -13,4 +13,9 @@ public class UserService {
         return userRepository.findById(userId)
                 .orElseThrow(IllegalArgumentException::new);
     }
+
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(IllegalArgumentException::new);
+    }
 }
