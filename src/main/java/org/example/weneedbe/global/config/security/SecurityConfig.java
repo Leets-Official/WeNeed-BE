@@ -5,6 +5,8 @@ import org.example.weneedbe.domain.token.repository.RefreshTokenRepository;
 import org.example.weneedbe.domain.user.service.UserService;
 import org.example.weneedbe.global.config.jwt.TokenAuthenticationFilter;
 import org.example.weneedbe.global.config.jwt.TokenProvider;
+import org.example.weneedbe.global.config.oauth.OAUth2AUthorizationRequestBasedOnCookieRepository;
+import org.example.weneedbe.global.config.oauth.OAuth2SuccessHandler;
 import org.example.weneedbe.global.config.oauth.OAuth2UserCustomService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -58,7 +60,7 @@ public class SecurityConfig {
               )
 
               .oauth2Login(oauth2Login ->
-                      oauth2Login.loginPage("login")
+                      oauth2Login.loginPage("/login")
                               .authorizationEndpoint(authorization -> authorization
                                       .authorizationRequestRepository(oAuth2AuthorizationRequestBasedOnCookieRepository()))
                               .successHandler(oAuth2SuccessHandler())
@@ -76,7 +78,7 @@ public class SecurityConfig {
 
   @Bean
   public OAuth2SuccessHandler oAuth2SuccessHandler() {
-      return new OAUth2SuccessHandler(tokenProvider, refreshTokenRepository,
+      return new OAuth2SuccessHandler(tokenProvider, refreshTokenRepository,
               oAuth2AuthorizationRequestBasedOnCookieRepository(), userService);
   }
 

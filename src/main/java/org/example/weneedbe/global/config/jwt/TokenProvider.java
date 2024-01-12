@@ -25,12 +25,6 @@ public class TokenProvider {
         return makeToken(new Date(now.getTime() + expiredAt.toMillis()), user);
     }
 
-    public String generateRefreshToken(User user) {
-        Date now = new Date();
-        Duration expiredAt = Duration.ofDays(7);
-        return makeToken(new Date(now.getTime() + expiredAt.toMillis()), user);
-    }
-
     // 토큰을 생성한다
     private String makeToken(Date expiry, User user) {
         Date now = new Date();
