@@ -4,6 +4,7 @@ import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import org.example.weneedbe.domain.user.domain.User;
 import org.example.weneedbe.global.config.jwt.exception.ExpiredTokenException;
+import org.example.weneedbe.global.config.jwt.exception.InvalidInputValueException;
 import org.example.weneedbe.global.config.jwt.exception.InvalidTokenException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -67,7 +68,7 @@ public class TokenProvider {
     }
 
     // 토큰 기반으로 유저 ID를 가져온다
-    public Long getUserId(String token) {
+    public Long getUserIdFromToken(String token) {
         Claims claims = getClaims(token);
         return claims.get("id", Long.class);
     }
@@ -77,5 +78,12 @@ public class TokenProvider {
                 .setSigningKey(jwtProperties.getSecretKey())
                 .parseClaimsJws(token)
                 .getBody();
+    }
+
+    public String getTokenFromAuthorizationHeader(String authorizationHeader){
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new InvalidInputValueException();
+        }
+        return authorizationHeader.substring(7);
     }
 }
