@@ -14,6 +14,17 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ENC(TeFYON0RVoZCk13Yq6rZgQVDmm9ih8gsktIVKJEgkkqW/hAun7o+u2C+Mdh0YJzsWCjASOF6UHYs338xgGbksUaPij+ucqQgVVW83dQeuYhWk/mhlW2k6g==)
+            client-secret: ENC(db4Af3NOGQHNFNKNHm1qRFTEybRklQ2JoGzB8+w/dPUex9VUpUKnVudeU/lOvKOm)
+            redirect-uri: http://localhost:8080/login/oauth2/code/google
+            scope:
+              - email
+              - profile
 
   servlet:
     multipart:
