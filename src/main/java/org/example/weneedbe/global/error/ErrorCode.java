@@ -13,6 +13,7 @@ public enum ErrorCode {
     ARTICLE_NOT_FOUND(400, "ARTICLE_NOT_FOUND", "존재하지 않는 게시물입니다."),
     INVALID_TOKEN(401, "UNAUTHORIZED", "유효하지 않은 토큰입니다."),
     EXPIRED_TOKEN(401,"UNAUTHORIZED", "만료된 토큰입니다."),
+    COMMENT_NOT_FOUND(400, "COMMENT_NOT_FOUND", "존재하지 않는 댓글입니다."),
     INVALID_INPUT_VALUE(400, "INVALID_INPUT_VALUE", "유효하지 않은 입력값입니다.");
 
     private final int httpStatus;
