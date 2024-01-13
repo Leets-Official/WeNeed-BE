@@ -17,13 +17,13 @@ import java.util.Map;
 public class OAuthService {
     private final String TOKEN_URI = "https://oauth2.googleapis.com/token";
 
-    @Value("${spring.security.oauth2.google.client-id}")
+    @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String CLIENT_ID;
 
-    @Value("${spring.security.oauth2.google.client-secret}")
+    @Value("${spring.security.oauth2.client.registration.google.client-secret}")
     private String CLIENT_SECRET;
 
-    @Value("${spring.security.oauth2.google.redirect-uri}")
+    @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
     private String LOGIN_REDIRECT_URI;
 
     @Autowired
