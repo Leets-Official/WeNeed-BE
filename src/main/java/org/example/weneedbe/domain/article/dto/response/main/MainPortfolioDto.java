@@ -13,5 +13,4 @@ public class MainPortfolioDto {
     private List<HotArticleDto> hotArticleList;
     private List<ArticleDto> articleList;
     private List<RecommendArticleDto> recommendArticleList;
-
 }
