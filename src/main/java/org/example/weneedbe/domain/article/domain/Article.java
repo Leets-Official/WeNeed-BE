@@ -82,7 +82,6 @@ public class Article extends BaseTimeEntity {
     private List<File> files;
 
     @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Where(clause = "parent_id is null")
     private List<Comment> commentList = new ArrayList<>();
 
     public static Article of(String thumbnail, List<String> images, List<String> files,
