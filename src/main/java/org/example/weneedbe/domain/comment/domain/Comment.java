@@ -40,7 +40,7 @@ public class Comment {
     private String content;
 
     @Column(name = "parent_id")
-    private Long parentId;
+    private long parentId;
 
     @OneToMany(mappedBy = "parentId", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> children = new ArrayList<>();
