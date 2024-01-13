@@ -6,6 +6,7 @@ import org.example.weneedbe.domain.article.exception.ArticleNotFoundException;
 import org.example.weneedbe.domain.article.repository.ArticleRepository;
 import org.example.weneedbe.domain.comment.domain.Comment;
 import org.example.weneedbe.domain.comment.dto.request.AddCommentRequest;
+import org.example.weneedbe.domain.comment.exception.CommentNotFoundException;
 import org.example.weneedbe.domain.comment.repository.CommentRepository;
 import org.example.weneedbe.domain.user.domain.User;
 import org.example.weneedbe.domain.user.repository.UserRepository;
@@ -34,7 +35,7 @@ public class CommentService {
     /* 부모 댓글이 있는 경우 */
     if (request.getParentId() != 0) {
       Comment parentComment = commentRepository.findById(request.getParentId())
-          .orElseThrow();
+          .orElseThrow(CommentNotFoundException::new);
       parentComment.addChild(comment);
     } else {
       article.getCommentList().add(comment);
@@ -46,7 +47,8 @@ public class CommentService {
     Article article = articleRepository.findById(articleId)
         .orElseThrow(ArticleNotFoundException::new);
 
-    Comment comment = commentRepository.findById(commentId).orElseThrow();
+    Comment comment = commentRepository.findById(commentId)
+        .orElseThrow(CommentNotFoundException::new);
 
     /* 최상위 댓글일 경우 */
     if (comment.getParentId() == 0) {

@@ -12,7 +12,8 @@ public enum ErrorCode {
     FILE_UPLOAD_ERROR(500, "FILE_UPLOAD_ERROR", "파일 업로드에 실패했습니다."),
     ARTICLE_NOT_FOUND(400, "ARTICLE_NOT_FOUND", "존재하지 않는 게시물입니다."),
     INVALID_TOKEN(401, "UNAUTHORIZED", "유효하지 않은 토큰입니다."),
-    EXPIRED_TOKEN(401,"UNAUTHORIZED", "만료된 토큰입니다.");
+    EXPIRED_TOKEN(401,"UNAUTHORIZED", "만료된 토큰입니다."),
+    COMMENT_NOT_FOUND(400, "COMMENT_NOT_FOUND", "존재하지 않는 댓글입니다.");
 
     private final int httpStatus;
     private final String code;
