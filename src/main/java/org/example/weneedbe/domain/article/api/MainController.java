@@ -13,14 +13,11 @@ import org.example.weneedbe.global.error.ErrorResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @Tag(name = "Main Controller", description = "메인페이지 관련 API입니다.")
 @RestController
 @RequiredArgsConstructor
 public class MainController {
     private final MainService mainService;
-
 
     @Operation(summary = "메인페이지 - 포트폴리오", description = "메인페이지에서 포트폴리오부분 조회합니다")
     @ApiResponses({
@@ -29,9 +26,9 @@ public class MainController {
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @GetMapping("/portfolio}")
+    @GetMapping("/portfolio")
     ResponseEntity<MainPortfolioDto> getMainPagePortfolio(
-            @RequestParam int size, @RequestParam int page, @RequestParam String sort, @RequestParam List<String> detailTags) {
+            @RequestParam int size, @RequestParam int page, @RequestParam String sort, @RequestParam String[] detailTags) {
         return ResponseEntity.ok(mainService.getMainArticleList(size, page, sort, detailTags));
     }
 }
