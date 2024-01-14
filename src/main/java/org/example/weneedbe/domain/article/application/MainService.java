@@ -24,7 +24,7 @@ public class MainService {
     private final ArticleRepository articleRepository;
     private final ArticleLikeRepository articleLikeRepository;
 
-    public MainPortfolioDto getMainArticleList(int size, int page, String sort, List<String> detailTags) {
+    public MainPortfolioDto getMainArticleList(int size, int page, String sort, String[] detailTags) {
         User mockUser = userRepository.findById(1L).orElseThrow(UserNotFoundException::new);
 
         Pageable pageable = PageRequest.of(page - 1, size);
@@ -42,7 +42,7 @@ public class MainService {
         return new MainPortfolioDto(new MainUserDto(mockUser.getNickname()), pageableDto, hotArticleList, articleList, recommendArticleList);
     }
 
-    private Page<Article> getSortedArticlesPage(String sort, List<String> detailTags, Pageable pageable) {
+    private Page<Article> getSortedArticlesPage(String sort, String[] detailTags, Pageable pageable) {
         switch (sort) {
             case "최신순":
                 return articleRepository.findPortfoliosByDetailTagsInOrderByCreatedAtDesc(detailTags, pageable);
@@ -72,7 +72,7 @@ public class MainService {
     private List<RecommendArticleDto> getRecommendArticleList(User user) {
         List<Article> randomArticles = articleRepository.findRandomPortfolios();
         return randomArticles.stream()
-                .limit(6)
+                .limit(12)
                 .map(article -> convertToRecommendArticleDto(article, user))
                 .collect(Collectors.toList());
     }
