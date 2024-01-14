@@ -21,7 +21,7 @@ public class MainController {
 
     @Operation(summary = "메인페이지 - 포트폴리오", description = "메인페이지에서 포트폴리오부분 조회합니다")
     @ApiResponses({
-            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "200"),
             @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))

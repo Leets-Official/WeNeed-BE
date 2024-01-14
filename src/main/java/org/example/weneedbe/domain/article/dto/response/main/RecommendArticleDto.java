@@ -11,5 +11,5 @@ public class RecommendArticleDto {
     private Long articleId;
     private String thumbnail;
     private String title;
-    private Boolean isBookmarked;
+    private boolean isBookmarked;
 }
