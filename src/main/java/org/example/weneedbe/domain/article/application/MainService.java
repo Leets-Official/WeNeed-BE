@@ -6,6 +6,7 @@ import org.example.weneedbe.domain.article.dto.response.main.*;
 import org.example.weneedbe.domain.article.exception.InvalidSortException;
 import org.example.weneedbe.domain.article.repository.ArticleLikeRepository;
 import org.example.weneedbe.domain.article.repository.ArticleRepository;
+import org.example.weneedbe.domain.bookmark.repository.BookmarkRepository;
 import org.example.weneedbe.domain.user.domain.User;
 import org.example.weneedbe.domain.user.exception.UserNotFoundException;
 import org.example.weneedbe.domain.user.repository.UserRepository;
@@ -23,6 +24,10 @@ public class MainService {
     private final UserRepository userRepository;
     private final ArticleRepository articleRepository;
     private final ArticleLikeRepository articleLikeRepository;
+    private final BookmarkRepository bookmarkRepository;
+    private final static String SORT_BY_RECENT = "최신순";
+    private final static String SORT_BY_HEARTS = "좋아요순";
+    private final static String SORT_BY_VIEWS = "조회수순";
 
     public MainPortfolioDto getMainArticleList(int size, int page, String sort, String[] detailTags) {
         User mockUser = userRepository.findById(1L).orElseThrow(UserNotFoundException::new);
@@ -30,11 +35,7 @@ public class MainService {
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Article> articlesPage = getSortedArticlesPage(sort, detailTags, pageable);
         PageableDto pageableDto = new PageableDto(size, page, articlesPage.getTotalPages(), articlesPage.getTotalElements());
-
-        List<ArticleDto> articleList = articlesPage.getContent()
-                .stream()
-                .map(article -> convertToArticleDto(article, mockUser))
-                .collect(Collectors.toList());
+        List<ArticleDto> articleList = convertToArticleDtoList(articlesPage.getContent(), mockUser);
 
         List<RecommendArticleDto> recommendArticleList = getRecommendArticleList(mockUser);
         List<HotArticleDto> hotArticleList = getHotArticleList();
@@ -44,11 +45,11 @@ public class MainService {
 
     private Page<Article> getSortedArticlesPage(String sort, String[] detailTags, Pageable pageable) {
         switch (sort) {
-            case "최신순":
+            case SORT_BY_RECENT:
                 return articleRepository.findPortfoliosByDetailTagsInOrderByCreatedAtDesc(detailTags, pageable);
-            case "좋아요순":
+            case SORT_BY_HEARTS:
                 return articleRepository.findPortfoliosByDetailTagsOrderByLikesDesc(detailTags, pageable);
-            case "조회수순":
+            case SORT_BY_VIEWS:
                 return articleRepository.findPortfoliosByDetailTagsInOrderByViewCountDesc(detailTags, pageable);
             default:
                 throw new InvalidSortException();
@@ -86,6 +87,11 @@ public class MainService {
                 .title(article.getTitle())
                 .build();
     }
+    private List<ArticleDto> convertToArticleDtoList(List<Article> articles, User user) {
+        return articles.stream()
+                .map(article -> convertToArticleDto(article, user))
+                .collect(Collectors.toList());
+    }
 
     public List<HotArticleDto> getHotArticleList() {
         List<Article> articles = articleRepository.findPortfolios();
@@ -103,7 +109,7 @@ public class MainService {
     private double calculateWeight(Article article) {
         double viewCountWeight = 0.7 * article.getViewCount();
         double likeCountWeight = 1.0 * articleLikeRepository.countByArticle(article);
-        double bookmarkCountWeight = 0.5 * article.getViewCount();
+        double bookmarkCountWeight = 0.5 * bookmarkRepository.countByArticle(article);
         return viewCountWeight + likeCountWeight + bookmarkCountWeight;
     }
 
