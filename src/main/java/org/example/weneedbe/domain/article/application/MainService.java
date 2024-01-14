@@ -107,9 +107,9 @@ public class MainService {
     }
 
     private double calculateWeight(Article article) {
-        double viewCountWeight = 0.7 * article.getViewCount();
+        double viewCountWeight = 0.5 * article.getViewCount();
         double likeCountWeight = 1.0 * articleLikeRepository.countByArticle(article);
-        double bookmarkCountWeight = 0.5 * bookmarkRepository.countByArticle(article);
+        double bookmarkCountWeight = 0.7 * bookmarkRepository.countByArticle(article);
         return viewCountWeight + likeCountWeight + bookmarkCountWeight;
     }
 

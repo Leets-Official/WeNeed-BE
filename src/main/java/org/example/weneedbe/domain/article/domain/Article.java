@@ -41,7 +41,7 @@ public class Article extends BaseTimeEntity {
     @Column(name = "article_type", nullable = false)
     private Type articleType;
 
-    @Column(name = "thumb_nail", nullable = false)
+    @Column(name = "thumbnail", nullable = false)
     private String thumbnail;
 
     @Column(name = "title", nullable = false)
