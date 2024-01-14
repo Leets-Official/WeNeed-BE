@@ -50,14 +50,14 @@ public class SecurityConfig {
               .sessionManagement((sessionManagement) ->
                       sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
               )
-              .addFilterBefore(new TokenAuthenticationFilter(tokenProvider),
-                      UsernamePasswordAuthenticationFilter.class)
               .authorizeHttpRequests((authorize) ->
                       authorize
                               .requestMatchers("/").permitAll()
                               .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/**").permitAll()
                               .anyRequest().permitAll()
               )
+              .addFilterBefore(new TokenAuthenticationFilter(tokenProvider),
+                      UsernamePasswordAuthenticationFilter.class)
 
               .oauth2Login(oauth2Login ->
                       oauth2Login.loginPage("/login")
