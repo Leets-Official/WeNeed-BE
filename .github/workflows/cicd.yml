@@ -48,3 +48,16 @@ jobs:
           dockerfile: Dockerfile
           push: true
           tags: ${{secrets.DOCKER_USERNAME}}/weneed:latest
+
+      - name: Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{secrets.HOST}}
+          username: ubuntu
+          key: ${{secrets.PEM_KEY}}
+          script: |
+            sudo docker pull ${{secrets.DOCKER_USERNAME}}/weneed:latest
+            sudo docker stop $(docker ps -a -q)
+            sudo docker run -d --log-driver=syslog -p 8080:8080 -e JAVA_OPTS=-Djasypt.encryptor.password=${{secrets.JASYPT_ENCRYPTOR_PASSWORD}} ${{secrets.DOCKER_USERNAME}}/weneed:latest
+            sudo docker rm $(docker ps --filter 'status=exited' -a -q)
+            sudo docker image prune -a -f
