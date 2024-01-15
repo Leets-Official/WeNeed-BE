@@ -57,7 +57,18 @@ jobs:
           key: ${{secrets.PEM_KEY}}
           script: |
             sudo docker pull ${{secrets.DOCKER_USERNAME}}/weneed:latest
-            sudo docker stop $(docker ps -a -q)
+            
+            EXISTING_CONTAINER_ID=$(sudo docker ps -q -f "publish=8080" -f "status=running")
+            if [ ! -z "$EXISTING_CONTAINER_ID" ]; then
+              sudo docker stop $EXISTING_CONTAINER_ID
+              sudo docker rm $EXISTING_CONTAINER_ID
+            fi
+
+            EXISTING_CONTAINER_ID=$(sudo docker ps -q -f "publish=8080" -f "status=exited")
+            if [ ! -z "$EXISTING_CONTAINER_ID" ]; then
+              sudo docker rm $EXISTING_CONTAINER_ID
+            fi
+            
+            sudo docker rm $(sudo docker ps --filter 'status=exited' -a -q) 
             sudo docker run -d --log-driver=syslog -p 8080:8080 -e JAVA_OPTS=-Djasypt.encryptor.password=${{secrets.JASYPT_ENCRYPTOR_PASSWORD}} ${{secrets.DOCKER_USERNAME}}/weneed:latest
-            sudo docker rm $(docker ps --filter 'status=exited' -a -q)
             sudo docker image prune -a -f
