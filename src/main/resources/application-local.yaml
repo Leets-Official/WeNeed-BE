@@ -19,12 +19,11 @@ spring:
       client:
         registration:
           google:
-            client-id: ENC(TeFYON0RVoZCk13Yq6rZgQVDmm9ih8gsktIVKJEgkkqW/hAun7o+u2C+Mdh0YJzsWCjASOF6UHYs338xgGbksUaPij+ucqQgVVW83dQeuYhWk/mhlW2k6g==)
-            client-secret: ENC(db4Af3NOGQHNFNKNHm1qRFTEybRklQ2JoGzB8+w/dPUex9VUpUKnVudeU/lOvKOm)
+            client-id: ENC(AP1O1srqv0Kq7nLQaEp8xZHKRwPcy9EqHnCyFzYIGVWadI0zLKszdU4GLji8/GWMSf8n0EKg5qZyWbHDzQ8T2WD/05l09vhXAVI0MTokGs7Vq4LJlSUGyw==)
+            client-secret: ENC(ptIkZSfqr7Fby7HyyYFv1w9VD7zeO4F9KShBxbLDSo1A7V/VsPnf+ibrFMvUr9dw)
             redirect-uri: http://localhost:8080/login/oauth2/code/google
             scope:
               - email
-              - profile
 
   servlet:
     multipart:
