@@ -1,6 +1,7 @@
 package org.example.weneedbe.domain.article.application;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.weneedbe.domain.article.domain.Article;
 import org.example.weneedbe.domain.article.dto.response.main.*;
 import org.example.weneedbe.domain.article.exception.InvalidSortException;
@@ -15,19 +16,22 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MainService {
     private final UserRepository userRepository;
     private final ArticleRepository articleRepository;
     private final ArticleLikeRepository articleLikeRepository;
     private final BookmarkRepository bookmarkRepository;
-    private final static String SORT_BY_RECENT = "최신순";
-    private final static String SORT_BY_HEARTS = "좋아요순";
-    private final static String SORT_BY_VIEWS = "조회수순";
+    private final static String SORT_BY_RECENT = "DESC";
+    private final static String SORT_BY_HEARTS = "HEART";
+    private final static String SORT_BY_VIEWS = "VIEW";
 
     public MainPortfolioDto getMainArticleList(int size, int page, String sort, String[] detailTags) {
         User mockUser = userRepository.findById(1L).orElseThrow(UserNotFoundException::new);
@@ -87,6 +91,7 @@ public class MainService {
                 .title(article.getTitle())
                 .build();
     }
+
     private List<ArticleDto> convertToArticleDtoList(List<Article> articles, User user) {
         return articles.stream()
                 .map(article -> convertToArticleDto(article, user))
@@ -95,13 +100,17 @@ public class MainService {
 
     public List<HotArticleDto> getHotArticleList() {
         List<Article> articles = articleRepository.findPortfolios();
-        List<WeightedArticleDto> weightedArticles = articles.stream()
-                .map(article -> new WeightedArticleDto(article, calculateWeight(article)))
-                .sorted()
-                .limit(5)
-                .collect(Collectors.toList());
+        List<WeightedArticleDto> weightedArticles = new ArrayList<>();
+
+        for (Article article : articles) {
+            double weight = calculateWeight(article);
+            weightedArticles.add(new WeightedArticleDto(article, weight));
+        }
+
+        Collections.sort(weightedArticles);
 
         return weightedArticles.stream()
+                .limit(5)
                 .map(this::convertToHotArticleDto)
                 .collect(Collectors.toList());
     }
@@ -110,6 +119,7 @@ public class MainService {
         double viewCountWeight = 0.5 * article.getViewCount();
         double likeCountWeight = 1.0 * articleLikeRepository.countByArticle(article);
         double bookmarkCountWeight = 0.7 * bookmarkRepository.countByArticle(article);
+        log.info("?");
         return viewCountWeight + likeCountWeight + bookmarkCountWeight;
     }
 

@@ -13,23 +13,34 @@ import java.util.List;
 @Repository
 public interface ArticleRepository extends JpaRepository<Article, Long> {
 
-    @Query(value = "SELECT * FROM article ar WHERE ar.article_field = 'PORTFOLIO' AND ar.detail_tags IN :detailTags ORDER BY ar.created_at DESC", nativeQuery = true)
-//    @Query(value = "SELECT ar FROM Article ar WHERE ar.articleField = 'PORTFOLIO' " +
-//            "AND ar.detailTags IN :detailTags ORDER BY ar.createdAt DESC")
-    Page<Article> findPortfoliosByDetailTagsInOrderByCreatedAtDesc(@Param("detailTags") String[] detailTag, Pageable pageable);
+    @Query(value = "SELECT a.* FROM article a INNER JOIN detail_tags dt ON a.article_id = dt.article_id WHERE a.article_type = 'PORTFOLIO' AND dt.detail_tags IN :detailTags ORDER BY a.created_at DESC",
+            countQuery = "SELECT count(*) FROM article a INNER JOIN detail_tags dt ON a.article_id = dt.article_id WHERE a.article_type = 'PORTFOLIO' AND dt.detail_tags IN :detailTags",
+            nativeQuery = true)
+    Page<Article> findPortfoliosByDetailTagsInOrderByCreatedAtDesc(@Param("detailTags") String[] detailTags, Pageable pageable);
 
-    @Query(value = "SELECT * FROM article ar LEFT JOIN user_articles ua ON ar.article_id = ua.article_id WHERE ar.article_field = 'PORTFOLIO' AND ar.detail_tags IN :detailTags GROUP BY ar.article_id ORDER BY COUNT(ua.user_article_id) DESC", nativeQuery = true)
-    //@Query(value = "SELECT ar FROM Article ar LEFT JOIN FETCH ar.userArticles ua WHERE ar.articleField = 'PORTFOLIO' AND ar.detailTags IN :detailTags GROUP BY ar ORDER BY COUNT(ua) DESC")
-    Page<Article> findPortfoliosByDetailTagsOrderByLikesDesc(@Param("detailTags") String[] detailTag, Pageable pageable);
+    @Query(value = "SELECT ar.* " +
+            "FROM article ar " +
+            "LEFT JOIN detail_tags dt ON ar.article_id = dt.article_id " +
+            "LEFT JOIN article_like h ON ar.article_id = h.article_id " +
+            "WHERE ar.article_type = 'PORTFOLIO' AND dt.detail_tags IN :detailTags " +
+            "GROUP BY ar.article_id " +
+            "ORDER BY COUNT(h.article_id) DESC",
+            countQuery = "SELECT COUNT(DISTINCT ar.article_id) " +
+                    "FROM article ar " +
+                    "LEFT JOIN detail_tags dt ON ar.article_id = dt.article_id " +
+                    "LEFT JOIN article_like h ON ar.article_id = h.article_id " +
+                    "WHERE ar.article_type = 'PORTFOLIO' AND dt.detail_tags IN :detailTags",
+            nativeQuery = true)
+    Page<Article> findPortfoliosByDetailTagsOrderByLikesDesc(@Param("detailTags") String[] detailTags, Pageable pageable);
 
-    @Query(value = "SELECT * FROM article ar WHERE ar.article_field = 'PORTFOLIO' AND ar.detail_tags IN :detailTags ORDER BY ar.view_count DESC", nativeQuery = true)
-//    @Query(value = "SELECT ar FROM Article ar WHERE ar.articleField = 'PORTFOLIO' " +
-//            "AND ar.detailTags IN :detailTags ORDER BY ar.viewCount DESC")
-    Page<Article> findPortfoliosByDetailTagsInOrderByViewCountDesc(@Param("detailTags") String[] detailTag, Pageable pageable);
+    @Query(value = "SELECT a.* FROM article a INNER JOIN detail_tags dt ON a.article_id = dt.article_id WHERE a.article_type = 'PORTFOLIO' AND dt.detail_tags IN :detailTags ORDER BY a.view_count DESC",
+            countQuery = "SELECT count(*) FROM article a INNER JOIN detail_tags dt ON a.article_id = dt.article_id WHERE a.article_type = 'PORTFOLIO' AND dt.detail_tags IN :detailTags",
+            nativeQuery = true)
+    Page<Article> findPortfoliosByDetailTagsInOrderByViewCountDesc(@Param("detailTags") String[] detailTags, Pageable pageable);
 
-    @Query("SELECT ar FROM Article ar WHERE ar.articleField = 'PORTFOLIO' ORDER BY RANDOM()")
+    @Query("SELECT ar FROM Article ar WHERE ar.articleType = 'PORTFOLIO' ORDER BY RAND()")
     List<Article> findRandomPortfolios();
 
-    @Query("SELECT ar FROM Article ar WHERE ar.articleField = 'PORTFOLIO'")
+    @Query("SELECT ar FROM Article ar WHERE ar.articleType = 'PORTFOLIO'")
     List<Article> findPortfolios();
 }
