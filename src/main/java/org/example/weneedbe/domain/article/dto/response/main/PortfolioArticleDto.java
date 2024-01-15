@@ -7,12 +7,12 @@ import lombok.Getter;
 @Getter
 @Builder
 @AllArgsConstructor
-public class ArticleDto {
+public class PortfolioArticleDto {
     private Long articleId;
     private String thumbnail;
     private String writerNickname;
     private int viewCount;
     private int heartCount;
-    private Boolean isBookmarked;
+    private boolean isBookmarked;
 
 }
