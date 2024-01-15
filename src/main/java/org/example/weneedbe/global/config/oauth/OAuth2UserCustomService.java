@@ -31,7 +31,8 @@ public class OAuth2UserCustomService extends DefaultOAuth2UserService {
                 .map(entity -> entity.update(nickname))
                 .orElse(User.builder()
                         .email(email)
-                        .nickname(nickname).build());
+                        .nickname(nickname)
+                        .hasRegistered(false).build());
         return userRepository.save(user);
     }
 }
