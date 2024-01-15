@@ -1,7 +1,6 @@
 package org.example.weneedbe.domain.article.application;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.example.weneedbe.domain.article.domain.Article;
 import org.example.weneedbe.domain.article.dto.response.main.*;
 import org.example.weneedbe.domain.article.exception.InvalidSortException;
@@ -23,7 +22,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class MainService {
     private final UserRepository userRepository;
     private final ArticleRepository articleRepository;
@@ -119,7 +117,6 @@ public class MainService {
         double viewCountWeight = 0.5 * article.getViewCount();
         double likeCountWeight = 1.0 * articleLikeRepository.countByArticle(article);
         double bookmarkCountWeight = 0.7 * bookmarkRepository.countByArticle(article);
-        log.info("?");
         return viewCountWeight + likeCountWeight + bookmarkCountWeight;
     }
 
