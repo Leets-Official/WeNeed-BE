@@ -2,6 +2,7 @@ package org.example.weneedbe.domain.article.application;
 
 import lombok.RequiredArgsConstructor;
 import org.example.weneedbe.domain.article.domain.Article;
+import org.example.weneedbe.domain.article.domain.ContentData;
 import org.example.weneedbe.domain.article.dto.response.main.*;
 import org.example.weneedbe.domain.article.exception.InvalidSortException;
 import org.example.weneedbe.domain.article.repository.ArticleLikeRepository;
@@ -31,13 +32,13 @@ public class MainService {
     private final static String SORT_BY_HEARTS = "HEART";
     private final static String SORT_BY_VIEWS = "VIEW";
 
-    public MainPortfolioDto getMainArticleList(int size, int page, String sort, String[] detailTags) {
+    public MainPortfolioDto getPortfolioArticleList(int size, int page, String sort, String[] detailTags) {
         User mockUser = userRepository.findById(1L).orElseThrow(UserNotFoundException::new);
 
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Article> articlesPage = getSortedArticlesPage(sort, detailTags, pageable);
         PageableDto pageableDto = new PageableDto(size, page, articlesPage.getTotalPages(), articlesPage.getTotalElements());
-        List<ArticleDto> articleList = convertToArticleDtoList(articlesPage.getContent(), mockUser);
+        List<PortfolioArticleDto> articleList = convertToArticleDtoList(articlesPage.getContent(), mockUser);
 
         List<RecommendArticleDto> recommendArticleList = getRecommendArticleList(mockUser);
         List<HotArticleDto> hotArticleList = getHotArticleList();
@@ -58,11 +59,11 @@ public class MainService {
         }
     }
 
-    private ArticleDto convertToArticleDto(Article article, User user) {
+    private PortfolioArticleDto convertToArticleDto(Article article, User user) {
         boolean isBookmarked = user != null && user.getBookmarks().contains(article);
         int heartCount = articleLikeRepository.countByArticle(article);
 
-        return ArticleDto.builder()
+        return PortfolioArticleDto.builder()
                 .articleId(article.getArticleId())
                 .thumbnail(article.getThumbnail())
                 .writerNickname(article.getUser().getNickname())
@@ -90,13 +91,13 @@ public class MainService {
                 .build();
     }
 
-    private List<ArticleDto> convertToArticleDtoList(List<Article> articles, User user) {
+    private List<PortfolioArticleDto> convertToArticleDtoList(List<Article> articles, User user) {
         return articles.stream()
                 .map(article -> convertToArticleDto(article, user))
                 .collect(Collectors.toList());
     }
 
-    public List<HotArticleDto> getHotArticleList() {
+    private List<HotArticleDto> getHotArticleList() {
         List<Article> articles = articleRepository.findPortfolios();
         List<WeightedArticleDto> weightedArticles = new ArrayList<>();
 
@@ -127,5 +128,49 @@ public class MainService {
                 .thumbnail(article.getThumbnail())
                 .title(article.getTitle())
                 .build();
+    }
+
+    public MainRecruitDto getRecruitArticleList(int size, int page, String[] detailTags){
+        User mockUser = userRepository.findById(1L).orElseThrow(UserNotFoundException::new);
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Article> recruitingPage = articleRepository.findRecruitingByDetailTagsInOrderByCreatedAtDesc(detailTags, pageable);
+        PageableDto pageableDto = new PageableDto(size, page, recruitingPage.getTotalPages(), recruitingPage.getTotalElements());
+
+        List<RecruitArticleDto> recruitList = convertToRecruitArticleDtoList(recruitingPage.getContent());
+
+        return new MainRecruitDto(new MainUserDto(mockUser.getNickname()),pageableDto,recruitList);
+    }
+    private List<RecruitArticleDto> convertToRecruitArticleDtoList(List<Article> articles){
+        return articles.stream()
+                .map(article -> convertToRecruitArticleDto(article))
+                .collect(Collectors.toList());
+    }
+
+    private RecruitArticleDto convertToRecruitArticleDto(Article article){
+        int heartCount = articleLikeRepository.countByArticle(article);
+        int bookmarkCount = bookmarkRepository.countByArticle(article);
+        String contentByListContent = getContentByListContent(article.getContent());
+        return RecruitArticleDto.builder()
+                .articleId(article.getArticleId())
+                .nickname(article.getUser().getNickname())
+                .grade(article.getUser().getGrade())
+                .major(article.getUser().getMajor())
+                .thumbnail(article.getThumbnail())
+                .title(article.getTitle())
+                .content(contentByListContent)
+                .createdAt(article.getCreatedAt())
+                .viewCount(article.getViewCount())
+                .bookmarkCount(bookmarkCount)
+                .commentCount(article.getCommentList().size())
+                .heartCount(heartCount).build();
+    }
+    private String getContentByListContent(List<ContentData> contentData){
+        StringBuilder allContent = new StringBuilder();
+        for(ContentData data : contentData){
+            if("textData".equals(data.getType())){
+                allContent.append(data.getTextData());
+            }
+        }
+        return allContent.toString();
     }
 }
