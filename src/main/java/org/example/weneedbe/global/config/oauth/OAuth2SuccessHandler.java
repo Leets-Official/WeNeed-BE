@@ -13,7 +13,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -21,7 +20,6 @@ import java.time.Duration;
 @RequiredArgsConstructor
 @Component
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
-    public static final String REFRESH_TOKEN_COOKIE_NAME = "refresh_token";
     public static final Duration REFRESH_TOKEN_DURATION = Duration.ofDays(14);
     public static final Duration ACCESS_TOKEN_DURATION = Duration.ofDays(1);
     public static final String DEFAULT_REDIRECT_PATH = "/main";
@@ -60,9 +58,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     private String getTargetUrl(User user) {
         if (user.getHasRegistered()) {
-            return "/main";
+            return DEFAULT_REDIRECT_PATH;
         }
-        return "/users/certify";
+        return INITIAL_REDIRECT_PATH;
     }
 
     private void saveRefreshToken(Long userId, String newRefreshToken) {
