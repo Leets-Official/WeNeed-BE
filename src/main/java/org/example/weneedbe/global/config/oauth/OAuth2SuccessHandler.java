@@ -24,7 +24,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     public static final String REFRESH_TOKEN_COOKIE_NAME = "refresh_token";
     public static final Duration REFRESH_TOKEN_DURATION = Duration.ofDays(14);
     public static final Duration ACCESS_TOKEN_DURATION = Duration.ofDays(1);
-    public static final String REDIRECT_PATH = "users/certify";
+    public static final String DEFAULT_REDIRECT_PATH = "/main";
+    public static final String INITIAL_REDIRECT_PATH = "users/certify";
 
     private final TokenProvider tokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
@@ -40,12 +41,28 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         String refreshToken = tokenProvider.generateToken(user, REFRESH_TOKEN_DURATION);
         saveRefreshToken(user.getUserId(), refreshToken);
-        addRefreshTokenToCookie(request, response, refreshToken);
+        addTokenToCookie(request, response, refreshToken, "refresh_token", REFRESH_TOKEN_DURATION);
 
         String accessToken = tokenProvider.generateToken(user, ACCESS_TOKEN_DURATION);
-        String targetUrl = getTargetUrl(accessToken, user);
+        addTokenToCookie(request, response, accessToken, "access_token", ACCESS_TOKEN_DURATION);
+
+        String targetUrl = getTargetUrl(user);
         clearAuthenticationAttributes(request, response);
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
+    }
+
+    private void addTokenToCookie(HttpServletRequest request, HttpServletResponse response, String token, String cookieName, Duration duration) {
+        int cookieMaxAge = (int) duration.toSeconds();
+
+        CookieUtil.deleteCookie(request, response, cookieName);
+        CookieUtil.addCookie(response, cookieName, token, cookieMaxAge);
+    }
+
+    private String getTargetUrl(User user) {
+        if (user.getHasRegistered()) {
+            return "/main";
+        }
+        return "/users/certify";
     }
 
     private void saveRefreshToken(Long userId, String newRefreshToken) {
@@ -56,32 +73,10 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         refreshTokenRepository.save(refreshToken);
     }
 
-    // 생성된 리프레시 토큰을 쿠키에 저장
-    private void addRefreshTokenToCookie(HttpServletRequest request, HttpServletResponse response, String refreshToken) {
-        int cookieMaxAge = (int) REFRESH_TOKEN_DURATION.toSeconds();
-
-        CookieUtil.deleteCookie(request, response, REFRESH_TOKEN_COOKIE_NAME);
-        CookieUtil.addCookie(response, REFRESH_TOKEN_COOKIE_NAME, refreshToken, cookieMaxAge);
-    }
-
     // 인증 관련 설정값, 쿠키 제거
     private void clearAuthenticationAttributes(HttpServletRequest request, HttpServletResponse response) {
         super.clearAuthenticationAttributes(request);
         authorizationRequestBasedOnCookieRepository
                 .removeAuthorizationRequestCookies(request, response);
-    }
-
-    // 액세스 토큰을 패스에 추가
-    private String getTargetUrl(String token, User user) {
-        if (user.getHasRegistered()) {
-            return UriComponentsBuilder.fromUriString("/main")
-                    .queryParam("token", token)
-                    .build()
-                    .toUriString();
-        }
-        return UriComponentsBuilder.fromUriString(REDIRECT_PATH)
-                .queryParam("token", token)
-                .build()
-                .toUriString();
     }
 }
