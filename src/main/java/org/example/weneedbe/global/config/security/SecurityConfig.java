@@ -13,7 +13,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
@@ -60,7 +59,7 @@ public class SecurityConfig {
                       UsernamePasswordAuthenticationFilter.class)
 
               .oauth2Login(oauth2Login ->
-                      oauth2Login.loginPage("/login")
+                      oauth2Login
                               .authorizationEndpoint(authorization -> authorization
                                       .authorizationRequestRepository(oAuth2AuthorizationRequestBasedOnCookieRepository()))
                               .successHandler(oAuth2SuccessHandler())
