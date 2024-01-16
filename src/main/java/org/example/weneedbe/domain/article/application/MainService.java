@@ -38,7 +38,7 @@ public class MainService {
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Article> articlesPage = getSortedArticlesPage(sort, detailTags, pageable);
         PageableDto pageableDto = new PageableDto(size, page, articlesPage.getTotalPages(), articlesPage.getTotalElements());
-        List<PortfolioArticleDto> articleList = convertToArticleDtoList(articlesPage.getContent(), mockUser);
+        List<PortfolioArticleDto> articleList = convertToPortfolioArticleDtoList(articlesPage.getContent(), mockUser);
 
         List<RecommendArticleDto> recommendArticleList = getRecommendArticleList(mockUser);
         List<HotArticleDto> hotArticleList = getHotArticleList();
@@ -91,7 +91,7 @@ public class MainService {
                 .build();
     }
 
-    private List<PortfolioArticleDto> convertToArticleDtoList(List<Article> articles, User user) {
+    private List<PortfolioArticleDto> convertToPortfolioArticleDtoList(List<Article> articles, User user) {
         return articles.stream()
                 .map(article -> convertToArticleDto(article, user))
                 .collect(Collectors.toList());
