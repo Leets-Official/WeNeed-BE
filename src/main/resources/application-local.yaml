@@ -21,7 +21,7 @@ spring:
           google:
             client-id: ENC(AP1O1srqv0Kq7nLQaEp8xZHKRwPcy9EqHnCyFzYIGVWadI0zLKszdU4GLji8/GWMSf8n0EKg5qZyWbHDzQ8T2WD/05l09vhXAVI0MTokGs7Vq4LJlSUGyw==)
             client-secret: ENC(ptIkZSfqr7Fby7HyyYFv1w9VD7zeO4F9KShBxbLDSo1A7V/VsPnf+ibrFMvUr9dw)
-            redirect-uri: http://localhost:3000/api/auth/callback/google
+            redirect-uri: http://localhost:8080/api/auth/callback/google
             scope:
               - email
 

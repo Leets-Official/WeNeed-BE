@@ -1,13 +1,8 @@
 package org.example.weneedbe.global.config.security;
 
 import lombok.RequiredArgsConstructor;
-import org.example.weneedbe.domain.token.repository.RefreshTokenRepository;
-import org.example.weneedbe.domain.user.service.UserService;
 import org.example.weneedbe.global.config.jwt.TokenAuthenticationFilter;
 import org.example.weneedbe.global.config.jwt.TokenProvider;
-import org.example.weneedbe.global.config.oauth.OAuth2AuthorizationRequestBasedOnCookieRepository;
-import org.example.weneedbe.global.config.oauth.OAuth2SuccessHandler;
-import org.example.weneedbe.global.config.oauth.OAuth2UserCustomService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -29,9 +24,7 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final TokenProvider tokenProvider;
-    private final OAuth2UserCustomService oAuth2UserCustomService;
-    private final RefreshTokenRepository refreshTokenRepository;
-    private final UserService userService;
+
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -58,37 +51,16 @@ public class SecurityConfig {
               .addFilterBefore(new TokenAuthenticationFilter(tokenProvider),
                       UsernamePasswordAuthenticationFilter.class)
 
-              .oauth2Login(oauth2Login ->
-                      oauth2Login
-                              .authorizationEndpoint(authorization -> authorization
-                                      .authorizationRequestRepository(oAuth2AuthorizationRequestBasedOnCookieRepository()))
-                              .successHandler(oAuth2SuccessHandler())
-                              .userInfoEndpoint(userInfoEndpoint -> userInfoEndpoint
-                                      .userService(oAuth2UserCustomService))
-              )
-
-              .logout(logout -> logout
-                      .logoutSuccessUrl("/login"))
               .exceptionHandling(exceptionHandling -> exceptionHandling
                       .defaultAuthenticationEntryPointFor(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
                               new AntPathRequestMatcher("/api/**")));
     return http.build();
   }
 
-  @Bean
-  public OAuth2SuccessHandler oAuth2SuccessHandler() {
-      return new OAuth2SuccessHandler(tokenProvider, refreshTokenRepository,
-              oAuth2AuthorizationRequestBasedOnCookieRepository(), userService);
-  }
 
   @Bean
   public TokenAuthenticationFilter tokenAuthenticationFilter() {
       return new TokenAuthenticationFilter(tokenProvider);
-  }
-
-  @Bean
-  public OAuth2AuthorizationRequestBasedOnCookieRepository oAuth2AuthorizationRequestBasedOnCookieRepository() {
-      return new OAuth2AuthorizationRequestBasedOnCookieRepository();
   }
 
   @Bean
