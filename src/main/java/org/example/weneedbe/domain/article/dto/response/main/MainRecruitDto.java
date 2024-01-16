@@ -7,10 +7,8 @@ import java.util.List;
 
 @Getter
 @AllArgsConstructor
-public class MainPortfolioDto {
+public class MainRecruitDto {
     private MainUserDto user;
     private PageableDto pageable;
-    private List<HotArticleDto> hotArticleList;
-    private List<PortfolioArticleDto> articleList;
-    private List<RecommendArticleDto> recommendArticleList;
+    private List<RecruitArticleDto> recruitList;
 }
