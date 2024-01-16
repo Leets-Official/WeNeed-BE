@@ -167,10 +167,10 @@ public class MainService {
     private String getContentByListContent(List<ContentData> contentData){
         StringBuilder allContent = new StringBuilder();
         for(ContentData data : contentData){
-            if("textData".equals(data.getType())){
-                allContent.append(data.getTextData());
+            if("text".equals(data.getType())){
+                allContent.append(data.getTextData()).append(" ");
             }
         }
-        return allContent.toString();
+        return allContent.toString().trim();
     }
 }
