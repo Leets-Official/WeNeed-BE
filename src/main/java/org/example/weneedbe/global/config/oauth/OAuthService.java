@@ -1,30 +1,31 @@
 package org.example.weneedbe.global.config.oauth;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
+import org.example.weneedbe.domain.user.domain.User;
+import org.example.weneedbe.domain.user.repository.UserRepository;
+import org.example.weneedbe.global.config.jwt.exception.InvalidTokenException;
 import org.example.weneedbe.global.config.oauth.dto.OAuthToken;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 
 @Service
 public class OAuthService {
-    private final ObjectMapper objectMapper;
-    private final RestTemplate restTemplate;
-
-    public OAuthService(RestTemplate restTemplate) {
-        this.objectMapper = new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
-        this.restTemplate = restTemplate;
-    }
+    private final UserRepository userRepository;
 
     private final static String TOKEN_BASE_URI = "https://oauth2.googleapis.com/token";
 
@@ -37,57 +38,55 @@ public class OAuthService {
     @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
     private String REDIRECT_URI;
 
-    public ResponseEntity<String> createPostRequest(String code) {
-
-        MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
-        params.add("code", code);
-        params.add("client_id", CLIENT_ID);
-        params.add("client_secret", CLIENT_SECRET);
-        params.add("redirect_uri", REDIRECT_URI);
-        params.add("grant_type", "authorization_code");
-        params.add("access_type", "offline");
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "application/x-www-form-urlencoded");
-
-        ResponseEntity<String> responseEntity =
-                restTemplate.postForEntity(TOKEN_BASE_URI, params, String.class);
-
-        return restTemplate.exchange(TOKEN_BASE_URI, HttpMethod.POST, responseEntity, String.class);
+    public OAuthService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
-    public OAuthToken getAccessToken(ResponseEntity<String> response) {
-        OAuthToken oAuthToken = null;
-        try {
-            oAuthToken = objectMapper.readValue(response.getBody(), OAuthToken.class);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
+    public User getGoogleToken(String code) throws GeneralSecurityException, IOException {
+
+        RestTemplate restTemplate = new RestTemplate();
+        Map<String, String> params = new HashMap<>();
+
+        params.put("code", code);
+        params.put("client_id", CLIENT_ID);
+        params.put("client_secret", CLIENT_SECRET);
+        params.put("redirect_uri", REDIRECT_URI);
+        params.put("grant_type", "authorization_code");
+
+        ResponseEntity<OAuthToken> responseEntity = restTemplate.postForEntity(TOKEN_BASE_URI, params, OAuthToken.class);
+        if (responseEntity.getStatusCode() != HttpStatus.OK || responseEntity.getBody() == null) {
+            throw new IllegalArgumentException();
         }
-        return oAuthToken;
+
+        String idToken = responseEntity.getBody().getId_token();
+        return getUser(idToken);
     }
 
-    public ResponseEntity<String> createGetRequest(OAuthToken oAuthToken) {
-        String url = "https://www.googleapis.com/oauth2/v2/userinfo";
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + oAuthToken.getAccessToken());
+    public User getUser(String idToken) throws GeneralSecurityException, IOException {
 
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(headers);
+        final GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), GsonFactory.getDefaultInstance())
+                .setAudience(Collections.singletonList(CLIENT_ID))
+                .build();
 
-        return restTemplate.exchange(url, HttpMethod.GET, request, String.class);
-    }
-
-    public String getUserEmail(ResponseEntity<String> userInfoResponse) {
-        String email = "";
-        try {
-            JsonNode jsonNode = objectMapper.readTree(userInfoResponse.getBody());
-            if (jsonNode.has("email")) {
-                email = jsonNode.get("email").asText();
-            }
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
+        GoogleIdToken googleIdToken = verifier.verify(idToken);
+        if (idToken == null) {
+            throw new InvalidTokenException();
         }
-        return email;
-    }
 
+        Payload payload = googleIdToken.getPayload();
+
+        Optional<User> byEmail = userRepository.findByEmail(payload.getEmail());
+
+        if (byEmail.isPresent()) {
+            return byEmail.get();
+        }
+
+        User user = User.builder()
+                .email(payload.getEmail())
+                .hasRegistered(false)
+                .build();
+
+        return userRepository.save(user);
+    }
 }
