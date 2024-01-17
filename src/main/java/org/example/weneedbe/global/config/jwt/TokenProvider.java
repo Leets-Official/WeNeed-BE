@@ -2,10 +2,13 @@ package org.example.weneedbe.global.config.jwt;
 
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
+import org.example.weneedbe.domain.token.domain.RefreshToken;
+import org.example.weneedbe.domain.token.repository.RefreshTokenRepository;
 import org.example.weneedbe.domain.user.domain.User;
 import org.example.weneedbe.global.config.jwt.exception.ExpiredTokenException;
 import org.example.weneedbe.global.config.jwt.exception.InvalidInputValueException;
 import org.example.weneedbe.global.config.jwt.exception.InvalidTokenException;
+import org.example.weneedbe.global.config.jwt.service.RefreshTokenService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -14,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Optional;
 import java.util.Set;
 
 @RequiredArgsConstructor
@@ -23,6 +27,8 @@ public class TokenProvider {
     public static final Duration ACCESS_TOKEN_DURATION = Duration.ofDays(1);
 
     private final JwtProperties jwtProperties;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final RefreshTokenService refreshTokenService;
 
     public String generateAccessToken(User user) {
         Date now = new Date();
@@ -31,7 +37,13 @@ public class TokenProvider {
 
     public String generateRefreshToken(User user) {
         Date now = new Date();
-        return makeToken(new Date(now.getTime() + REFRESH_TOKEN_DURATION.toMillis()), user);
+
+        String newRefreshToken = makeToken(new Date(now.getTime() + REFRESH_TOKEN_DURATION.toMillis()), user);
+        Optional<RefreshToken> refreshToken = refreshTokenRepository.findByUserId(user.getUserId());
+        if (refreshToken.isEmpty()) {
+            refreshTokenService.saveRefreshToken(user.getUserId(), newRefreshToken);
+        }
+        return newRefreshToken;
     }
 
     private String makeToken(Date expiry, User user) {
