@@ -1,26 +1,17 @@
 package org.example.weneedbe.global.config.oauth.dto;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @Getter
 public class OAuthToken {
-
-    private String accessToken;
-    private String expiresIn;
-    private String idToken;
-    private String refreshToken;
+    private String access_token;
+    private String expires_in;
     private String scope;
-    private String tokenType;
-
-    public OAuthToken() {
-    }
-
-    public OAuthToken(String accessToken, String expiresIn, String idToken, String refreshToken, String scope, String tokenType) {
-        this.accessToken = accessToken;
-        this.expiresIn = expiresIn;
-        this.idToken = idToken;
-        this.refreshToken = refreshToken;
-        this.scope = scope;
-        this.tokenType = tokenType;
-    }
+    private String token_type;
+    private String id_token;
 }
