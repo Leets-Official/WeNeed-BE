@@ -1,34 +1,29 @@
 package org.example.weneedbe.global.config.oauth.api;
 
-import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.weneedbe.domain.user.service.UserService;
-import org.example.weneedbe.global.config.oauth.dto.LoginRequest;
+import org.example.weneedbe.domain.user.domain.User;
+import org.example.weneedbe.global.config.jwt.TokenProvider;
+import org.example.weneedbe.global.config.oauth.OAuthService;
 import org.example.weneedbe.global.config.oauth.dto.LoginResponse;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 
 @RestController
 @RequiredArgsConstructor
 @Slf4j
 public class OAuthController {
-    private final UserService userService;
+    private final TokenProvider tokenProvider;
+    private final OAuthService oAuthService;
 
-    @PostMapping(value = "/user/login")
-    public ResponseEntity<LoginResponse> oauthLogin(
-            @RequestBody @Valid LoginRequest loginRequest) {
+    @GetMapping("/api/auth/callback/google")
+    public LoginResponse get(@RequestParam("code") String code) throws GeneralSecurityException, IOException {
+        User user = oAuthService.getGoogleToken(code);
+        String accessToken = this.tokenProvider.generateAccessToken(user);
+        String refreshToken = this.tokenProvider.generateRefreshToken(user);
 
-        String code = loginRequest.getAuthorizationCode();
-        String decode = URLDecoder.decode(code, StandardCharsets.UTF_8);
-        String accessToken = userService.googleOauthLogin(decode);
-        return ResponseEntity.created(URI.create("/user/login"))
-                .body(new LoginResponse(accessToken, "bearer"));
+        return new LoginResponse(accessToken, refreshToken);
     }
 }
