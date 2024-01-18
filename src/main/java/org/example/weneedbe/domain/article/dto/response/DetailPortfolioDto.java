@@ -60,7 +60,7 @@ public class DetailPortfolioDto {
             this.bookmarkCount = bookmarkCount;
             this.skills = article.getDetailSkills();
             this.links = article.getArticleLinks();
-            this.tags = new ArrayList<>(article.getDetailTags());
+            this.tags = article.getDetailTags();
             this.files = article.getFiles().stream()
                     .map(File::getFileUrl)
                     .collect(Collectors.toList());
