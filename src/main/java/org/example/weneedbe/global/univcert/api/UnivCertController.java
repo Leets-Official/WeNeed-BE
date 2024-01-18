@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.example.weneedbe.global.error.ErrorResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,10 +22,11 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/api/v1")
 @Transactional
+@Slf4j
 public class UnivCertController {
     private final static String UNIV_NAME = "가천대학교";
     @Value("${univcertKey}")
-    String apiKey;
+    private String apiKey;
     private String email;
 
     @Operation(summary = "학교 메일 조회", description = "입력한 이메일이 가천대학교 소속 이메일인지 확인합니다.")
@@ -37,7 +39,7 @@ public class UnivCertController {
     @PostMapping("/certify")
     public void checkMailWithUniv(@RequestParam String email) throws IOException {
         this.email = email;
-        System.out.println(this.email);
+        log.info("\nemail:{}", this.email);
         UnivCert.certify(apiKey, email, UNIV_NAME, true);
     }
 
