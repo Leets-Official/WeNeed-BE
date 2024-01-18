@@ -11,16 +11,12 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.example.weneedbe.domain.article.application.ArticleService;
 import org.example.weneedbe.domain.article.dto.request.AddArticleRequest;
+import org.example.weneedbe.domain.article.dto.response.DetailPortfolioDto;
 import org.example.weneedbe.domain.article.dto.response.MemberInfoResponse;
 import org.example.weneedbe.global.error.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "Article Controller", description = "게시물 관련 API입니다.")
@@ -99,5 +95,17 @@ public class ArticleController {
   public ResponseEntity<Void> bookmarkArticle(@PathVariable Long articleId) {
     articleService.bookmarkArticle(articleId);
     return ResponseEntity.ok().build();
+  }
+
+  @Operation(summary = "포트폴리오 게시물 조회", description = "포트폴리오부분에서 해당 게시물을 상세조회합니다.")
+  @ApiResponses({
+          @ApiResponse(responseCode = "200"),
+          @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+          @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+          @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+  })
+  @GetMapping("/portfolio/{articleId}")
+  public ResponseEntity<DetailPortfolioDto> detailPortfolio(@PathVariable Long articleId){
+    return ResponseEntity.ok(articleService.getDetailPortfolio(articleId));
   }
 }
