@@ -20,6 +20,7 @@ import org.example.weneedbe.domain.user.domain.User;
 import org.example.weneedbe.domain.user.domain.UserArticle;
 import org.example.weneedbe.domain.user.exception.UserNotFoundException;
 import org.example.weneedbe.domain.user.repository.UserRepository;
+import org.example.weneedbe.global.config.jwt.TokenProvider;
 import org.example.weneedbe.global.s3.application.S3Service;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,6 +34,7 @@ public class ArticleService {
     private final S3Service s3Service;
     private final ArticleLikeRepository articleLikeRepository;
     private final BookmarkRepository bookmarkRepository;
+    private final TokenProvider tokenProvider;
 
     public void createPortfolio(MultipartFile thumbnail, List<MultipartFile> images,
                                 List<MultipartFile> files, AddArticleRequest request) throws IOException {
@@ -117,9 +119,9 @@ public class ArticleService {
         }
     }
 
-    public DetailPortfolioDto getDetailPortfolio(Long articleId) {
-        /* 토큰을 통한 user 객체를 불러옴 -> 현재 임시 객체*/
-        User mockUser = userRepository.findById(1L).orElseThrow(UserNotFoundException::new);
+    public DetailPortfolioDto getDetailPortfolio(String authorizationHeader, Long articleId) {
+        Long userId = getUserIdFromAuthorizationHeader(authorizationHeader);
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         Article article = articleRepository.findById(articleId).orElseThrow(ArticleNotFoundException::new);
 
         article.plusViewCount(article.getViewCount() + 1);
@@ -128,8 +130,14 @@ public class ArticleService {
         int heartCount = articleLikeRepository.countByArticle(article);
         int bookmarkCount = bookmarkRepository.countByArticle(article);
 
-        List<Article> portfolioArticlesByUserId = articleRepository.findPortfolioArticlesByUserId(mockUser.getUserId());
+        List<Article> portfolioArticlesByUserId = articleRepository.findPortfolioArticlesByUserId(user.getUserId());
 
-        return new DetailPortfolioDto(article, mockUser, heartCount, bookmarkCount, portfolioArticlesByUserId);
+        return new DetailPortfolioDto(article, user, heartCount, bookmarkCount, portfolioArticlesByUserId);
+    }
+
+    private Long getUserIdFromAuthorizationHeader(String authorizationHeader) {
+        String token = tokenProvider.getTokenFromAuthorizationHeader(authorizationHeader);
+        Long userIdFromToken = tokenProvider.getUserIdFromToken(token);
+        return userIdFromToken;
     }
 }
