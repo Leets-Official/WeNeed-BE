@@ -41,6 +41,10 @@ dependencies {
 	implementation 'com.github.in-seo:univcert:master-SNAPSHOT'
 }
 
+jar {
+	enabled = false
+}
+
 tasks.named('test') {
 	useJUnitPlatform()
 	systemProperty "jasypt.encryptor.password", project.getProperties().get("jasypt.encryptor.password")
