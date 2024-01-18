@@ -18,7 +18,6 @@ import org.example.weneedbe.domain.user.domain.Fields;
 import org.example.weneedbe.domain.user.domain.User;
 import org.example.weneedbe.domain.user.domain.UserArticle;
 import org.example.weneedbe.global.shared.entity.BaseTimeEntity;
-import org.hibernate.annotations.Where;
 
 @Entity
 @Data
