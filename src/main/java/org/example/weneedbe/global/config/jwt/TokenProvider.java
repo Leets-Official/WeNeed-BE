@@ -2,9 +2,13 @@ package org.example.weneedbe.global.config.jwt;
 
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
+import org.example.weneedbe.domain.token.domain.RefreshToken;
+import org.example.weneedbe.domain.token.repository.RefreshTokenRepository;
 import org.example.weneedbe.domain.user.domain.User;
 import org.example.weneedbe.global.config.jwt.exception.ExpiredTokenException;
+import org.example.weneedbe.global.config.jwt.exception.InvalidInputValueException;
 import org.example.weneedbe.global.config.jwt.exception.InvalidTokenException;
+import org.example.weneedbe.global.config.jwt.service.RefreshTokenService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -13,27 +17,35 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Optional;
 import java.util.Set;
 
 @RequiredArgsConstructor
 @Service
 public class TokenProvider {
-    private final JwtProperties jwtProperties;
+    public static final Duration REFRESH_TOKEN_DURATION = Duration.ofDays(14);
+    public static final Duration ACCESS_TOKEN_DURATION = Duration.ofDays(1);
 
-    public String generateToken(User user, Duration expiredAt) {
-        Date now = new Date();
-        return makeToken(new Date(now.getTime() + expiredAt.toMillis()), user);
+    private final JwtProperties jwtProperties;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final RefreshTokenService refreshTokenService;
+
+    public String generateAccessToken(User user) {
+        return makeToken(ACCESS_TOKEN_DURATION, user);
     }
 
     public String generateRefreshToken(User user) {
-        Date now = new Date();
-        Duration expiredAt = Duration.ofDays(7);
-        return makeToken(new Date(now.getTime() + expiredAt.toMillis()), user);
+        String newRefreshToken = makeToken(REFRESH_TOKEN_DURATION, user);
+        Optional<RefreshToken> refreshToken = refreshTokenRepository.findByUserId(user.getUserId());
+        if (refreshToken.isEmpty()) {
+            refreshTokenService.saveRefreshToken(user.getUserId(), newRefreshToken);
+        }
+        return newRefreshToken;
     }
 
-    // 토큰을 생성한다
-    private String makeToken(Date expiry, User user) {
+    private String makeToken(Duration duration, User user) {
         Date now = new Date();
+        Date expiry = new Date(now.getTime() + duration.toMillis());
 
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
@@ -73,7 +85,7 @@ public class TokenProvider {
     }
 
     // 토큰 기반으로 유저 ID를 가져온다
-    public Long getUserId(String token) {
+    public Long getUserIdFromToken(String token) {
         Claims claims = getClaims(token);
         return claims.get("id", Long.class);
     }
@@ -83,5 +95,12 @@ public class TokenProvider {
                 .setSigningKey(jwtProperties.getSecretKey())
                 .parseClaimsJws(token)
                 .getBody();
+    }
+
+    public String getTokenFromAuthorizationHeader(String authorizationHeader){
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new InvalidInputValueException();
+        }
+        return authorizationHeader.substring(7);
     }
 }

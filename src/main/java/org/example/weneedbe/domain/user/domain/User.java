@@ -68,4 +68,9 @@ public class User extends BaseTimeEntity {
     @OneToMany(mappedBy = "user")
     private List<Bookmark> bookmarks = new ArrayList<>();
 
+    public User update(String nickname) {
+        this.nickname = nickname;
+
+        return this;
+    }
 }
