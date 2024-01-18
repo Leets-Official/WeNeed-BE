@@ -119,4 +119,8 @@ public class Article extends BaseTimeEntity {
 
         return article;
     }
+
+    public void plusViewCount(int view){
+        this.viewCount = view;
+    }
 }

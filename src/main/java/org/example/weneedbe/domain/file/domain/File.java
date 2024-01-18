@@ -28,4 +28,8 @@ public class File {
         this.fileUrl = fileUrl;
         this.article = article;
     }
+
+    public String getFileUrl() {
+        return this.fileUrl;
+    }
 }

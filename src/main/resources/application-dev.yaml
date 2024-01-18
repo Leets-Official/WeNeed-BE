@@ -19,6 +19,17 @@ spring:
       max-file-size: 20MB # 파일 하나당 크기
       max-request-size: 20MB # 전송하려는 총 파일 크기
 
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ENC(AP1O1srqv0Kq7nLQaEp8xZHKRwPcy9EqHnCyFzYIGVWadI0zLKszdU4GLji8/GWMSf8n0EKg5qZyWbHDzQ8T2WD/05l09vhXAVI0MTokGs7Vq4LJlSUGyw==)
+            client-secret: ENC(ptIkZSfqr7Fby7HyyYFv1w9VD7zeO4F9KShBxbLDSo1A7V/VsPnf+ibrFMvUr9dw)
+            redirect-uri: http://localhost:3000/api/auth/callback/google
+            scope:
+              - email
+
 cloud:
   aws:
     credentials:
