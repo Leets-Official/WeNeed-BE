@@ -49,7 +49,6 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
             nativeQuery = true)
     Page<Article> findRecruitingByDetailTagsInOrderByCreatedAtDesc(@Param("detailTags") String[] detailTags, Pageable pageable);
 
-    @Query("SELECT ar FROM Article ar WHERE ar.user.userId = :userId AND ar.articleType = 'PORTFOLIO' ")
+    @Query("SELECT ar FROM Article ar WHERE ar.user.userId = :userId AND ar.articleType = 'PORTFOLIO'")
     List<Article> findPortfolioArticlesByUserId(@Param("userId") Long userId);
-
 }
