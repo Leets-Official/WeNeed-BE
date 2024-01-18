@@ -10,6 +10,7 @@ import org.example.weneedbe.domain.user.domain.User;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @AllArgsConstructor
@@ -46,7 +47,7 @@ public class DetailPortfolioDto {
         private List<String> skills;
         private List<String> links;
         private List<String> tags;
-        private List<File> files;
+        private List<String> files;
         private DetailWriterPortfolioDto writer;
         private List<DetailPortfolioContentDto> contents;
 
@@ -60,7 +61,9 @@ public class DetailPortfolioDto {
             this.skills = article.getDetailSkills();
             this.links = article.getArticleLinks();
             this.tags = new ArrayList<>(article.getDetailTags());
-            this.files = new ArrayList<>(article.getFiles());
+            this.files = article.getFiles().stream()
+                    .map(File::getFileUrl)
+                    .collect(Collectors.toList());
             this.writer = new DetailWriterPortfolioDto(article);
             this.contents = getPortfolioContents(article.getContent());
         }
