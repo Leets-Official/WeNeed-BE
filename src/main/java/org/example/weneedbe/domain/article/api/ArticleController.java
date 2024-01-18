@@ -107,8 +107,7 @@ public class ArticleController {
             @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/portfolio/{articleId}")
-    public ResponseEntity<DetailPortfolioDto> detailPortfolio(@PathVariable Long articleId,
-                                                              @RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity<DetailPortfolioDto> detailPortfolio(@RequestHeader("Authorization") String authorizationHeader, @PathVariable Long articleId) {
         return ResponseEntity.ok(articleService.getDetailPortfolio(authorizationHeader, articleId));
     }
 }
