@@ -31,14 +31,11 @@ public class TokenProvider {
     private final RefreshTokenService refreshTokenService;
 
     public String generateAccessToken(User user) {
-        Date now = new Date();
-        return makeToken(new Date(now.getTime() + ACCESS_TOKEN_DURATION.toMillis()), user);
+        return makeToken(ACCESS_TOKEN_DURATION, user);
     }
 
     public String generateRefreshToken(User user) {
-        Date now = new Date();
-
-        String newRefreshToken = makeToken(new Date(now.getTime() + REFRESH_TOKEN_DURATION.toMillis()), user);
+        String newRefreshToken = makeToken(REFRESH_TOKEN_DURATION, user);
         Optional<RefreshToken> refreshToken = refreshTokenRepository.findByUserId(user.getUserId());
         if (refreshToken.isEmpty()) {
             refreshTokenService.saveRefreshToken(user.getUserId(), newRefreshToken);
@@ -46,8 +43,9 @@ public class TokenProvider {
         return newRefreshToken;
     }
 
-    private String makeToken(Date expiry, User user) {
+    private String makeToken(Duration duration, User user) {
         Date now = new Date();
+        Date expiry = new Date(now.getTime() + duration.toMillis());
 
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
