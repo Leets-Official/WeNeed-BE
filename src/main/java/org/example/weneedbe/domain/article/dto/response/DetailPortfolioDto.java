@@ -3,6 +3,7 @@ package org.example.weneedbe.domain.article.dto.response;
 import lombok.*;
 import org.example.weneedbe.domain.article.domain.Article;
 import org.example.weneedbe.domain.article.domain.ContentData;
+import org.example.weneedbe.domain.file.domain.File;
 import org.example.weneedbe.domain.user.domain.Department;
 import org.example.weneedbe.domain.user.domain.User;
 
@@ -42,6 +43,10 @@ public class DetailPortfolioDto {
         private int heatCount;
         private int viewCount;
         private int bookmarkCount;
+        private List<String> skills;
+        private List<String> links;
+        private List<String> tags;
+        private List<File> files;
         private DetailWriterPortfolioDto writer;
         private List<DetailPortfolioContentDto> contents;
 
@@ -52,10 +57,13 @@ public class DetailPortfolioDto {
             this.heatCount = heatCount;
             this.viewCount = article.getViewCount();
             this.bookmarkCount = bookmarkCount;
+            this.skills = article.getDetailSkills();
+            this.links = article.getArticleLinks();
+            this.tags = new ArrayList<>(article.getDetailTags());
+            this.files = new ArrayList<>(article.getFiles());
             this.writer = new DetailWriterPortfolioDto(article);
             this.contents = getPortfolioContents(article.getContent());
         }
-
     }
 
     private List<DetailPortfolioContentDto> getPortfolioContents(List<ContentData> contents) {
