@@ -10,6 +10,10 @@ public class UserService {
 
     private final UserRepository userRepository;
 
+    public Boolean checkNicknameDuplicate(String nickName) {
+        return userRepository.existsByNickname(nickName);
+    }
+
     @Autowired
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;

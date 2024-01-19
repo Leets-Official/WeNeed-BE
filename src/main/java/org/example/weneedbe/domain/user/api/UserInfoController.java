@@ -1,8 +1,14 @@
 package org.example.weneedbe.domain.user.api;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.example.weneedbe.domain.user.service.UserService;
+import org.example.weneedbe.global.error.ErrorResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,8 +24,15 @@ import java.io.IOException;
 public class UserInfoController {
     private final UserService userService;
 
+    @Operation(summary = "닉네임 중복 여부 조회", description = "이미 존재하는 이메일이면 true, 아닐 경우 false를 반환합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @PostMapping("/checkNickname")
     public ResponseEntity<Boolean> checkNicknameDuplicate(@RequestParam String nickName) throws IOException {
-        return ResponseEntity.ok(userService.checkNicknameDuplicate);
+        return ResponseEntity.ok(userService.checkNicknameDuplicate(nickName));
     }
 }
