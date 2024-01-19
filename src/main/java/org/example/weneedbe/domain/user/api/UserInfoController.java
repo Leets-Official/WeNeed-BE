@@ -7,13 +7,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.example.weneedbe.domain.user.dto.request.UserInfoRequest;
 import org.example.weneedbe.domain.user.service.UserService;
 import org.example.weneedbe.global.error.ErrorResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
@@ -34,5 +32,17 @@ public class UserInfoController {
     @PostMapping("/checkNickname")
     public ResponseEntity<Boolean> checkNicknameDuplicate(@RequestParam String nickName) throws IOException {
         return ResponseEntity.ok(userService.checkNicknameDuplicate(nickName));
+    }
+
+    @Operation(summary = "사용자 상세 정보 입력", description = "닉네임, 학년, 본전공, 복수전공(선택), 관심분야를 입력받습니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/info")
+    public ResponseEntity<?> getUserInfo(@RequestBody UserInfoRequest request) throws IOException {
+        return ResponseEntity.ok(userService.getUserInfo(request));
     }
 }
