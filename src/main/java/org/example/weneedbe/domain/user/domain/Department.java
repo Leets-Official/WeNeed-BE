@@ -1,5 +1,6 @@
 package org.example.weneedbe.domain.user.domain;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -84,4 +85,14 @@ public enum Department {
     없음("없음");
 
     private final String department;
+
+    @JsonCreator
+    public static Department from (String value) {
+        for (Department department : Department.values()) {
+            if (department.getDepartment().equals(value)) {
+                return department;
+            }
+        }
+        return 없음;
+    }
 }
