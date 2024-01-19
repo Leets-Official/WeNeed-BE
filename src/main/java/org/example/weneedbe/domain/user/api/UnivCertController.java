@@ -1,4 +1,4 @@
-package org.example.weneedbe.global.univcert.api;
+package org.example.weneedbe.domain.user.api;
 
 import com.univcert.api.UnivCert;
 import io.swagger.v3.oas.annotations.Operation;
