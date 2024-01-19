@@ -3,6 +3,7 @@ package org.example.weneedbe.domain.article.dto.response;
 import lombok.*;
 import org.example.weneedbe.domain.article.domain.Article;
 import org.example.weneedbe.domain.article.domain.ContentData;
+import org.example.weneedbe.domain.comment.domain.Comment;
 import org.example.weneedbe.domain.file.domain.File;
 import org.example.weneedbe.domain.user.domain.Department;
 import org.example.weneedbe.domain.user.domain.User;
@@ -12,21 +13,28 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Getter
-@AllArgsConstructor
-public class DetailPortfolioDto {
-    private DetailUserDto user;
-    private DetailPortfolioArticleDto portfolio;
-    private List<WorkPortfolioArticleDto> workList;
 
-    public DetailPortfolioDto(Article article, User user, int heartCount, int bookmarkCount, List<Article> userPortfolio) {
-        this.user = new DetailUserDto(user, user.getUserId().equals(article.getUser().getUserId()));
-        this.portfolio = new DetailPortfolioArticleDto(article, heartCount, bookmarkCount);
-        this.workList = initializeWorkList(userPortfolio, article);
+public class DetailResponseDto {
+
+    @Getter
+    @Builder
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    @AllArgsConstructor
+    public static class DetailPortfolioDto{
+
+        private DetailUserDto user;
+        private DetailArticleDto portfolio;
+        private List<WorkPortfolioArticleDto> workList;
+
+        public DetailPortfolioDto(Article article, User user, int heartCount, int bookmarkCount, List<Article> userPortfolio) {
+            this.user = new DetailUserDto(user, user.getUserId().equals(article.getUser().getUserId()));
+            this.portfolio = new DetailArticleDto(article, heartCount, bookmarkCount);
+            this.workList = initializeWorkList(userPortfolio, article);
+        }
     }
 
     @Getter
-    public class DetailUserDto {
+    public static class DetailUserDto {
         private String nickname;
         private boolean sameUser;
 
@@ -37,13 +45,14 @@ public class DetailPortfolioDto {
     }
 
     @Getter
-    public class DetailPortfolioArticleDto {
+    public static class DetailArticleDto {
         private String thumbnail;
         private String title;
         private LocalDateTime createdAt;
         private int heatCount;
         private int viewCount;
         private int bookmarkCount;
+        private int commentCount; //포트폴리오에도 추가
         private List<String> skills;
         private List<String> links;
         private List<String> tags;
@@ -51,7 +60,7 @@ public class DetailPortfolioDto {
         private DetailWriterPortfolioDto writer;
         private List<DetailPortfolioContentDto> contents;
 
-        public DetailPortfolioArticleDto(Article article, int heatCount, int bookmarkCount) {
+        public DetailArticleDto(Article article, int heatCount, int bookmarkCount) {
             this.thumbnail = article.getThumbnail();
             this.title = article.getTitle();
             this.createdAt = article.getCreatedAt();
@@ -69,7 +78,7 @@ public class DetailPortfolioDto {
         }
     }
 
-    private List<DetailPortfolioContentDto> getPortfolioContents(List<ContentData> contents) {
+    private static List<DetailPortfolioContentDto> getPortfolioContents(List<ContentData> contents) {
         List<DetailPortfolioContentDto> contentDtoList = new ArrayList<>();
         for (ContentData contentData : contents) {
             DetailPortfolioContentDto contentDto = new DetailPortfolioContentDto();
@@ -86,7 +95,7 @@ public class DetailPortfolioDto {
     }
 
     @Getter
-    public class DetailWriterPortfolioDto {
+    public static class DetailWriterPortfolioDto {
         private Long userId;
         private String writerNickname;
         private Department major;
@@ -104,7 +113,7 @@ public class DetailPortfolioDto {
 
     @Getter
     @Setter
-    public class DetailPortfolioContentDto {
+    public static class DetailPortfolioContentDto {
         private Long id;
         private String type;
         private String textData;
@@ -112,7 +121,7 @@ public class DetailPortfolioDto {
     }
 
     @Getter
-    public class WorkPortfolioArticleDto {
+    public static class WorkPortfolioArticleDto {
         private Long articleId;
         private String thumbnail;
         private String title;
@@ -124,7 +133,7 @@ public class DetailPortfolioDto {
         }
     }
 
-    private List<WorkPortfolioArticleDto> initializeWorkList(List<Article> userPortfolio, Article article) {
+    private static List<WorkPortfolioArticleDto> initializeWorkList(List<Article> userPortfolio, Article article) {
         List<WorkPortfolioArticleDto> workList = new ArrayList<>();
         for (Article portfolio : userPortfolio) {
             /* 상세조회하는 게시물 제외하고 workList에 추가 */
@@ -134,4 +143,37 @@ public class DetailPortfolioDto {
         }
         return workList;
     }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    @AllArgsConstructor
+    public static class DetailRecruitDto{
+        private DetailUserDto user;
+        private DetailArticleDto recruit;
+        private CommentResponseDto comments;
+
+        public DetailRecruitDto(Article article, User user, int heartCount, int bookmarkCount, Comment comment) {
+            this.user = new DetailUserDto(user, user.getUserId().equals(article.getUser().getUserId()));
+            this.recruit = new DetailArticleDto(article, heartCount, bookmarkCount);
+            this.comments = new CommentResponseDto(comment);
+        }
+
+    }
+
+    @Getter
+    public static class CommentResponseDto{
+        private Long commentId;
+        private String content;
+        private List<CommentResponseDto> children;
+
+        public CommentResponseDto(Comment comment) {
+            this.commentId = comment.getCommentId();
+            this.content = comment.getContent();
+            this.children = comment.getChildren().stream()
+                    .map(CommentResponseDto::new)
+                    .collect(Collectors.toList());
+        }
+    }
+
 }
