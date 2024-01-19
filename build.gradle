@@ -19,6 +19,7 @@ configurations {
 
 repositories {
 	mavenCentral()
+	maven{url 'https://jitpack.io'}
 }
 
 dependencies {
@@ -37,6 +38,7 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt:0.9.1'
 	implementation 'javax.xml.bind:jaxb-api:2.3.1'
 	implementation 'com.google.api-client:google-api-client:1.32.1'
+	implementation 'com.github.in-seo:univcert:master-SNAPSHOT'
 }
 
 jar {
