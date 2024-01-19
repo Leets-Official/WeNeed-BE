@@ -1,5 +1,6 @@
 package org.example.weneedbe.domain.user.domain;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -13,4 +14,14 @@ public enum Fields {
     IT("IT");
 
     private final String fields;
+
+    @JsonCreator
+    public static Fields from (String value) {
+        for (Fields field : Fields.values()) {
+            if (field.getFields().equals(value)) {
+                return field;
+            }
+        }
+        return null;
+    }
 }
