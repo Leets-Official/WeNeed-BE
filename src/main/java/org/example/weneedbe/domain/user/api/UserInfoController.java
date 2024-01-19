@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.example.weneedbe.domain.user.dto.request.UserInfoRequest;
+import org.example.weneedbe.domain.user.dto.response.UserInfoResponse;
 import org.example.weneedbe.domain.user.service.UserService;
 import org.example.weneedbe.global.error.ErrorResponse;
 import org.springframework.http.ResponseEntity;
@@ -42,7 +43,7 @@ public class UserInfoController {
             @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/info")
-    public ResponseEntity<?> getUserInfo(@RequestBody UserInfoRequest request) throws IOException {
-        return ResponseEntity.ok(userService.getUserInfo(request));
+    public ResponseEntity<UserInfoResponse> getUserInfo(@RequestBody UserInfoRequest request) throws Exception {
+        return userService.getUserInfo(request);
     }
 }
