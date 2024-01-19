@@ -20,16 +20,20 @@ public class DetailResponseDto {
     @Builder
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     @AllArgsConstructor
-    public static class DetailPortfolioDto{
+    public static class DetailPortfolioDto {
 
         private DetailUserDto user;
         private DetailArticleDto portfolio;
         private List<WorkPortfolioArticleDto> workList;
+        private List<CommentResponseDto> comments;
 
-        public DetailPortfolioDto(Article article, User user, int heartCount, int bookmarkCount, List<Article> userPortfolio) {
-            this.user = new DetailUserDto(user, user.getUserId().equals(article.getUser().getUserId()));
+
+        public DetailPortfolioDto(Article article, User user, int heartCount, int bookmarkCount, List<Article> userPortfolio
+                , boolean isHearted, boolean isBookmarked, List<CommentResponseDto> commentList) {
+            this.user = new DetailUserDto(user, user.getUserId().equals(article.getUser().getUserId()), isHearted, isBookmarked);
             this.portfolio = new DetailArticleDto(article, heartCount, bookmarkCount);
             this.workList = initializeWorkList(userPortfolio, article);
+            this.comments = commentList;
         }
     }
 
@@ -37,10 +41,14 @@ public class DetailResponseDto {
     public static class DetailUserDto {
         private String nickname;
         private boolean sameUser;
+        private boolean isHearted;
+        private boolean isBookmarked;
 
-        public DetailUserDto(User user, boolean sameUser) {
+        public DetailUserDto(User user, boolean sameUser, boolean isHearted, boolean isBookmarked) {
             this.nickname = user.getNickname();
             this.sameUser = sameUser;
+            this.isHearted = isHearted;
+            this.isBookmarked = isBookmarked;
         }
     }
 
@@ -52,12 +60,12 @@ public class DetailResponseDto {
         private int heatCount;
         private int viewCount;
         private int bookmarkCount;
-        private int commentCount; //포트폴리오에도 추가
+        private int commentCount;
         private List<String> skills;
         private List<String> links;
         private List<String> tags;
         private List<String> files;
-        private DetailWriterPortfolioDto writer;
+        private DetailWriterDto writer;
         private List<DetailPortfolioContentDto> contents;
 
         public DetailArticleDto(Article article, int heatCount, int bookmarkCount) {
@@ -67,13 +75,14 @@ public class DetailResponseDto {
             this.heatCount = heatCount;
             this.viewCount = article.getViewCount();
             this.bookmarkCount = bookmarkCount;
+            this.commentCount = article.getCommentList().size();
             this.skills = article.getDetailSkills();
             this.links = article.getArticleLinks();
             this.tags = article.getDetailTags();
             this.files = article.getFiles().stream()
                     .map(File::getFileUrl)
                     .collect(Collectors.toList());
-            this.writer = new DetailWriterPortfolioDto(article);
+            this.writer = new DetailWriterDto(article);
             this.contents = getPortfolioContents(article.getContent());
         }
     }
@@ -95,14 +104,14 @@ public class DetailResponseDto {
     }
 
     @Getter
-    public static class DetailWriterPortfolioDto {
+    public static class DetailWriterDto {
         private Long userId;
         private String writerNickname;
         private Department major;
         private String profile;
         private Integer grade;
 
-        public DetailWriterPortfolioDto(Article article) {
+        public DetailWriterDto(Article article) {
             this.userId = article.getUser().getUserId();
             this.writerNickname = article.getUser().getNickname();
             this.major = article.getUser().getMajor();
@@ -125,6 +134,7 @@ public class DetailResponseDto {
         private Long articleId;
         private String thumbnail;
         private String title;
+        //북마크여부추가
 
         public WorkPortfolioArticleDto(Article article) {
             this.articleId = article.getArticleId();
@@ -148,32 +158,36 @@ public class DetailResponseDto {
     @Builder
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     @AllArgsConstructor
-    public static class DetailRecruitDto{
+    public static class DetailRecruitDto {
         private DetailUserDto user;
         private DetailArticleDto recruit;
-        private CommentResponseDto comments;
+        private List<CommentResponseDto> comments;
 
-        public DetailRecruitDto(Article article, User user, int heartCount, int bookmarkCount, Comment comment) {
-            this.user = new DetailUserDto(user, user.getUserId().equals(article.getUser().getUserId()));
+        public DetailRecruitDto(Article article, User user, int heartCount, int bookmarkCount, boolean isHearted, boolean isBookmarked, List<CommentResponseDto> commentList) {
+            this.user = new DetailUserDto(user, user.getUserId().equals(article.getUser().getUserId()), isHearted, isBookmarked);
             this.recruit = new DetailArticleDto(article, heartCount, bookmarkCount);
-            this.comments = new CommentResponseDto(comment);
+            this.comments = commentList;
         }
 
     }
 
     @Getter
-    public static class CommentResponseDto{
+    @Setter
+    public static class CommentResponseDto {
         private Long commentId;
         private String content;
         private List<CommentResponseDto> children;
 
-        public CommentResponseDto(Comment comment) {
+        public CommentResponseDto(Comment comment, List<Comment> commentList) {
             this.commentId = comment.getCommentId();
             this.content = comment.getContent();
-            this.children = comment.getChildren().stream()
-                    .map(CommentResponseDto::new)
-                    .collect(Collectors.toList());
+            if (!comment.getChildren().isEmpty()) {
+                this.children = comment.getChildren().stream()
+                        .map(child -> new CommentResponseDto(child, commentList))
+                        .collect(Collectors.toList());
+            } else {
+                this.children = new ArrayList<>();
+            }
         }
     }
-
 }
