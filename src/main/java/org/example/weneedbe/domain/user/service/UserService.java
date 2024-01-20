@@ -1,14 +1,13 @@
 package org.example.weneedbe.domain.user.service;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.weneedbe.domain.user.domain.User;
 import org.example.weneedbe.domain.user.dto.request.UserInfoRequest;
 import org.example.weneedbe.domain.user.dto.response.UserInfoResponse;
 import org.example.weneedbe.domain.user.dto.response.mypage.MyPageGetMyInfoResponse;
-import org.example.weneedbe.domain.user.exception.UserNotFoundException;
 import org.example.weneedbe.domain.user.repository.UserRepository;
-
-import org.example.weneedbe.global.config.jwt.TokenProvider;
+import org.example.weneedbe.global.jwt.TokenProvider;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
