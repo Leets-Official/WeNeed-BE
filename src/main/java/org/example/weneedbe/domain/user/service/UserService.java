@@ -11,9 +11,13 @@ import org.example.weneedbe.domain.user.dto.response.mypage.GetMyInfoResponse;
 import org.example.weneedbe.domain.user.exception.UserNotFoundException;
 import org.example.weneedbe.domain.user.repository.UserRepository;
 import org.example.weneedbe.global.jwt.TokenProvider;
+import org.example.weneedbe.global.s3.application.S3Service;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @Service
 @Slf4j
@@ -22,6 +26,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final TokenProvider tokenProvider;
+    private final S3Service s3Service;
 
     public Boolean checkNicknameDuplicate(String nickName) {
         return userRepository.existsByNickname(nickName);
@@ -69,12 +74,14 @@ public class UserService {
         return GetMyInfoResponse.from(user);
     }
 
-    public EditMyInfoResponse editMyInfo(String authorizationHeader, EditMyInfoRequest request) {
+    public EditMyInfoResponse editMyInfo(String authorizationHeader, MultipartFile profileImage, EditMyInfoRequest request) throws IOException{
         Long userId = getUserIdFromHeader(authorizationHeader);
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 
         try {
-            user.editUserInfo(request.getProfile(),
+            String profileImageUrl = s3Service.uploadImage(profileImage);
+
+            user.editUserInfo(profileImageUrl,
                     request.getNickname(),
                     request.getUserGrade(),
                     request.getMajor(),

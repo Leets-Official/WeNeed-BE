@@ -14,6 +14,7 @@ import org.example.weneedbe.domain.user.service.UserService;
 import org.example.weneedbe.global.error.ErrorResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
@@ -45,7 +46,8 @@ public class MyPageController {
     })
     @PatchMapping("/my-info")
     public ResponseEntity<EditMyInfoResponse> editMyInfo(@RequestHeader("Authorization") String authorizationHeader,
+                                                         @RequestPart MultipartFile profileImage,
                                                          @RequestBody EditMyInfoRequest request) throws IOException {
-        return ResponseEntity.ok(userService.editMyInfo(authorizationHeader, request));
+        return ResponseEntity.ok(userService.editMyInfo(authorizationHeader, profileImage, request));
     }
 }
