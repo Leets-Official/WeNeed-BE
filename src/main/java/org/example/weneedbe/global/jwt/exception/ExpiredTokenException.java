@@ -1,4 +1,4 @@
-package org.example.weneedbe.global.config.jwt.exception;
+package org.example.weneedbe.global.jwt.exception;
 
 import org.example.weneedbe.global.error.ErrorCode;
 import org.example.weneedbe.global.error.exception.ServiceException;

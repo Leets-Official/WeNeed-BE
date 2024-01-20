@@ -1,14 +1,14 @@
-package org.example.weneedbe.global.config.jwt;
+package org.example.weneedbe.global.jwt;
 
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import org.example.weneedbe.domain.token.domain.RefreshToken;
 import org.example.weneedbe.domain.token.repository.RefreshTokenRepository;
 import org.example.weneedbe.domain.user.domain.User;
-import org.example.weneedbe.global.config.jwt.exception.ExpiredTokenException;
-import org.example.weneedbe.global.config.jwt.exception.InvalidInputValueException;
-import org.example.weneedbe.global.config.jwt.exception.InvalidTokenException;
-import org.example.weneedbe.global.config.jwt.service.RefreshTokenService;
+import org.example.weneedbe.global.jwt.exception.ExpiredTokenException;
+import org.example.weneedbe.global.jwt.exception.InvalidInputValueException;
+import org.example.weneedbe.global.jwt.exception.InvalidTokenException;
+import org.example.weneedbe.global.jwt.service.RefreshTokenService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

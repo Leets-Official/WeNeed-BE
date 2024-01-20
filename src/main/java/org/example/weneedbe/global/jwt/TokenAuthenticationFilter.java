@@ -1,4 +1,4 @@
-package org.example.weneedbe.global.config.jwt;
+package org.example.weneedbe.global.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

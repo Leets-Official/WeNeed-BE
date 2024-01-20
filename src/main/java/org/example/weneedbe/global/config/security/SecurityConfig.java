@@ -1,8 +1,8 @@
 package org.example.weneedbe.global.config.security;
 
 import lombok.RequiredArgsConstructor;
-import org.example.weneedbe.global.config.jwt.TokenAuthenticationFilter;
-import org.example.weneedbe.global.config.jwt.TokenProvider;
+import org.example.weneedbe.global.jwt.TokenAuthenticationFilter;
+import org.example.weneedbe.global.jwt.TokenProvider;
 import org.example.weneedbe.global.filter.ExceptionHandleFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

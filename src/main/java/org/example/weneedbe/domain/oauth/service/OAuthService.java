@@ -1,14 +1,14 @@
-package org.example.weneedbe.global.config.oauth;
+package org.example.weneedbe.domain.oauth.service;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
+import org.example.weneedbe.domain.oauth.dto.OAuthToken;
 import org.example.weneedbe.domain.user.domain.User;
 import org.example.weneedbe.domain.user.repository.UserRepository;
-import org.example.weneedbe.global.config.jwt.exception.InvalidTokenException;
-import org.example.weneedbe.global.config.oauth.dto.OAuthToken;
+import org.example.weneedbe.global.jwt.exception.InvalidTokenException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;

@@ -1,4 +1,4 @@
-package org.example.weneedbe.global.config.jwt;
+package org.example.weneedbe.global.jwt;
 
 import lombok.Getter;
 import lombok.Setter;

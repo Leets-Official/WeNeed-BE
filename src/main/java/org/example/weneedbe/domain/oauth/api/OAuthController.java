@@ -1,11 +1,11 @@
-package org.example.weneedbe.global.config.oauth.api;
+package org.example.weneedbe.domain.oauth.api;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.weneedbe.domain.oauth.dto.LoginResponse;
 import org.example.weneedbe.domain.user.domain.User;
-import org.example.weneedbe.global.config.jwt.TokenProvider;
-import org.example.weneedbe.global.config.oauth.OAuthService;
-import org.example.weneedbe.global.config.oauth.dto.LoginResponse;
+import org.example.weneedbe.global.jwt.TokenProvider;
+import org.example.weneedbe.domain.oauth.service.OAuthService;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;

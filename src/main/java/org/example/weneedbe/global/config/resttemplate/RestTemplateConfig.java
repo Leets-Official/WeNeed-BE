@@ -1,4 +1,4 @@
-package org.example.weneedbe.global.config.oauth.config;
+package org.example.weneedbe.global.config.resttemplate;
 
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;

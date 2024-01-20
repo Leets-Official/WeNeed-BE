@@ -1,4 +1,4 @@
-package org.example.weneedbe.global.config.oauth.dto;
+package org.example.weneedbe.domain.oauth.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
