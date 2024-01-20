@@ -9,7 +9,6 @@ import org.example.weneedbe.domain.user.exception.UserNotFoundException;
 import org.example.weneedbe.domain.user.repository.UserRepository;
 
 import org.example.weneedbe.global.config.jwt.TokenProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -41,15 +40,13 @@ public class UserService {
             /* 토큰을 통한 user 객체를 불러옴 */
             /* 아직 토큰이 없기 때문에 임시 객체를 사용 */
             User mockUser = userRepository.findById(1L).orElseThrow();
-            mockUser = User.builder()
-                    .email(mockUser.getEmail())
-                    .major(request.getMajor())
-                    .doubleMajor(request.getDoubleMajor())
-                    .nickname(request.getNickname())
-                    .grade(request.getUserGrade())
-                    .interestField(request.getInterestField())
-                    .hasRegistered(true)
-                    .build();
+            mockUser.getUserInfo(request.getMajor(),
+                    request.getDoubleMajor(),
+                    request.getNickname(),
+                    request.getUserGrade(),
+                    request.getInterestField(),
+                    true);
+
             userRepository.save(mockUser);
         } catch (Exception e) {
             log.info(e.getMessage());
