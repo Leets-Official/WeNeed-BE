@@ -6,7 +6,6 @@ import lombok.Getter;
 import org.example.weneedbe.domain.user.domain.Department;
 import org.example.weneedbe.domain.user.domain.Fields;
 import org.example.weneedbe.domain.user.domain.User;
-import org.example.weneedbe.domain.user.dto.request.EditMyInfoRequest;
 
 import java.util.List;
 
@@ -24,7 +23,7 @@ public class EditMyInfoResponse {
     private List<String> links;
     private String selfIntro;
 
-    public static EditMyInfoResponse from(User user, EditMyInfoRequest request) {
+    public static EditMyInfoResponse from(User user) {
         return EditMyInfoResponse.builder()
                 .profile(user.getProfile())
                 .userGrade(user.getGrade())

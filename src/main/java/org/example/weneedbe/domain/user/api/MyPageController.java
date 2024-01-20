@@ -47,7 +47,7 @@ public class MyPageController {
     @PatchMapping("/my-info")
     public ResponseEntity<EditMyInfoResponse> editMyInfo(@RequestHeader("Authorization") String authorizationHeader,
                                                          @RequestPart MultipartFile profileImage,
-                                                         @RequestBody EditMyInfoRequest request) throws IOException {
+                                                         @RequestPart EditMyInfoRequest request) throws IOException {
         return ResponseEntity.ok(userService.editMyInfo(authorizationHeader, profileImage, request));
     }
 }

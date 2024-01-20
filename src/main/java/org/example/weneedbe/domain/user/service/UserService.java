@@ -95,6 +95,6 @@ public class UserService {
             log.info(e.getMessage());
             throw e;
         }
-        return EditMyInfoResponse.from(user, request);
+        return EditMyInfoResponse.from(user);
     }
 }

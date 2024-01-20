@@ -8,7 +8,6 @@ import java.util.List;
 
 @Data
 public class EditMyInfoRequest {
-    private String profile;
     private String nickname;
     private Department major;
     private Integer userGrade;
