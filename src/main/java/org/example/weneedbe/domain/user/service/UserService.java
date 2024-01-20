@@ -6,6 +6,7 @@ import org.example.weneedbe.domain.user.domain.User;
 import org.example.weneedbe.domain.user.dto.request.UserInfoRequest;
 import org.example.weneedbe.domain.user.dto.response.UserInfoResponse;
 import org.example.weneedbe.domain.user.dto.response.mypage.GetMyInfoResponse;
+import org.example.weneedbe.domain.user.exception.UserNotFoundException;
 import org.example.weneedbe.domain.user.repository.UserRepository;
 import org.example.weneedbe.global.jwt.TokenProvider;
 import org.springframework.http.HttpStatus;
@@ -55,16 +56,11 @@ public class UserService {
     }
 
     public GetMyInfoResponse getMyInfo(String authorizationHeader) {
-        /* 토큰을 통한 user 객체를 불러옴 */
-        /* 아직 토큰이 없기 때문에 임시 객체를 사용 */
-/*        String token = tokenProvider.getTokenFromAuthorizationHeader(authorizationHeader);
+        String token = tokenProvider.getTokenFromAuthorizationHeader(authorizationHeader);
         Long userId = tokenProvider.getUserIdFromToken(token);
 
-        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);*/
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 
-        User mockUser = userRepository.findById(1L).orElseThrow();
-
-        return GetMyInfoResponse.from(mockUser);
-
+        return GetMyInfoResponse.from(user);
     }
 }
