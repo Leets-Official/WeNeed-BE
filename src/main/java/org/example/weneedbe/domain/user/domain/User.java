@@ -75,7 +75,7 @@ public class User extends BaseTimeEntity {
     }
 
 
-    public void getUserInfo(Department major,
+    public void setUserInfo(Department major,
                             Department doubleMajor,
                             String nickname,
                             Integer grade,

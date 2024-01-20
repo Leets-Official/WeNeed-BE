@@ -41,7 +41,7 @@ public class MyPageController {
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @PatchMapping("/my-Info")
+    @PatchMapping("/my-info")
     public ResponseEntity<EditMyInfoResponse> editMyInfo(@RequestHeader("Authorization") String authorizationHeader) throws IOException {
         return ResponseEntity.ok(userService.editMyInfo(authorizationHeader));
     }

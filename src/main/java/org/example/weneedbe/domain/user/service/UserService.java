@@ -34,12 +34,12 @@ public class UserService {
                 .orElseThrow(IllegalArgumentException::new);
     }
 
-    public ResponseEntity<UserInfoResponse> getUserInfo(UserInfoRequest request) throws Exception {
+    public ResponseEntity<UserInfoResponse> setUserInfo(UserInfoRequest request) throws Exception {
         try {
             /* 토큰을 통한 user 객체를 불러옴 */
             /* 아직 토큰이 없기 때문에 임시 객체를 사용 */
             User mockUser = userRepository.findById(1L).orElseThrow();
-            mockUser.getUserInfo(request.getMajor(),
+            mockUser.setUserInfo(request.getMajor(),
                     request.getDoubleMajor(),
                     request.getNickname(),
                     request.getUserGrade(),
