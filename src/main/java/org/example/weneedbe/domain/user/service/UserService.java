@@ -65,16 +65,7 @@ public class UserService {
 
         User mockUser = userRepository.findById(1L).orElseThrow();
 
-        return MyPageGetMyInfoResponse.builder()
-                .profile(mockUser.getProfile())
-                .nickname(mockUser.getNickname())
-                .major(mockUser.getMajor())
-                .userGrade(mockUser.getGrade())
-                .doubleMajor(mockUser.getDoubleMajor())
-                .interestField(mockUser.getInterestField())
-                .email(mockUser.getEmail())
-                .links(mockUser.getLinks())
-                .selfIntro(mockUser.getAboutMe())
-                .build();
+        return MyPageGetMyInfoResponse.from(mockUser);
+
     }
 }
