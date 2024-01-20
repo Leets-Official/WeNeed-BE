@@ -12,7 +12,7 @@ import java.util.List;
 @Getter
 @Builder
 @AllArgsConstructor
-public class MyPageGetMyInfoResponse {
+public class GetMyInfoResponse {
     private String profile;
     private String nickname;
     private Department major;
@@ -23,8 +23,8 @@ public class MyPageGetMyInfoResponse {
     private List<String> links;
     private String selfIntro;
 
-    public static MyPageGetMyInfoResponse from(User user) {
-        return MyPageGetMyInfoResponse.builder()
+    public static GetMyInfoResponse from(User user) {
+        return GetMyInfoResponse.builder()
                 .profile(user.getProfile())
                 .nickname(user.getNickname())
                 .major(user.getMajor())
