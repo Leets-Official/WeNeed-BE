@@ -11,10 +11,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.example.weneedbe.domain.file.domain.File;
 import org.example.weneedbe.domain.article.dto.request.AddArticleRequest;
 import org.example.weneedbe.domain.comment.domain.Comment;
-import org.example.weneedbe.domain.user.domain.Fields;
+import org.example.weneedbe.domain.file.domain.File;
 import org.example.weneedbe.domain.user.domain.User;
 import org.example.weneedbe.domain.user.domain.UserArticle;
 import org.example.weneedbe.global.shared.entity.BaseTimeEntity;
@@ -58,10 +57,6 @@ public class Article extends BaseTimeEntity {
     @Column(name = "deleted_at", nullable = true)
     private LocalDateTime deletedAt;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "article_field", nullable = false)
-    private Fields articleField;
-
     @ElementCollection
     @CollectionTable(name = "article_links", joinColumns = @JoinColumn(name = "article_id"))
     private List<String> articleLinks;
@@ -91,7 +86,6 @@ public class Article extends BaseTimeEntity {
             .articleType(request.getArticleType())
             .thumbnail(thumbnail)
             .title(request.getTitle())
-            .articleField(request.getArticleField())
             .articleLinks(request.getLinks())
             .detailSkills(request.getSkills())
             .detailTags(request.getTags())
