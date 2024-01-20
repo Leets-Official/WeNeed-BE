@@ -73,4 +73,20 @@ public class User extends BaseTimeEntity {
 
         return this;
     }
+
+
+    public void getUserInfo(Department major,
+                            Department doubleMajor,
+                            String nickname,
+                            Integer grade,
+                            Fields interestField,
+                            Boolean hasRegistered) {
+
+        this.major = major;
+        this.doubleMajor = doubleMajor;
+        this.nickname = nickname;
+        this.grade = grade;
+        this.interestField = interestField;
+        this.hasRegistered = hasRegistered;
+    }
 }
