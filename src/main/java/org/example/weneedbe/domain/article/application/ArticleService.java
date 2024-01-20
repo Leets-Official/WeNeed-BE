@@ -4,18 +4,24 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import org.example.weneedbe.domain.article.domain.Article;
 import org.example.weneedbe.domain.article.domain.ArticleLike;
 import org.example.weneedbe.domain.article.dto.request.AddArticleRequest;
-import org.example.weneedbe.domain.article.dto.response.DetailPortfolioDto;
+import org.example.weneedbe.domain.article.dto.response.DetailResponseDto.DetailPortfolioDto;
+import org.example.weneedbe.domain.article.dto.response.DetailResponseDto.CommentResponseDto;
+
+import org.example.weneedbe.domain.article.dto.response.DetailResponseDto.DetailRecruitDto;
 import org.example.weneedbe.domain.article.dto.response.MemberInfoResponse;
 import org.example.weneedbe.domain.article.exception.ArticleNotFoundException;
 import org.example.weneedbe.domain.article.repository.ArticleLikeRepository;
 import org.example.weneedbe.domain.article.repository.ArticleRepository;
 import org.example.weneedbe.domain.bookmark.domain.Bookmark;
 import org.example.weneedbe.domain.bookmark.repository.BookmarkRepository;
+import org.example.weneedbe.domain.comment.domain.Comment;
+import org.example.weneedbe.domain.comment.repository.CommentRepository;
 import org.example.weneedbe.domain.user.domain.User;
 import org.example.weneedbe.domain.user.domain.UserArticle;
 import org.example.weneedbe.domain.user.exception.UserNotFoundException;
@@ -35,6 +41,7 @@ public class ArticleService {
     private final ArticleLikeRepository articleLikeRepository;
     private final BookmarkRepository bookmarkRepository;
     private final TokenProvider tokenProvider;
+    private final CommentRepository commentRepository;
 
     public void createPortfolio(MultipartFile thumbnail, List<MultipartFile> images,
                                 List<MultipartFile> files, AddArticleRequest request) throws IOException {
@@ -130,14 +137,47 @@ public class ArticleService {
         int heartCount = articleLikeRepository.countByArticle(article);
         int bookmarkCount = bookmarkRepository.countByArticle(article);
 
+        boolean isHearted = articleLikeRepository.existsByArticleAndUser(article, user);
+        boolean isBookmarked = bookmarkRepository.existsByArticleAndUser(article, user);
+
         List<Article> portfolioArticlesByUserId = articleRepository.findPortfolioArticlesByUserId(user.getUserId());
 
-        return new DetailPortfolioDto(article, user, heartCount, bookmarkCount, portfolioArticlesByUserId);
+        List<Comment> commentList = commentRepository.findAllByArticle(article);
+        List<CommentResponseDto> commentResponseDtos = mapToResponseDto(commentList);
+
+        return new DetailPortfolioDto(article, user, heartCount, bookmarkCount, portfolioArticlesByUserId, isHearted, isBookmarked, commentResponseDtos);
     }
 
     private Long getUserIdFromAuthorizationHeader(String authorizationHeader) {
         String token = tokenProvider.getTokenFromAuthorizationHeader(authorizationHeader);
         Long userIdFromToken = tokenProvider.getUserIdFromToken(token);
         return userIdFromToken;
+    }
+
+    public DetailRecruitDto getDetailRecruit(String authorizationHeader, Long articleId) {
+        Long userId = getUserIdFromAuthorizationHeader(authorizationHeader);
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        Article article = articleRepository.findById(articleId).orElseThrow(ArticleNotFoundException::new);
+
+        article.plusViewCount(article.getViewCount() + 1);
+        articleRepository.save(article);
+
+        int heartCount = articleLikeRepository.countByArticle(article);
+        int bookmarkCount = bookmarkRepository.countByArticle(article);
+
+        boolean isHearted = articleLikeRepository.existsByArticleAndUser(article, user);
+        boolean isBookmarked = bookmarkRepository.existsByArticleAndUser(article, user);
+
+        List<Comment> commentList = commentRepository.findAllByArticle(article);
+        List<CommentResponseDto> commentResponseDtos = mapToResponseDto(commentList);
+
+        return new DetailRecruitDto(article, user, heartCount, bookmarkCount, isHearted, isBookmarked, commentResponseDtos);
+    }
+
+    public static List<CommentResponseDto> mapToResponseDto(List<Comment> commentList) {
+        return commentList.stream()
+                .filter(comment -> comment.getParentId() == 0)
+                .map(comment -> new CommentResponseDto(comment, commentList))
+                .collect(Collectors.toList());
     }
 }

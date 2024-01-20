@@ -13,4 +13,5 @@ public interface ArticleLikeRepository extends JpaRepository<ArticleLike, Long> 
 
     int countByArticle(Article article);
 
+    boolean existsByArticleAndUser(Article article, User user);
 }

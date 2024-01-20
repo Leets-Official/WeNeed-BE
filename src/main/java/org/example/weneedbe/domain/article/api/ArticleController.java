@@ -13,7 +13,8 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.example.weneedbe.domain.article.application.ArticleService;
 import org.example.weneedbe.domain.article.dto.request.AddArticleRequest;
-import org.example.weneedbe.domain.article.dto.response.DetailPortfolioDto;
+import org.example.weneedbe.domain.article.dto.response.DetailResponseDto.DetailPortfolioDto;
+import org.example.weneedbe.domain.article.dto.response.DetailResponseDto.DetailRecruitDto;
 import org.example.weneedbe.domain.article.dto.response.MemberInfoResponse;
 import org.example.weneedbe.global.error.ErrorResponse;
 import org.springframework.http.HttpStatus;
@@ -109,5 +110,17 @@ public class ArticleController {
     @GetMapping("/portfolio/{articleId}")
     public ResponseEntity<DetailPortfolioDto> detailPortfolio(@RequestHeader("Authorization") String authorizationHeader, @PathVariable Long articleId) {
         return ResponseEntity.ok(articleService.getDetailPortfolio(authorizationHeader, articleId));
+    }
+
+    @Operation(summary = "리크루팅 게시물 조회", description = "리크루팅부분에서 해당 게시물을 상세조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping("/recruit/{articleId}")
+    public ResponseEntity<DetailRecruitDto> detailRecruit(@RequestHeader("Authorization") String authorizationHeader, @PathVariable Long articleId) {
+        return ResponseEntity.ok(articleService.getDetailRecruit(authorizationHeader, articleId));
     }
 }
