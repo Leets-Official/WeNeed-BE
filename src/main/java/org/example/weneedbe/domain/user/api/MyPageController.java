@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.example.weneedbe.domain.user.dto.request.EditMyInfoRequest;
+import org.example.weneedbe.domain.user.dto.response.mypage.EditMyInfoResponse;
 import org.example.weneedbe.domain.user.dto.response.mypage.GetMyInfoResponse;
 import org.example.weneedbe.domain.user.service.UserService;
 import org.example.weneedbe.global.error.ErrorResponse;
@@ -42,7 +44,8 @@ public class MyPageController {
             @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PatchMapping("/my-info")
-    public ResponseEntity<EditMyInfoResponse> editMyInfo(@RequestHeader("Authorization") String authorizationHeader) throws IOException {
-        return ResponseEntity.ok(userService.editMyInfo(authorizationHeader));
+    public ResponseEntity<EditMyInfoResponse> editMyInfo(@RequestHeader("Authorization") String authorizationHeader,
+                                                         @RequestBody EditMyInfoRequest request) throws IOException {
+        return ResponseEntity.ok(userService.editMyInfo(authorizationHeader, request));
     }
 }
