@@ -3,8 +3,10 @@ package org.example.weneedbe.domain.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.weneedbe.domain.user.domain.User;
+import org.example.weneedbe.domain.user.dto.request.EditMyInfoRequest;
 import org.example.weneedbe.domain.user.dto.request.UserInfoRequest;
 import org.example.weneedbe.domain.user.dto.response.UserInfoResponse;
+import org.example.weneedbe.domain.user.dto.response.mypage.EditMyInfoResponse;
 import org.example.weneedbe.domain.user.dto.response.mypage.GetMyInfoResponse;
 import org.example.weneedbe.domain.user.exception.UserNotFoundException;
 import org.example.weneedbe.domain.user.repository.UserRepository;
@@ -35,6 +37,11 @@ public class UserService {
                 .orElseThrow(IllegalArgumentException::new);
     }
 
+    private Long getUserIdFromHeader(String authorizationHeader) {
+        String token = tokenProvider.getTokenFromAuthorizationHeader(authorizationHeader);
+        return tokenProvider.getUserIdFromToken(token);
+    }
+
     public ResponseEntity<UserInfoResponse> setUserInfo(UserInfoRequest request) throws Exception {
         try {
             /* 토큰을 통한 user 객체를 불러옴 */
@@ -56,11 +63,31 @@ public class UserService {
     }
 
     public GetMyInfoResponse getMyInfo(String authorizationHeader) {
-        String token = tokenProvider.getTokenFromAuthorizationHeader(authorizationHeader);
-        Long userId = tokenProvider.getUserIdFromToken(token);
-
+        Long userId = getUserIdFromHeader(authorizationHeader);
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 
         return GetMyInfoResponse.from(user);
+    }
+
+    public EditMyInfoResponse editMyInfo(String authorizationHeader, EditMyInfoRequest request) {
+        Long userId = getUserIdFromHeader(authorizationHeader);
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+
+        try {
+            user.editUserInfo(request.getProfile(),
+                    request.getNickname(),
+                    request.getUserGrade(),
+                    request.getMajor(),
+                    request.getDoubleMajor(),
+                    request.getInterestField(),
+                    request.getLinks(),
+                    request.getSelfIntro());
+
+            userRepository.save(user);
+        } catch (IllegalArgumentException e) {
+            log.info(e.getMessage());
+            throw e;
+        }
+        return EditMyInfoResponse.from(user, request);
     }
 }
