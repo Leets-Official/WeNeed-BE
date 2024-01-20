@@ -5,6 +5,7 @@ import org.example.weneedbe.domain.user.domain.User;
 import org.example.weneedbe.domain.user.dto.request.UserInfoRequest;
 import org.example.weneedbe.domain.user.dto.response.UserInfoResponse;
 import org.example.weneedbe.domain.user.dto.response.mypage.MyPageGetMyInfoResponse;
+import org.example.weneedbe.domain.user.exception.UserNotFoundException;
 import org.example.weneedbe.domain.user.repository.UserRepository;
 
 import org.example.weneedbe.global.config.jwt.TokenProvider;
@@ -55,5 +56,28 @@ public class UserService {
             throw e;
         }
         return new ResponseEntity<>(new UserInfoResponse(true, "상세 정보 입력 성공"), HttpStatus.OK);
+    }
+
+    public MyPageGetMyInfoResponse getMyInfo(String authorizationHeader) {
+        /* 토큰을 통한 user 객체를 불러옴 */
+        /* 아직 토큰이 없기 때문에 임시 객체를 사용 */
+/*        String token = tokenProvider.getTokenFromAuthorizationHeader(authorizationHeader);
+        Long userId = tokenProvider.getUserIdFromToken(token);
+
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);*/
+
+        User mockUser = userRepository.findById(1L).orElseThrow();
+
+        return MyPageGetMyInfoResponse.builder()
+                .profile(mockUser.getProfile())
+                .nickname(mockUser.getNickname())
+                .major(mockUser.getMajor())
+                .userGrade(mockUser.getGrade())
+                .doubleMajor(mockUser.getDoubleMajor())
+                .interestField(mockUser.getInterestField())
+                .email(mockUser.getEmail())
+                .links(mockUser.getLinks())
+                .selfIntro(mockUser.getAboutMe())
+                .build();
     }
 }
