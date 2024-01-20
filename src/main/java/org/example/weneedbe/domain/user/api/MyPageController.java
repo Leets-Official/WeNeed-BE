@@ -33,4 +33,16 @@ public class MyPageController {
     public ResponseEntity<GetMyInfoResponse> getMyInfo(@RequestHeader("Authorization") String authorizationHeader) throws IOException {
         return ResponseEntity.ok(userService.getMyInfo(authorizationHeader));
     }
+
+    @Operation(summary = "마이페이지 내 프로필 수정", description = "현재 로그인한 사용자의 프로필 정보를 수정합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PatchMapping("/editMyInfo")
+    public ResponseEntity<EditMyInfoResponse> editMyInfo(@RequestHeader("Authorization") String authorizationHeader) throws IOException {
+        return ResponseEntity.ok(userService.editMyInfo(authorizationHeader));
+    }
 }
