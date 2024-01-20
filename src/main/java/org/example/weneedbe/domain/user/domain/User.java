@@ -89,4 +89,23 @@ public class User extends BaseTimeEntity {
         this.interestField = interestField;
         this.hasRegistered = hasRegistered;
     }
+
+    public void editUserInfo(String profile,
+                             String nickname,
+                             Integer grade,
+                             Department major,
+                             Department doubleMajor,
+                             Fields interestField,
+                             List<String> links,
+                             String aboutMe) {
+
+        this.profile = profile;
+        this.nickname = nickname;
+        this.grade = grade;
+        this.major = major;
+        this.doubleMajor = doubleMajor;
+        this.interestField = interestField;
+        this.links = links;
+        this.aboutMe = aboutMe;
+    }
 }
