@@ -29,7 +29,7 @@ public class MyPageController {
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @GetMapping("/getMyInfo")
+    @GetMapping("/my-info")
     public ResponseEntity<GetMyInfoResponse> getMyInfo(@RequestHeader("Authorization") String authorizationHeader) throws IOException {
         return ResponseEntity.ok(userService.getMyInfo(authorizationHeader));
     }
@@ -41,7 +41,7 @@ public class MyPageController {
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @PatchMapping("/editMyInfo")
+    @PatchMapping("/my-Info")
     public ResponseEntity<EditMyInfoResponse> editMyInfo(@RequestHeader("Authorization") String authorizationHeader) throws IOException {
         return ResponseEntity.ok(userService.editMyInfo(authorizationHeader));
     }
