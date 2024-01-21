@@ -3,7 +3,6 @@ package org.example.weneedbe.domain.user.service;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.weneedbe.domain.article.domain.Article;
 import org.example.weneedbe.domain.article.domain.Type;
 import org.example.weneedbe.domain.article.repository.ArticleLikeRepository;
 import org.example.weneedbe.domain.bookmark.domain.Bookmark;
@@ -85,7 +84,7 @@ public class UserService {
         List<Bookmark> recruitingBookmarks = bookmarkRepository.findAllByUserAndArticle_ArticleTypeOrderByArticle_CreatedAtDesc(
             user, Type.RECRUITING);
 
-        return recruitingBookmarks.stream().map(s -> new MyPageArticleInfoResponse(s,
+        return recruitingBookmarks.stream().map(s -> new MyPageArticleInfoResponse(s.getArticle(),
             articleLikeRepository.countByArticle(s.getArticle()))).toList();
     }
 

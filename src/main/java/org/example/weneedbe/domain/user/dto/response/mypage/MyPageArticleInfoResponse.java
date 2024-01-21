@@ -1,7 +1,7 @@
 package org.example.weneedbe.domain.user.dto.response.mypage;
 
 import lombok.Getter;
-import org.example.weneedbe.domain.bookmark.domain.Bookmark;
+import org.example.weneedbe.domain.article.domain.Article;
 
 @Getter
 public class MyPageArticleInfoResponse {
@@ -12,11 +12,11 @@ public class MyPageArticleInfoResponse {
   private int viewCount;
   private int heartCount;
 
-  public MyPageArticleInfoResponse(Bookmark bookmark, int heartCount) {
-    this.articleId = bookmark.getBookmarkId();
-    this.thumbnail = bookmark.getArticle().getThumbnail();
-    this.title = bookmark.getArticle().getTitle();
-    this.viewCount = bookmark.getArticle().getViewCount();
+  public MyPageArticleInfoResponse(Article article, int heartCount) {
+    this.articleId = article.getArticleId();
+    this.thumbnail = article.getThumbnail();
+    this.title = article.getTitle();
+    this.viewCount = article.getViewCount();
     this.heartCount = heartCount;
   }
 }
