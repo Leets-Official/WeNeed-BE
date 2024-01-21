@@ -8,6 +8,7 @@ import org.example.weneedbe.domain.user.dto.request.UserInfoRequest;
 import org.example.weneedbe.domain.user.dto.response.UserInfoResponse;
 import org.example.weneedbe.domain.user.dto.response.mypage.EditMyInfoResponse;
 import org.example.weneedbe.domain.user.dto.response.mypage.GetMyInfoResponse;
+import org.example.weneedbe.domain.user.exception.InvalidProfileEditException;
 import org.example.weneedbe.domain.user.exception.UserNotFoundException;
 import org.example.weneedbe.domain.user.repository.UserRepository;
 import org.example.weneedbe.global.jwt.TokenProvider;
@@ -93,7 +94,7 @@ public class UserService {
             userRepository.save(user);
         } catch (IllegalArgumentException e) {
             log.info(e.getMessage());
-            throw e;
+            throw new InvalidProfileEditException();
         }
         return EditMyInfoResponse.from(user);
     }
