@@ -12,7 +12,11 @@ import org.example.weneedbe.domain.article.dto.response.main.MainPortfolioDto;
 import org.example.weneedbe.domain.article.dto.response.main.MainRecruitDto;
 import org.example.weneedbe.global.error.ErrorResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Objects;
 
 @Tag(name = "Main Controller", description = "메인페이지 관련 API입니다.")
 @RestController
@@ -29,8 +33,9 @@ public class MainController {
     })
     @GetMapping("/portfolio")
     ResponseEntity<MainPortfolioDto> getMainPagePortfolio(
-            @RequestParam int size, @RequestParam int page, @RequestParam String sort, @RequestParam String[] detailTags) {
-        return ResponseEntity.ok(mainService.getPortfolioArticleList(size, page, sort, detailTags));
+            @RequestParam int size, @RequestParam int page, @RequestParam String sort, @RequestParam(required = false, defaultValue = "") String[] detailTags,
+            @RequestHeader(name = "Authorization", required = false)  String authorizationHeader) {
+        return ResponseEntity.ok(mainService.getPortfolioArticleList(size, page, sort, detailTags, authorizationHeader));
     }
 
     @Operation(summary = "메인페이지 - 리크루팅", description = "메인페이지에서 리크루팅 조회합니다")
