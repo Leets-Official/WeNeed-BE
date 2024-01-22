@@ -16,7 +16,8 @@ public enum ErrorCode {
     COMMENT_NOT_FOUND(400, "COMMENT_NOT_FOUND", "존재하지 않는 댓글입니다."),
     INVALID_SORT_ERROR(400, "INVALID_SORT_ERROR", "잘못된 정렬 값입니다."),
     INVALID_INPUT_VALUE(400, "INVALID_INPUT_VALUE", "유효하지 않은 입력값입니다."),
-    INVALID_EDIT_VALUE(400, "INVALID_EDIT_VALUE", "유효하지 않은 변경값입니다.");
+    INVALID_EDIT_VALUE(400, "INVALID_EDIT_VALUE", "유효하지 않은 변경값입니다."),
+    USER_NOT_REGISTERED(400, "USER_NOT_REGISTERED","회원가입이 완료되지 않은 유저입니다.");
 
     private final int httpStatus;
     private final String code;
