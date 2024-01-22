@@ -1,7 +1,6 @@
 package org.example.weneedbe.domain.article.application;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.example.weneedbe.domain.article.domain.Article;
 import org.example.weneedbe.domain.article.domain.ContentData;
 import org.example.weneedbe.domain.article.dto.response.main.*;
@@ -27,7 +26,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class MainService {
     private final UserRepository userRepository;
     private final ArticleRepository articleRepository;
@@ -142,15 +140,21 @@ public class MainService {
                 .build();
     }
 
-    public MainRecruitDto getRecruitArticleList(int size, int page, String[] detailTags) {
-        User mockUser = userRepository.findById(1L).orElseThrow(UserNotFoundException::new);
+    public MainRecruitDto getRecruitArticleList(int size, int page, String[] detailTags, String authorizationHeader) {
+        User user = null;
+        String guestNickname = "guest";
+
+        if (authorizationHeader != null) {
+            user = getUserFromAuthorizationHeader(authorizationHeader);
+        }
+
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Article> recruitingPage = articleRepository.findRecruitingByDetailTagsInOrderByCreatedAtDesc(detailTags, pageable);
         PageableDto pageableDto = new PageableDto(size, page, recruitingPage.getTotalPages(), recruitingPage.getTotalElements());
 
         List<RecruitArticleDto> recruitList = convertToRecruitArticleDtoList(recruitingPage.getContent());
 
-        return new MainRecruitDto(new MainUserDto(mockUser.getNickname()), pageableDto, recruitList);
+        return new MainRecruitDto(new MainUserDto(user != null ? user.getNickname() : guestNickname), pageableDto, recruitList);
     }
 
     private List<RecruitArticleDto> convertToRecruitArticleDtoList(List<Article> articles) {
