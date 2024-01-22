@@ -8,16 +8,23 @@ import org.example.weneedbe.domain.article.repository.ArticleLikeRepository;
 import org.example.weneedbe.domain.bookmark.domain.Bookmark;
 import org.example.weneedbe.domain.bookmark.repository.BookmarkRepository;
 import org.example.weneedbe.domain.user.domain.User;
+import org.example.weneedbe.domain.user.dto.request.EditMyInfoRequest;
 import org.example.weneedbe.domain.user.dto.request.UserInfoRequest;
 import org.example.weneedbe.domain.user.dto.response.UserInfoResponse;
 import org.example.weneedbe.domain.user.dto.response.mypage.MyPageArticleInfoResponse;
-import org.example.weneedbe.domain.user.dto.response.mypage.MyPageGetMyInfoResponse;
+import org.example.weneedbe.domain.user.dto.response.mypage.EditMyInfoResponse;
+import org.example.weneedbe.domain.user.dto.response.mypage.GetMyInfoResponse;
+import org.example.weneedbe.domain.user.exception.InvalidProfileEditException;
 import org.example.weneedbe.domain.user.exception.UserNotFoundException;
 import org.example.weneedbe.domain.user.repository.UserRepository;
 import org.example.weneedbe.global.jwt.TokenProvider;
+import org.example.weneedbe.global.s3.application.S3Service;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @Service
 @Slf4j
@@ -28,6 +35,7 @@ public class UserService {
     private final TokenProvider tokenProvider;
     private final BookmarkRepository bookmarkRepository;
     private final ArticleLikeRepository articleLikeRepository;
+    private final S3Service s3Service;
 
     public Boolean checkNicknameDuplicate(String nickName) {
         return userRepository.existsByNickname(nickName);
@@ -43,12 +51,12 @@ public class UserService {
                 .orElseThrow(IllegalArgumentException::new);
     }
 
-    public ResponseEntity<UserInfoResponse> getUserInfo(UserInfoRequest request) throws Exception {
+    public ResponseEntity<UserInfoResponse> setUserInfo(UserInfoRequest request) throws Exception {
         try {
             /* 토큰을 통한 user 객체를 불러옴 */
             /* 아직 토큰이 없기 때문에 임시 객체를 사용 */
             User mockUser = userRepository.findById(1L).orElseThrow();
-            mockUser.getUserInfo(request.getMajor(),
+            mockUser.setUserInfo(request.getMajor(),
                     request.getDoubleMajor(),
                     request.getNickname(),
                     request.getUserGrade(),
@@ -63,18 +71,35 @@ public class UserService {
         return new ResponseEntity<>(new UserInfoResponse(true, "상세 정보 입력 성공"), HttpStatus.OK);
     }
 
-    public MyPageGetMyInfoResponse getMyInfo(String authorizationHeader) {
-        /* 토큰을 통한 user 객체를 불러옴 */
-        /* 아직 토큰이 없기 때문에 임시 객체를 사용 */
-/*        String token = tokenProvider.getTokenFromAuthorizationHeader(authorizationHeader);
-        Long userId = tokenProvider.getUserIdFromToken(token);
+    public GetMyInfoResponse getMyInfo(String authorizationHeader) {
+        Long userId = getUserIdFromHeader(authorizationHeader);
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 
-        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);*/
+        return GetMyInfoResponse.from(user);
+    }
 
-        User mockUser = userRepository.findById(1L).orElseThrow();
+    public EditMyInfoResponse editMyInfo(String authorizationHeader, MultipartFile profileImage, EditMyInfoRequest request) throws IOException{
+        Long userId = getUserIdFromHeader(authorizationHeader);
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 
-        return MyPageGetMyInfoResponse.from(mockUser);
+        try {
+            String profileImageUrl = s3Service.uploadImage(profileImage);
 
+            user.editUserInfo(profileImageUrl,
+                    request.getNickname(),
+                    request.getUserGrade(),
+                    request.getMajor(),
+                    request.getDoubleMajor(),
+                    request.getInterestField(),
+                    request.getLinks(),
+                    request.getSelfIntro());
+
+            userRepository.save(user);
+        } catch (IllegalArgumentException e) {
+            log.info(e.getMessage());
+            throw new InvalidProfileEditException();
+        }
+        return EditMyInfoResponse.from(user);
     }
 
     public List<MyPageArticleInfoResponse> getInterestingCrewInfo(String authorizationHeader) {

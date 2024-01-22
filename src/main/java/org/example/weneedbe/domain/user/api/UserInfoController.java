@@ -43,7 +43,7 @@ public class UserInfoController {
             @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/info")
-    public ResponseEntity<UserInfoResponse> getUserInfo(@RequestBody UserInfoRequest request) throws Exception {
-        return userService.getUserInfo(request);
+    public ResponseEntity<UserInfoResponse> setUserInfo(@RequestBody UserInfoRequest request) throws Exception {
+        return userService.setUserInfo(request);
     }
 }
