@@ -1,16 +1,20 @@
 package org.example.weneedbe.domain.article.application;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.weneedbe.domain.article.domain.Article;
 import org.example.weneedbe.domain.article.domain.ContentData;
 import org.example.weneedbe.domain.article.dto.response.main.*;
 import org.example.weneedbe.domain.article.exception.InvalidSortException;
 import org.example.weneedbe.domain.article.repository.ArticleLikeRepository;
 import org.example.weneedbe.domain.article.repository.ArticleRepository;
+import org.example.weneedbe.domain.bookmark.domain.Bookmark;
 import org.example.weneedbe.domain.bookmark.repository.BookmarkRepository;
 import org.example.weneedbe.domain.user.domain.User;
 import org.example.weneedbe.domain.user.exception.UserNotFoundException;
+import org.example.weneedbe.domain.user.exception.UserNotRegisteredException;
 import org.example.weneedbe.domain.user.repository.UserRepository;
+import org.example.weneedbe.global.jwt.TokenProvider;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,27 +27,34 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MainService {
     private final UserRepository userRepository;
     private final ArticleRepository articleRepository;
     private final ArticleLikeRepository articleLikeRepository;
     private final BookmarkRepository bookmarkRepository;
+    private final TokenProvider tokenProvider;
     private final static String SORT_BY_RECENT = "DESC";
     private final static String SORT_BY_HEARTS = "HEART";
     private final static String SORT_BY_VIEWS = "VIEW";
 
-    public MainPortfolioDto getPortfolioArticleList(int size, int page, String sort, String[] detailTags) {
-        User mockUser = userRepository.findById(1L).orElseThrow(UserNotFoundException::new);
+    public MainPortfolioDto getPortfolioArticleList(int size, int page, String sort, String[] detailTags, String authorizationHeader) {
+        User user = null;
+        String guestNickname = "guest";
+
+        if (authorizationHeader != null) {
+            user = getUserFromAuthorizationHeader(authorizationHeader);
+        }
 
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Article> articlesPage = getSortedArticlesPage(sort, detailTags, pageable);
         PageableDto pageableDto = new PageableDto(size, page, articlesPage.getTotalPages(), articlesPage.getTotalElements());
-        List<PortfolioArticleDto> articleList = convertToPortfolioArticleDtoList(articlesPage.getContent(), mockUser);
+        List<PortfolioArticleDto> articleList = convertToPortfolioArticleDtoList(articlesPage.getContent(), user);
 
-        List<RecommendArticleDto> recommendArticleList = getRecommendArticleList(mockUser);
+        List<RecommendArticleDto> recommendArticleList = getRecommendArticleList(user);
         List<HotArticleDto> hotArticleList = getHotArticleList();
 
-        return new MainPortfolioDto(new MainUserDto(mockUser.getNickname()), pageableDto, hotArticleList, articleList, recommendArticleList);
+        return new MainPortfolioDto(new MainUserDto(user != null ? user.getNickname() : guestNickname), pageableDto, hotArticleList, articleList, recommendArticleList);
     }
 
     private Page<Article> getSortedArticlesPage(String sort, String[] detailTags, Pageable pageable) {
@@ -60,7 +71,8 @@ public class MainService {
     }
 
     private PortfolioArticleDto convertToArticleDto(Article article, User user) {
-        boolean isBookmarked = user != null && user.getBookmarks().contains(article);
+        boolean isBookmarked = user != null && containsBookmarkId(user.getBookmarks(), article.getArticleId());
+
         int heartCount = articleLikeRepository.countByArticle(article);
 
         return PortfolioArticleDto.builder()
@@ -82,7 +94,7 @@ public class MainService {
     }
 
     private RecommendArticleDto convertToRecommendArticleDto(Article article, User user) {
-        boolean isBookmarked = user != null && user.getBookmarks().contains(article);
+        boolean isBookmarked = user != null && containsBookmarkId(user.getBookmarks(), article.getArticleId());
         return RecommendArticleDto.builder()
                 .articleId(article.getArticleId())
                 .thumbnail(article.getThumbnail())
@@ -130,7 +142,7 @@ public class MainService {
                 .build();
     }
 
-    public MainRecruitDto getRecruitArticleList(int size, int page, String[] detailTags){
+    public MainRecruitDto getRecruitArticleList(int size, int page, String[] detailTags) {
         User mockUser = userRepository.findById(1L).orElseThrow(UserNotFoundException::new);
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Article> recruitingPage = articleRepository.findRecruitingByDetailTagsInOrderByCreatedAtDesc(detailTags, pageable);
@@ -138,15 +150,16 @@ public class MainService {
 
         List<RecruitArticleDto> recruitList = convertToRecruitArticleDtoList(recruitingPage.getContent());
 
-        return new MainRecruitDto(new MainUserDto(mockUser.getNickname()),pageableDto,recruitList);
+        return new MainRecruitDto(new MainUserDto(mockUser.getNickname()), pageableDto, recruitList);
     }
-    private List<RecruitArticleDto> convertToRecruitArticleDtoList(List<Article> articles){
+
+    private List<RecruitArticleDto> convertToRecruitArticleDtoList(List<Article> articles) {
         return articles.stream()
                 .map(article -> convertToRecruitArticleDto(article))
                 .collect(Collectors.toList());
     }
 
-    private RecruitArticleDto convertToRecruitArticleDto(Article article){
+    private RecruitArticleDto convertToRecruitArticleDto(Article article) {
         int heartCount = articleLikeRepository.countByArticle(article);
         int bookmarkCount = bookmarkRepository.countByArticle(article);
         String contentByListContent = getContentByListContent(article.getContent());
@@ -164,13 +177,33 @@ public class MainService {
                 .commentCount(article.getCommentList().size())
                 .heartCount(heartCount).build();
     }
-    private String getContentByListContent(List<ContentData> contentData){
+
+    private String getContentByListContent(List<ContentData> contentData) {
         StringBuilder allContent = new StringBuilder();
-        for(ContentData data : contentData){
-            if("text".equals(data.getType())){
+        for (ContentData data : contentData) {
+            if ("text".equals(data.getType())) {
                 allContent.append(data.getTextData()).append(" ");
             }
         }
         return allContent.toString().trim();
+    }
+
+    private User getUserFromAuthorizationHeader(String authorizationHeader) {
+        String token = tokenProvider.getTokenFromAuthorizationHeader(authorizationHeader);
+        Long userIdFromToken = tokenProvider.getUserIdFromToken(token);
+        User user = userRepository.findById(userIdFromToken).orElseThrow(UserNotFoundException::new);
+        if (!user.getHasRegistered()) {
+            throw new UserNotRegisteredException();
+        }
+        return user;
+    }
+
+    private boolean containsBookmarkId(List<Bookmark> bookmarks, Long articleId) {
+        for (Bookmark bookmark : bookmarks) {
+            if (bookmark.getArticle().getArticleId().equals(articleId)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
