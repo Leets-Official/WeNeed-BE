@@ -44,8 +44,8 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
     @Query("SELECT ar FROM Article ar WHERE ar.articleType = 'PORTFOLIO'")
     List<Article> findPortfolios();
 
-    @Query(value = "SELECT a.* FROM article a INNER JOIN detail_tags dt ON a.article_id = dt.article_id WHERE a.article_type = 'RECRUITING' AND (:detailTags IS NULL OR dt.detail_tags IN :detailTags) ORDER BY a.created_at DESC",
-            countQuery = "SELECT count(*) FROM article a INNER JOIN detail_tags dt ON a.article_id = dt.article_id WHERE a.article_type = 'RECRUITING' AND (:detailTags IS NULL OR dt.detail_tags IN :detailTags)",
+    @Query(value = "SELECT a.* FROM article a LEFT JOIN detail_tags dt ON a.article_id = dt.article_id AND a.article_type = 'RECRUITING' AND (:detailTags IS NULL OR dt.detail_tags IN :detailTags) ORDER BY a.created_at DESC",
+            countQuery = "SELECT count(*) FROM article a LEFT JOIN detail_tags dt ON a.article_id = dt.article_id AND a.article_type = 'RECRUITING' AND (:detailTags IS NULL OR dt.detail_tags IN :detailTags)",
             nativeQuery = true)
     Page<Article> findRecruitingByDetailTagsInOrderByCreatedAtDesc(@Param("detailTags") String[] detailTags, Pageable pageable);
 
