@@ -1,11 +1,17 @@
 package org.example.weneedbe.domain.user.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.weneedbe.domain.article.domain.Type;
+import org.example.weneedbe.domain.article.repository.ArticleLikeRepository;
+import org.example.weneedbe.domain.bookmark.domain.Bookmark;
+import org.example.weneedbe.domain.bookmark.repository.BookmarkRepository;
 import org.example.weneedbe.domain.user.domain.User;
 import org.example.weneedbe.domain.user.dto.request.EditMyInfoRequest;
 import org.example.weneedbe.domain.user.dto.request.UserInfoRequest;
 import org.example.weneedbe.domain.user.dto.response.UserInfoResponse;
+import org.example.weneedbe.domain.user.dto.response.mypage.MyPageArticleInfoResponse;
 import org.example.weneedbe.domain.user.dto.response.mypage.EditMyInfoResponse;
 import org.example.weneedbe.domain.user.dto.response.mypage.GetMyInfoResponse;
 import org.example.weneedbe.domain.user.exception.InvalidProfileEditException;
@@ -27,6 +33,8 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final TokenProvider tokenProvider;
+    private final BookmarkRepository bookmarkRepository;
+    private final ArticleLikeRepository articleLikeRepository;
     private final S3Service s3Service;
 
     public Boolean checkNicknameDuplicate(String nickName) {
@@ -41,11 +49,6 @@ public class UserService {
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(IllegalArgumentException::new);
-    }
-
-    private Long getUserIdFromHeader(String authorizationHeader) {
-        String token = tokenProvider.getTokenFromAuthorizationHeader(authorizationHeader);
-        return tokenProvider.getUserIdFromToken(token);
     }
 
     public ResponseEntity<UserInfoResponse> setUserInfo(UserInfoRequest request) throws Exception {
@@ -97,5 +100,21 @@ public class UserService {
             throw new InvalidProfileEditException();
         }
         return EditMyInfoResponse.from(user);
+    }
+
+    public List<MyPageArticleInfoResponse> getInterestingCrewInfo(String authorizationHeader) {
+        Long userId = getUserIdFromHeader(authorizationHeader);
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+
+        List<Bookmark> recruitingBookmarks = bookmarkRepository.findAllByUserAndArticle_ArticleTypeOrderByArticle_CreatedAtDesc(
+            user, Type.RECRUITING);
+
+        return recruitingBookmarks.stream().map(s -> new MyPageArticleInfoResponse(s.getArticle(),
+            articleLikeRepository.countByArticle(s.getArticle()))).toList();
+    }
+
+    private Long getUserIdFromHeader(String authorizationHeader) {
+        String token = tokenProvider.getTokenFromAuthorizationHeader(authorizationHeader);
+        return tokenProvider.getUserIdFromToken(token);
     }
 }

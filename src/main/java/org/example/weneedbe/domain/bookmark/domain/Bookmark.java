@@ -3,6 +3,7 @@ package org.example.weneedbe.domain.bookmark.domain;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.weneedbe.domain.article.domain.Article;
 import org.example.weneedbe.domain.user.domain.User;
@@ -10,6 +11,7 @@ import org.example.weneedbe.domain.user.domain.User;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
 @Builder
 @Table(name="bookmark")
 public class Bookmark {
