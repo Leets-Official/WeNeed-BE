@@ -29,8 +29,9 @@ public class MainController {
     })
     @GetMapping("/portfolio")
     ResponseEntity<MainPortfolioDto> getMainPagePortfolio(
-            @RequestParam int size, @RequestParam int page, @RequestParam String sort, @RequestParam String[] detailTags) {
-        return ResponseEntity.ok(mainService.getPortfolioArticleList(size, page, sort, detailTags));
+            @RequestParam int size, @RequestParam int page, @RequestParam String sort, @RequestParam(required = false, defaultValue = "") String[] detailTags,
+            @RequestHeader(name = "Authorization", required = false)  String authorizationHeader) {
+        return ResponseEntity.ok(mainService.getPortfolioArticleList(size, page, sort, detailTags, authorizationHeader));
     }
 
     @Operation(summary = "메인페이지 - 리크루팅", description = "메인페이지에서 리크루팅 조회합니다")
@@ -42,7 +43,8 @@ public class MainController {
     })
     @GetMapping("/recruit")
     ResponseEntity<MainRecruitDto> getMainPageRecruit(
-            @RequestParam int size, @RequestParam int page, @RequestParam String[] detailTags) {
-        return ResponseEntity.ok(mainService.getRecruitArticleList(size, page, detailTags));
+            @RequestParam int size, @RequestParam int page, @RequestParam(required = false, defaultValue = "") String[] detailTags,
+            @RequestHeader(name = "Authorization", required = false)  String authorizationHeader) {
+        return ResponseEntity.ok(mainService.getRecruitArticleList(size, page, detailTags, authorizationHeader));
     }
 }
