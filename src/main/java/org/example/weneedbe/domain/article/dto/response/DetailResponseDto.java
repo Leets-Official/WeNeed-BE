@@ -7,6 +7,7 @@ import org.example.weneedbe.domain.comment.domain.Comment;
 import org.example.weneedbe.domain.file.domain.File;
 import org.example.weneedbe.domain.user.domain.Department;
 import org.example.weneedbe.domain.user.domain.User;
+import org.example.weneedbe.domain.user.domain.UserArticle;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -28,11 +29,11 @@ public class DetailResponseDto {
         private List<CommentResponseDto> comments;
 
 
-        public DetailPortfolioDto(Article article, User user, int heartCount, int bookmarkCount, List<Article> userPortfolio
-                , boolean isHearted, boolean isBookmarked, List<CommentResponseDto> commentList) {
+        public DetailPortfolioDto(Article article, User user, int heartCount, int bookmarkCount, List<WorkPortfolioArticleDto> workList,
+                                  boolean isHearted, boolean isBookmarked, List<CommentResponseDto> commentList) {
             this.user = new DetailUserDto(user, user.getUserId().equals(article.getUser().getUserId()), isHearted, isBookmarked);
             this.portfolio = new DetailArticleDto(article, heartCount, bookmarkCount);
-            this.workList = initializeWorkList(userPortfolio, article);
+            this.workList = workList;
             this.comments = commentList;
         }
     }
@@ -67,6 +68,7 @@ public class DetailResponseDto {
         private List<String> files;
         private DetailWriterDto writer;
         private List<DetailPortfolioContentDto> contents;
+        private List<DetailTeamMemberDto> teamMembers;
 
         public DetailArticleDto(Article article, int heatCount, int bookmarkCount) {
             this.thumbnail = article.getThumbnail();
@@ -84,6 +86,9 @@ public class DetailResponseDto {
                     .collect(Collectors.toList());
             this.writer = new DetailWriterDto(article);
             this.contents = getPortfolioContents(article.getContent());
+            this.teamMembers = article.getUserArticles().stream()
+                    .map(userArticle -> new DetailTeamMemberDto(userArticle.getUser()))
+                    .collect(Collectors.toList());
         }
     }
 
@@ -134,24 +139,14 @@ public class DetailResponseDto {
         private Long articleId;
         private String thumbnail;
         private String title;
-        //북마크여부추가
+        private boolean bookmarked;
 
-        public WorkPortfolioArticleDto(Article article) {
+        public WorkPortfolioArticleDto(Article article, boolean bookmarked) {
             this.articleId = article.getArticleId();
             this.thumbnail = article.getThumbnail();
             this.title = article.getTitle();
+            this.bookmarked = bookmarked;
         }
-    }
-
-    private static List<WorkPortfolioArticleDto> initializeWorkList(List<Article> userPortfolio, Article article) {
-        List<WorkPortfolioArticleDto> workList = new ArrayList<>();
-        for (Article portfolio : userPortfolio) {
-            /* 상세조회하는 게시물 제외하고 workList에 추가 */
-            if (!portfolio.getArticleId().equals(article.getArticleId())) {
-                workList.add(new WorkPortfolioArticleDto(portfolio));
-            }
-        }
-        return workList;
     }
 
     @Getter
@@ -176,11 +171,23 @@ public class DetailResponseDto {
     public static class CommentResponseDto {
         private Long commentId;
         private String content;
+        private Long userId;
+        private String nickname;
+        private Department major;
+        private Integer grade;
+        private LocalDateTime createdAt;
+        private String profile;
         private List<CommentResponseDto> children;
 
         public CommentResponseDto(Comment comment, List<Comment> commentList) {
             this.commentId = comment.getCommentId();
             this.content = comment.getContent();
+            this.userId = comment.getWriter().getUserId();
+            this.nickname = comment.getWriter().getNickname();
+            this.major = comment.getWriter().getMajor();
+            this.grade = comment.getWriter().getGrade();
+            this.createdAt = comment.getCreatedAt();
+            this.profile = comment.getWriter().getProfile();
             if (!comment.getChildren().isEmpty()) {
                 this.children = comment.getChildren().stream()
                         .map(child -> new CommentResponseDto(child, commentList))
@@ -188,6 +195,19 @@ public class DetailResponseDto {
             } else {
                 this.children = new ArrayList<>();
             }
+        }
+    }
+
+    @Getter
+    public static class DetailTeamMemberDto{
+        private Long userId;
+        private String nickname;
+        private String profile;
+
+        public DetailTeamMemberDto(User user){
+            this.userId = user.getUserId();
+            this.nickname = user.getNickname();
+            this.profile = user.getProfile();
         }
     }
 }

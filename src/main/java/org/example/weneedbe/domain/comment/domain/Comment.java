@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import org.example.weneedbe.domain.article.domain.Article;
 import org.example.weneedbe.domain.comment.dto.request.AddCommentRequest;
 import org.example.weneedbe.domain.user.domain.User;
+import org.example.weneedbe.global.shared.entity.BaseTimeEntity;
 
 @Entity
 @Getter
@@ -19,7 +20,7 @@ import org.example.weneedbe.domain.user.domain.User;
 @NoArgsConstructor
 @Builder
 @Table(name="comment")
-public class Comment {
+public class Comment extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

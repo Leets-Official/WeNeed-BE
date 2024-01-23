@@ -1,6 +1,7 @@
 package org.example.weneedbe.domain.article.repository;
 
 import org.example.weneedbe.domain.article.domain.Article;
+import org.example.weneedbe.domain.user.domain.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -49,6 +50,6 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
             nativeQuery = true)
     Page<Article> findRecruitingByDetailTagsInOrderByCreatedAtDesc(@Param("detailTags") String[] detailTags, Pageable pageable);
 
-    @Query("SELECT ar FROM Article ar WHERE ar.user.userId = :userId AND ar.articleType = 'PORTFOLIO'")
-    List<Article> findPortfolioArticlesByUserId(@Param("userId") Long userId);
+    @Query("SELECT ar FROM Article ar WHERE ar.user = :user AND ar.articleType = 'PORTFOLIO'")
+    List<Article> findPortfolioArticlesByUser(@Param("user") User user);
 }

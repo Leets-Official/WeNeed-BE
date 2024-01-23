@@ -12,7 +12,7 @@ import org.example.weneedbe.domain.article.domain.ArticleLike;
 import org.example.weneedbe.domain.article.dto.request.AddArticleRequest;
 import org.example.weneedbe.domain.article.dto.response.DetailResponseDto.DetailPortfolioDto;
 import org.example.weneedbe.domain.article.dto.response.DetailResponseDto.CommentResponseDto;
-
+import org.example.weneedbe.domain.article.dto.response.DetailResponseDto.WorkPortfolioArticleDto;
 import org.example.weneedbe.domain.article.dto.response.DetailResponseDto.DetailRecruitDto;
 import org.example.weneedbe.domain.article.dto.response.MemberInfoResponse;
 import org.example.weneedbe.domain.article.exception.ArticleNotFoundException;
@@ -140,12 +140,24 @@ public class ArticleService {
         boolean isHearted = articleLikeRepository.existsByArticleAndUser(article, user);
         boolean isBookmarked = bookmarkRepository.existsByArticleAndUser(article, user);
 
-        List<Article> portfolioArticlesByUserId = articleRepository.findPortfolioArticlesByUserId(user.getUserId());
-
+        List<Article> portfolioArticlesByUser = articleRepository.findPortfolioArticlesByUser(article.getUser());
         List<Comment> commentList = commentRepository.findAllByArticle(article);
         List<CommentResponseDto> commentResponseDtos = mapToResponseDto(commentList);
 
-        return new DetailPortfolioDto(article, user, heartCount, bookmarkCount, portfolioArticlesByUserId, isHearted, isBookmarked, commentResponseDtos);
+        List<WorkPortfolioArticleDto> workList = initializeWorkList(portfolioArticlesByUser, article, user);
+
+        return new DetailPortfolioDto(article, user, heartCount, bookmarkCount, workList, isHearted, isBookmarked, commentResponseDtos);
+    }
+    private List<WorkPortfolioArticleDto> initializeWorkList(List<Article> userPortfolio, Article article, User user) {
+        List<WorkPortfolioArticleDto> workList = new ArrayList<>();
+        for (Article portfolio : userPortfolio) {
+            /* 상세조회하는 게시물 제외하고 workList에 추가 */
+            if (!portfolio.getArticleId().equals(article.getArticleId())) {
+                boolean bookmarked = bookmarkRepository.existsByArticleAndUser(portfolio, user);
+                workList.add(new WorkPortfolioArticleDto(portfolio, bookmarked));
+            }
+        }
+        return workList;
     }
 
     private Long getUserIdFromAuthorizationHeader(String authorizationHeader) {
