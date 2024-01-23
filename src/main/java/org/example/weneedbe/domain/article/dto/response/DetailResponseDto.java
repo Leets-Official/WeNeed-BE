@@ -176,11 +176,23 @@ public class DetailResponseDto {
     public static class CommentResponseDto {
         private Long commentId;
         private String content;
+        private Long userId;
+        private String nickname;
+        private Department major;
+        private Integer grade;
+        private LocalDateTime createdAt;
+        private String profile;
         private List<CommentResponseDto> children;
 
         public CommentResponseDto(Comment comment, List<Comment> commentList) {
             this.commentId = comment.getCommentId();
             this.content = comment.getContent();
+            this.userId = comment.getWriter().getUserId();
+            this.nickname = comment.getWriter().getNickname();
+            this.major = comment.getWriter().getMajor();
+            this.grade = comment.getWriter().getGrade();
+            this.createdAt = comment.getCreatedAt();
+            this.profile = comment.getWriter().getProfile();
             if (!comment.getChildren().isEmpty()) {
                 this.children = comment.getChildren().stream()
                         .map(child -> new CommentResponseDto(child, commentList))
