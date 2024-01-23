@@ -7,6 +7,7 @@ import org.example.weneedbe.domain.comment.domain.Comment;
 import org.example.weneedbe.domain.file.domain.File;
 import org.example.weneedbe.domain.user.domain.Department;
 import org.example.weneedbe.domain.user.domain.User;
+import org.example.weneedbe.domain.user.domain.UserArticle;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -67,6 +68,7 @@ public class DetailResponseDto {
         private List<String> files;
         private DetailWriterDto writer;
         private List<DetailPortfolioContentDto> contents;
+        private List<DetailTeamMemberDto> teamMembers;
 
         public DetailArticleDto(Article article, int heatCount, int bookmarkCount) {
             this.thumbnail = article.getThumbnail();
@@ -84,6 +86,9 @@ public class DetailResponseDto {
                     .collect(Collectors.toList());
             this.writer = new DetailWriterDto(article);
             this.contents = getPortfolioContents(article.getContent());
+            this.teamMembers = article.getUserArticles().stream()
+                    .map(userArticle -> new DetailTeamMemberDto(userArticle.getUser()))
+                    .collect(Collectors.toList());
         }
     }
 
@@ -190,6 +195,19 @@ public class DetailResponseDto {
             } else {
                 this.children = new ArrayList<>();
             }
+        }
+    }
+
+    @Getter
+    public static class DetailTeamMemberDto{
+        private Long userId;
+        private String nickname;
+        private String profile;
+
+        public DetailTeamMemberDto(User user){
+            this.userId = user.getUserId();
+            this.nickname = user.getNickname();
+            this.profile = user.getProfile();
         }
     }
 }
