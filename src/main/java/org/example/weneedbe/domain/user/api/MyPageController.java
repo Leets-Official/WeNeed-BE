@@ -73,8 +73,9 @@ public class MyPageController {
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ResponseEntity<MyPageArticleInfoResponse> getMyOutputInfo(
-            @RequestHeader("Authorizaion") String authorizationHeader) {
+    @GetMapping("/find-my-output")
+    public ResponseEntity<List<MyPageArticleInfoResponse>> getMyOutputInfo(
+            @RequestHeader("Authorization") String authorizationHeader) {
         return ResponseEntity.ok(userService.getMyOutputInfo(authorizationHeader));
     }
 }

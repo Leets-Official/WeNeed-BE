@@ -1,8 +1,6 @@
 package org.example.weneedbe.domain.article.repository;
 
 import org.example.weneedbe.domain.article.domain.Article;
-import org.example.weneedbe.domain.article.domain.Type;
-import org.example.weneedbe.domain.bookmark.domain.Bookmark;
 import org.example.weneedbe.domain.user.domain.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
