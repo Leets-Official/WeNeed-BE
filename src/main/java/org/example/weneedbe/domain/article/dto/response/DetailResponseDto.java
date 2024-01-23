@@ -28,11 +28,11 @@ public class DetailResponseDto {
         private List<CommentResponseDto> comments;
 
 
-        public DetailPortfolioDto(Article article, User user, int heartCount, int bookmarkCount, List<Article> userPortfolio
-                , boolean isHearted, boolean isBookmarked, List<CommentResponseDto> commentList) {
+        public DetailPortfolioDto(Article article, User user, int heartCount, int bookmarkCount, List<WorkPortfolioArticleDto> workList,
+                                  boolean isHearted, boolean isBookmarked, List<CommentResponseDto> commentList) {
             this.user = new DetailUserDto(user, user.getUserId().equals(article.getUser().getUserId()), isHearted, isBookmarked);
             this.portfolio = new DetailArticleDto(article, heartCount, bookmarkCount);
-            this.workList = initializeWorkList(userPortfolio, article);
+            this.workList = workList;
             this.comments = commentList;
         }
     }
@@ -134,24 +134,14 @@ public class DetailResponseDto {
         private Long articleId;
         private String thumbnail;
         private String title;
-        //북마크여부추가
+        private boolean bookmarked;
 
-        public WorkPortfolioArticleDto(Article article) {
+        public WorkPortfolioArticleDto(Article article, boolean bookmarked) {
             this.articleId = article.getArticleId();
             this.thumbnail = article.getThumbnail();
             this.title = article.getTitle();
+            this.bookmarked = bookmarked;
         }
-    }
-
-    private static List<WorkPortfolioArticleDto> initializeWorkList(List<Article> userPortfolio, Article article) {
-        List<WorkPortfolioArticleDto> workList = new ArrayList<>();
-        for (Article portfolio : userPortfolio) {
-            /* 상세조회하는 게시물 제외하고 workList에 추가 */
-            if (!portfolio.getArticleId().equals(article.getArticleId())) {
-                workList.add(new WorkPortfolioArticleDto(portfolio));
-            }
-        }
-        return workList;
     }
 
     @Getter
