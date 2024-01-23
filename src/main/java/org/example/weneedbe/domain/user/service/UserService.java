@@ -8,6 +8,7 @@ import org.example.weneedbe.domain.article.repository.ArticleLikeRepository;
 import org.example.weneedbe.domain.bookmark.domain.Bookmark;
 import org.example.weneedbe.domain.bookmark.repository.BookmarkRepository;
 import org.example.weneedbe.domain.user.domain.User;
+import org.example.weneedbe.domain.user.domain.UserArticle;
 import org.example.weneedbe.domain.user.dto.request.EditMyInfoRequest;
 import org.example.weneedbe.domain.user.dto.request.UserInfoRequest;
 import org.example.weneedbe.domain.user.dto.response.UserInfoResponse;
@@ -16,6 +17,7 @@ import org.example.weneedbe.domain.user.dto.response.mypage.EditMyInfoResponse;
 import org.example.weneedbe.domain.user.dto.response.mypage.GetMyInfoResponse;
 import org.example.weneedbe.domain.user.exception.InvalidProfileEditException;
 import org.example.weneedbe.domain.user.exception.UserNotFoundException;
+import org.example.weneedbe.domain.user.repository.UserArticleRepository;
 import org.example.weneedbe.domain.user.repository.UserRepository;
 import org.example.weneedbe.global.jwt.TokenProvider;
 import org.example.weneedbe.global.s3.application.S3Service;
@@ -36,7 +38,7 @@ public class UserService {
     private final BookmarkRepository bookmarkRepository;
     private final ArticleLikeRepository articleLikeRepository;
     private final S3Service s3Service;
-
+    private final UserArticleRepository userArticleRepository;
     public Boolean checkNicknameDuplicate(String nickName) {
         return userRepository.existsByNickname(nickName);
     }
@@ -111,6 +113,17 @@ public class UserService {
 
         return recruitingBookmarks.stream().map(s -> new MyPageArticleInfoResponse(s.getArticle(),
             articleLikeRepository.countByArticle(s.getArticle()))).toList();
+    }
+
+    public List<MyPageArticleInfoResponse> getMyOutputInfo(String authorizationHeader) {
+        Long userId = getUserIdFromHeader(authorizationHeader);
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+
+        List<UserArticle> myOutputs = userArticleRepository.findAllByUserAndArticle_ArticleTypeOrderByArticle_CreatedAtDesc(
+                user, Type.PORTFOLIO);
+
+        return myOutputs.stream().map(s -> new MyPageArticleInfoResponse(s.getArticle(),
+                articleLikeRepository.countByArticle(s.getArticle()))).toList();
     }
 
     private Long getUserIdFromHeader(String authorizationHeader) {
