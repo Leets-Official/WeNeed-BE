@@ -65,4 +65,17 @@ public class MyPageController {
         @RequestHeader("Authorization") String authorizationHeader) {
         return ResponseEntity.ok(userService.getInterestingCrewInfo(authorizationHeader));
     }
+
+    @Operation(summary = "마이페이지의 마이 아웃풋 조회", description = "사용자가 작성한 포트폴리오 게시물을 가져옵니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping("/find-my-output")
+    public ResponseEntity<List<MyPageArticleInfoResponse>> getMyOutputInfo(
+            @RequestHeader("Authorization") String authorizationHeader) {
+        return ResponseEntity.ok(userService.getMyOutputInfo(authorizationHeader));
+    }
 }
