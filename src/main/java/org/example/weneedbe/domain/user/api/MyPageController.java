@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.example.weneedbe.domain.article.domain.Type;
 import org.example.weneedbe.domain.user.dto.request.EditMyInfoRequest;
 import org.example.weneedbe.domain.user.dto.response.mypage.EditMyInfoResponse;
 import org.example.weneedbe.domain.user.dto.response.mypage.GetMyInfoResponse;
@@ -76,6 +77,19 @@ public class MyPageController {
     @GetMapping("/find-my-output")
     public ResponseEntity<List<MyPageArticleInfoResponse>> getMyOutputInfo(
             @RequestHeader("Authorization") String authorizationHeader) {
-        return ResponseEntity.ok(userService.getMyOutputInfo(authorizationHeader));
+        return ResponseEntity.ok(userService.getMyInfo(authorizationHeader, Type.PORTFOLIO));
+    }
+
+    @Operation(summary = "마이페이지의 마이 크루 조회", description = "사용자가 작성한 리크루팅 게시물을 가져옵니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping("/find-my-crew")
+    public ResponseEntity<List<MyPageArticleInfoResponse>> getMyCrewInfo(
+            @RequestHeader("Authorization") String authorizationHeader) {
+        return ResponseEntity.ok(userService.getMyInfo(authorizationHeader, Type.RECRUITING));
     }
 }
