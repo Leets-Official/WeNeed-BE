@@ -52,4 +52,7 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
 
     @Query("SELECT ar FROM Article ar WHERE ar.user = :user AND ar.articleType = 'PORTFOLIO'")
     List<Article> findPortfolioArticlesByUser(@Param("user") User user);
+
+    @Query("SELECT DISTINCT ar FROM Article ar JOIN ar.content c WHERE ar.title LIKE %:keyword% OR c.textData LIKE %:keyword% ORDER BY ar.createdAt DESC")
+    Page<Article> findAllByTitleOrTextDataContaining(@Param("keyword") String keyword, Pageable pageable);
 }

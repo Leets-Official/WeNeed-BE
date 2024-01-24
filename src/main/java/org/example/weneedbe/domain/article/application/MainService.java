@@ -210,4 +210,34 @@ public class MainService {
         }
         return false;
     }
+
+    public MainSearchDto getSearchArticleList(int size, int page, String keyword, String authorizationHeader){
+        User user = null;
+        String guestNickname = "guest";
+
+        if (authorizationHeader != null) {
+            user = getUserFromAuthorizationHeader(authorizationHeader);
+        }
+
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Article> articlesPage = articleRepository.findAllByTitleOrTextDataContaining(keyword, pageable);
+        PageableDto pageableDto = new PageableDto(size, page, articlesPage.getTotalPages(), articlesPage.getTotalElements());
+
+        List<SearchArticleDto> articleList = convertToSearchArticleDtoList(articlesPage.getContent());
+
+        return new MainSearchDto(new MainUserDto(user != null ? user.getNickname() : guestNickname), pageableDto, articleList);
+    }
+
+    private List<SearchArticleDto> convertToSearchArticleDtoList(List<Article> articlesPage) {
+        return articlesPage.stream()
+                .map(article -> convertToSearchArticleDto(article))
+                .collect(Collectors.toList());
+
+    }
+
+    private SearchArticleDto convertToSearchArticleDto(Article article) {
+        int heartCount = articleLikeRepository.countByArticle(article);
+        int bookmarkCount = bookmarkRepository.countByArticle(article);
+        return new SearchArticleDto(article, heartCount, bookmarkCount);
+    }
 }

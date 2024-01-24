@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.weneedbe.domain.article.application.MainService;
 import org.example.weneedbe.domain.article.dto.response.main.MainPortfolioDto;
 import org.example.weneedbe.domain.article.dto.response.main.MainRecruitDto;
+import org.example.weneedbe.domain.article.dto.response.main.MainSearchDto;
 import org.example.weneedbe.global.error.ErrorResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -46,5 +47,19 @@ public class MainController {
             @RequestParam int size, @RequestParam int page, @RequestParam(required = false, defaultValue = "") String[] detailTags,
             @RequestHeader(name = "Authorization", required = false)  String authorizationHeader) {
         return ResponseEntity.ok(mainService.getRecruitArticleList(size, page, detailTags, authorizationHeader));
+    }
+
+    @Operation(summary = "메인페이지 - 검색", description = "메인페이지에서 키워드로 검색하여 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping("/search")
+    ResponseEntity<MainSearchDto> getMainPageSearch(
+            @RequestParam int size, @RequestParam int page, @RequestParam String keyword,
+            @RequestHeader(name = "Authorization", required = false)  String authorizationHeader) {
+        return ResponseEntity.ok(mainService.getSearchArticleList(size, page, keyword, authorizationHeader));
     }
 }
