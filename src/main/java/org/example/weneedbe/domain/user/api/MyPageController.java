@@ -61,7 +61,7 @@ public class MyPageController {
         @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
         @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @GetMapping("/interesting-crew")
+    @GetMapping("/interesting-crews")
     public ResponseEntity<List<MyPageArticleInfoResponse>> getInterestingCrewInfo(
         @RequestHeader("Authorization") String authorizationHeader) {
         return ResponseEntity.ok(userService.getBookmarkInfo(authorizationHeader, Type.RECRUITING));
@@ -74,7 +74,7 @@ public class MyPageController {
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @GetMapping("/interesting-portfolio")
+    @GetMapping("/interesting-portfolios")
     public ResponseEntity<List<MyPageArticleInfoResponse>> getInterestingPortfolioInfo(
             @RequestHeader("Authorization") String authorizationHeader) {
         return ResponseEntity.ok(userService.getBookmarkInfo(authorizationHeader, Type.PORTFOLIO));
@@ -87,7 +87,7 @@ public class MyPageController {
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @GetMapping("/my-output")
+    @GetMapping("/my-outputs")
     public ResponseEntity<List<MyPageArticleInfoResponse>> getMyOutputInfo(
             @RequestHeader("Authorization") String authorizationHeader) {
         return ResponseEntity.ok(userService.getMyInfo(authorizationHeader, Type.PORTFOLIO));
@@ -100,7 +100,7 @@ public class MyPageController {
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @GetMapping("/my-crew")
+    @GetMapping("/my-crews")
     public ResponseEntity<List<MyPageArticleInfoResponse>> getMyCrewInfo(
             @RequestHeader("Authorization") String authorizationHeader) {
         return ResponseEntity.ok(userService.getMyInfo(authorizationHeader, Type.RECRUITING));
