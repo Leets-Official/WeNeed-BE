@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.example.weneedbe.domain.article.domain.Type;
 import org.example.weneedbe.domain.user.dto.request.EditMyInfoRequest;
 import org.example.weneedbe.domain.user.dto.response.mypage.EditMyInfoResponse;
 import org.example.weneedbe.domain.user.dto.response.mypage.GetMyInfoResponse;
@@ -60,10 +61,23 @@ public class MyPageController {
         @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
         @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @GetMapping("/find-interesting-crews")
+    @GetMapping("/interesting-crews")
     public ResponseEntity<List<MyPageArticleInfoResponse>> getInterestingCrewInfo(
         @RequestHeader("Authorization") String authorizationHeader) {
-        return ResponseEntity.ok(userService.getInterestingCrewInfo(authorizationHeader));
+        return ResponseEntity.ok(userService.getBookmarkInfo(authorizationHeader, Type.RECRUITING));
+    }
+
+    @Operation(summary = "마이페이지의 관심 게시글 조회", description = "사용자가 북마크한 포트폴리오 게시물을 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping("/interesting-portfolios")
+    public ResponseEntity<List<MyPageArticleInfoResponse>> getInterestingPortfolioInfo(
+            @RequestHeader("Authorization") String authorizationHeader) {
+        return ResponseEntity.ok(userService.getBookmarkInfo(authorizationHeader, Type.PORTFOLIO));
     }
 
     @Operation(summary = "마이페이지의 마이 아웃풋 조회", description = "사용자가 작성한 포트폴리오 게시물을 가져옵니다.")
@@ -73,9 +87,22 @@ public class MyPageController {
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @GetMapping("/find-my-output")
+    @GetMapping("/my-outputs")
     public ResponseEntity<List<MyPageArticleInfoResponse>> getMyOutputInfo(
             @RequestHeader("Authorization") String authorizationHeader) {
-        return ResponseEntity.ok(userService.getMyOutputInfo(authorizationHeader));
+        return ResponseEntity.ok(userService.getMyInfo(authorizationHeader, Type.PORTFOLIO));
+    }
+
+    @Operation(summary = "마이페이지의 마이 크루 조회", description = "사용자가 작성한 리크루팅 게시물을 가져옵니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping("/my-crews")
+    public ResponseEntity<List<MyPageArticleInfoResponse>> getMyCrewInfo(
+            @RequestHeader("Authorization") String authorizationHeader) {
+        return ResponseEntity.ok(userService.getMyInfo(authorizationHeader, Type.RECRUITING));
     }
 }

@@ -105,12 +105,12 @@ public class UserService {
         return EditMyInfoResponse.from(user);
     }
 
-    public List<MyPageArticleInfoResponse> getInterestingCrewInfo(String authorizationHeader) {
+    public List<MyPageArticleInfoResponse> getBookmarkInfo(String authorizationHeader, Type articleType) {
         Long userId = getUserIdFromHeader(authorizationHeader);
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 
         List<Bookmark> recruitingBookmarks = bookmarkRepository.findAllByUserAndArticle_ArticleTypeOrderByArticle_CreatedAtDesc(
-                user, Type.RECRUITING);
+                user, articleType);
 
         return recruitingBookmarks.stream().map(s -> {
             List<String> teamProfiles = getTeamProfiles(s.getArticle().getArticleId());
@@ -121,14 +121,14 @@ public class UserService {
         }).collect(Collectors.toList());
     }
 
-    public List<MyPageArticleInfoResponse> getMyOutputInfo(String authorizationHeader) {
+    public List<MyPageArticleInfoResponse> getMyInfo(String authorizationHeader, Type articleType) {
         Long userId = getUserIdFromHeader(authorizationHeader);
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 
-        List<UserArticle> myOutputs = userArticleRepository.findAllByUserAndArticle_ArticleTypeOrderByArticle_CreatedAtDesc(
-                user, Type.PORTFOLIO);
+        List<UserArticle> myArticles = userArticleRepository.findAllByUserAndArticle_ArticleTypeOrderByArticle_CreatedAtDesc(
+                user, articleType);
 
-        return myOutputs.stream().map(s -> {
+        return myArticles.stream().map(s -> {
             List<String> teamProfiles = getTeamProfiles(s.getArticle().getArticleId());
 
             return new MyPageArticleInfoResponse(s.getArticle(),
