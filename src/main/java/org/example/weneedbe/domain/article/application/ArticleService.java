@@ -199,7 +199,7 @@ public class ArticleService {
         Article article = articleRepository.findById(articleId)
             .orElseThrow(ArticleNotFoundException::new);
 
-        if (user != article.getUser()) {
+        if (!user.equals(article.getUser())) {
             throw new AuthorMismatchException();
         }
 
