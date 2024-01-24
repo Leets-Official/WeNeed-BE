@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -109,10 +110,15 @@ public class UserService {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 
         List<Bookmark> recruitingBookmarks = bookmarkRepository.findAllByUserAndArticle_ArticleTypeOrderByArticle_CreatedAtDesc(
-            user, Type.RECRUITING);
+                user, Type.RECRUITING);
 
-        return recruitingBookmarks.stream().map(s -> new MyPageArticleInfoResponse(s.getArticle(),
-            articleLikeRepository.countByArticle(s.getArticle()))).toList();
+        return recruitingBookmarks.stream().map(s -> {
+            List<String> teamProfiles = getTeamProfiles(s.getArticle().getArticleId());
+
+            return new MyPageArticleInfoResponse(s.getArticle(),
+                    articleLikeRepository.countByArticle(s.getArticle()),
+                    teamProfiles);
+        }).collect(Collectors.toList());
     }
 
     public List<MyPageArticleInfoResponse> getMyOutputInfo(String authorizationHeader) {
@@ -122,8 +128,21 @@ public class UserService {
         List<UserArticle> myOutputs = userArticleRepository.findAllByUserAndArticle_ArticleTypeOrderByArticle_CreatedAtDesc(
                 user, Type.PORTFOLIO);
 
-        return myOutputs.stream().map(s -> new MyPageArticleInfoResponse(s.getArticle(),
-                articleLikeRepository.countByArticle(s.getArticle()))).toList();
+        return myOutputs.stream().map(s -> {
+            List<String> teamProfiles = getTeamProfiles(s.getArticle().getArticleId());
+
+            return new MyPageArticleInfoResponse(s.getArticle(),
+                    articleLikeRepository.countByArticle(s.getArticle()),
+                    teamProfiles);
+        }).collect(Collectors.toList());
+    }
+
+    // UserArticle 테이블에서 동일한 articleId에 속한 사용자들의 프로필 url을 List<String> 으로 반환하는 메서드
+    private List<String> getTeamProfiles(Long articleId) {
+        return userArticleRepository.findAllByArticle_ArticleId(articleId)
+                .stream()
+                .map(userArticle -> userArticle.getUser().getProfile())
+                .collect(Collectors.toList());
     }
 
     private Long getUserIdFromHeader(String authorizationHeader) {
