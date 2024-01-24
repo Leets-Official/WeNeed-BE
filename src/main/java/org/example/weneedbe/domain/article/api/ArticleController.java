@@ -142,4 +142,24 @@ public class ArticleController {
         articleService.editPortfolio(authorizationHeader, articleId, thumbnail, images, files, request);
         return ResponseEntity.ok("포트폴리오 게시물이 수정되었습니다");
     }
+
+    @Operation(summary = "리크루팅 게시물 수정", description = "리크루팅 게시물을 수정합니다.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PatchMapping("/recruit/{articleId}")
+    public ResponseEntity<String> editRecruit(
+        @RequestHeader("Authorization") String authorizationHeader,
+        @PathVariable Long articleId,
+        @RequestPart MultipartFile thumbnail,
+        @RequestPart List<MultipartFile> images,
+        @RequestPart List<MultipartFile> files, @RequestPart ArticleRequest request)
+        throws IOException {
+
+        articleService.editRecruit(authorizationHeader, articleId, thumbnail, images, files, request);
+        return ResponseEntity.ok("리크루팅 게시물이 수정되었습니다");
+    }
 }
