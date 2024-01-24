@@ -61,7 +61,7 @@ public class MyPageController {
         @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
         @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @GetMapping("/find-interesting-crews")
+    @GetMapping("/interesting-crew")
     public ResponseEntity<List<MyPageArticleInfoResponse>> getInterestingCrewInfo(
         @RequestHeader("Authorization") String authorizationHeader) {
         return ResponseEntity.ok(userService.getInterestingCrewInfo(authorizationHeader));
@@ -74,7 +74,7 @@ public class MyPageController {
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @GetMapping("/find-my-output")
+    @GetMapping("/my-output")
     public ResponseEntity<List<MyPageArticleInfoResponse>> getMyOutputInfo(
             @RequestHeader("Authorization") String authorizationHeader) {
         return ResponseEntity.ok(userService.getMyInfo(authorizationHeader, Type.PORTFOLIO));
@@ -87,7 +87,7 @@ public class MyPageController {
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @GetMapping("/find-my-crew")
+    @GetMapping("/my-crew")
     public ResponseEntity<List<MyPageArticleInfoResponse>> getMyCrewInfo(
             @RequestHeader("Authorization") String authorizationHeader) {
         return ResponseEntity.ok(userService.getMyInfo(authorizationHeader, Type.RECRUITING));
