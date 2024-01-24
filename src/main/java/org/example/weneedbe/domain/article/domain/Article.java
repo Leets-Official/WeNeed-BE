@@ -115,6 +115,18 @@ public class Article extends BaseTimeEntity {
         this.userArticles = userArticles;
     }
 
+    public void updateRecruit(String thumbnail, List<String> images, List<String> files,
+        ArticleRequest request) {
+        this.articleType = request.getArticleType();
+        this.thumbnail = thumbnail;
+        this.title = request.getTitle();
+        this.articleLinks = request.getLinks();
+        this.detailSkills = request.getSkills();
+        this.detailTags = request.getTags();
+        this.content = convertImagesToContent(images, request);
+        this.files = convertFilesToEntity(files, this);
+    }
+
     private static List<ContentData> convertImagesToContent(List<String> images,
         ArticleRequest request) {
 
