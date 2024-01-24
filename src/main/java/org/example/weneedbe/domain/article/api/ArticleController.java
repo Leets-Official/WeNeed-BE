@@ -12,7 +12,7 @@ import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 import org.example.weneedbe.domain.article.application.ArticleService;
-import org.example.weneedbe.domain.article.dto.request.AddArticleRequest;
+import org.example.weneedbe.domain.article.dto.request.ArticleRequest;
 import org.example.weneedbe.domain.article.dto.response.DetailResponseDto.DetailPortfolioDto;
 import org.example.weneedbe.domain.article.dto.response.DetailResponseDto.DetailRecruitDto;
 import org.example.weneedbe.domain.article.dto.response.MemberInfoResponse;
@@ -39,7 +39,7 @@ public class ArticleController {
     @PostMapping("/portfolio")
     public ResponseEntity<Void> createPortfolio(@RequestPart MultipartFile thumbnail,
                                                 @RequestPart List<MultipartFile> images,
-                                                @RequestPart List<MultipartFile> files, @RequestPart AddArticleRequest request) throws IOException {
+                                                @RequestPart List<MultipartFile> files, @RequestPart ArticleRequest request) throws IOException {
 
         articleService.createPortfolio(thumbnail, images, files, request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -55,8 +55,7 @@ public class ArticleController {
     @PostMapping("/recruit")
     public ResponseEntity<Void> createRecruit(@RequestPart MultipartFile thumbnail,
                                               @RequestPart List<MultipartFile> images,
-                                              @RequestPart List<MultipartFile> files, @RequestPart AddArticleRequest request)
-            throws IOException {
+                                              @RequestPart List<MultipartFile> files, @RequestPart ArticleRequest request) throws IOException {
 
         articleService.createRecruit(thumbnail, images, files, request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -122,5 +121,25 @@ public class ArticleController {
     @GetMapping("/recruit/{articleId}")
     public ResponseEntity<DetailRecruitDto> detailRecruit(@RequestHeader("Authorization") String authorizationHeader, @PathVariable Long articleId) {
         return ResponseEntity.ok(articleService.getDetailRecruit(authorizationHeader, articleId));
+    }
+
+    @Operation(summary = "포트폴리오 게시물 수정", description = "포트폴리오 게시물을 수정합니다.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200"),
+        @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PatchMapping("/portfolio/{articleId}")
+    public ResponseEntity<String> editPortfolio(
+        @RequestHeader("Authorization") String authorizationHeader,
+        @PathVariable Long articleId,
+        @RequestPart MultipartFile thumbnail,
+        @RequestPart List<MultipartFile> images,
+        @RequestPart List<MultipartFile> files, @RequestPart ArticleRequest request)
+        throws IOException {
+
+        articleService.editPortfolio(authorizationHeader, articleId, thumbnail, images, files, request);
+        return ResponseEntity.ok("포트폴리오 게시물이 수정되었습니다");
     }
 }

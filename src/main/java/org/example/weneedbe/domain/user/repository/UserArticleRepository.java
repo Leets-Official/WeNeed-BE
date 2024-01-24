@@ -9,6 +9,6 @@ import java.util.List;
 public interface UserArticleRepository extends JpaRepository<UserArticle, Long> {
 
     List<UserArticle> findAllByUserAndArticle_ArticleTypeOrderByArticle_CreatedAtDesc(User user, Type articleType);
-
     List<UserArticle> findAllByArticle_ArticleId(Long articleId);
+    void deleteAllByArticle_ArticleId(Long article_articleId);
 }

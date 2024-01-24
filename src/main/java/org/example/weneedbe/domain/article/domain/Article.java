@@ -11,7 +11,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.example.weneedbe.domain.article.dto.request.AddArticleRequest;
+import org.example.weneedbe.domain.article.dto.request.ArticleRequest;
 import org.example.weneedbe.domain.comment.domain.Comment;
 import org.example.weneedbe.domain.file.domain.File;
 import org.example.weneedbe.domain.user.domain.User;
@@ -69,17 +69,17 @@ public class Article extends BaseTimeEntity {
     @CollectionTable(name = "detail_tags", joinColumns = @JoinColumn(name = "article_id"))
     private List<String> detailTags; //추후 Tag enum 으로 구현
 
-    @OneToMany(mappedBy = "article", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
+    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL)
     private List<UserArticle> userArticles = new ArrayList<>();
 
-    @OneToMany(mappedBy = "article", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
+    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL)
     private List<File> files;
 
     @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> commentList = new ArrayList<>();
 
     public static Article of(String thumbnail, List<String> images, List<String> files,
-        AddArticleRequest request, User user) {
+        ArticleRequest request, User user) {
 
         Article article = Article.builder()
             .user(user)
@@ -91,7 +91,33 @@ public class Article extends BaseTimeEntity {
             .detailTags(request.getTags())
             .build();
 
-        /* content 관련 */
+        article.setContent(convertImagesToContent(images, request));
+
+        article.setFiles(convertFilesToEntity(files, article));
+
+        return article;
+    }
+
+    public void plusViewCount(int view){
+        this.viewCount = view;
+    }
+
+    public void update(String thumbnail, List<String> images, List<String> files, ArticleRequest request,
+        List<UserArticle> userArticles) {
+        this.articleType = request.getArticleType();
+        this.thumbnail = thumbnail;
+        this.title = request.getTitle();
+        this.articleLinks = request.getLinks();
+        this.detailSkills = request.getSkills();
+        this.detailTags = request.getTags();
+        this.content = convertImagesToContent(images, request);
+        this.files = convertFilesToEntity(files, this);
+        this.userArticles = userArticles;
+    }
+
+    private static List<ContentData> convertImagesToContent(List<String> images,
+        ArticleRequest request) {
+
         List<ContentData> contentDatas = request.getContent();
         Iterator<String> imagesIterator = images.iterator();
 
@@ -100,21 +126,17 @@ public class Article extends BaseTimeEntity {
                 contentData.setImageData(imagesIterator.next());
             }
         }
-        article.setContent(contentDatas);
+        return contentDatas;
+    }
 
-        /* file 관련 */
+    private static List<File> convertFilesToEntity(List<String> files, Article article) {
+
         List<File> fileList = new ArrayList<>();
 
         for (String fileUrl : files) {
             File file = new File(fileUrl, article);
             fileList.add(file);
         }
-        article.setFiles(fileList);
-
-        return article;
-    }
-
-    public void plusViewCount(int view){
-        this.viewCount = view;
+        return fileList;
     }
 }
