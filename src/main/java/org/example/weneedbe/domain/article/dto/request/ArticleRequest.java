@@ -6,7 +6,7 @@ import org.example.weneedbe.domain.article.domain.ContentData;
 import org.example.weneedbe.domain.article.domain.Type;
 
 @Data
-public class AddArticleRequest {
+public class ArticleRequest {
 
   private Type articleType;
   private String title;
