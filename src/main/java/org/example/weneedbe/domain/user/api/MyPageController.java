@@ -64,7 +64,20 @@ public class MyPageController {
     @GetMapping("/interesting-crew")
     public ResponseEntity<List<MyPageArticleInfoResponse>> getInterestingCrewInfo(
         @RequestHeader("Authorization") String authorizationHeader) {
-        return ResponseEntity.ok(userService.getInterestingCrewInfo(authorizationHeader));
+        return ResponseEntity.ok(userService.getBookmarkInfo(authorizationHeader, Type.RECRUITING));
+    }
+
+    @Operation(summary = "마이페이지의 관심 게시글 조회", description = "사용자가 북마크한 포트폴리오 게시물을 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping("/interesting-portfolio")
+    public ResponseEntity<List<MyPageArticleInfoResponse>> getInterestingPortfolioInfo(
+            @RequestHeader("Authorization") String authorizationHeader) {
+        return ResponseEntity.ok(userService.getBookmarkInfo(authorizationHeader, Type.PORTFOLIO));
     }
 
     @Operation(summary = "마이페이지의 마이 아웃풋 조회", description = "사용자가 작성한 포트폴리오 게시물을 가져옵니다.")
