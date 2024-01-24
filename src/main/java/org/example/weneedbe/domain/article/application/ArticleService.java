@@ -213,7 +213,7 @@ public class ArticleService {
 
         List<UserArticle> updatedUserArticles = setUserArticle(user, request, article);
 
-        article.update(thumbnailUrl, imageUrls, fileUrls, request, updatedUserArticles);
+        article.updatePortfolio(thumbnailUrl, imageUrls, fileUrls, request, updatedUserArticles);
 
         articleRepository.save(article);
     }

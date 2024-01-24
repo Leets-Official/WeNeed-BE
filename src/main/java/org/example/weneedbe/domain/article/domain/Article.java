@@ -102,7 +102,7 @@ public class Article extends BaseTimeEntity {
         this.viewCount = view;
     }
 
-    public void update(String thumbnail, List<String> images, List<String> files, ArticleRequest request,
+    public void updatePortfolio(String thumbnail, List<String> images, List<String> files, ArticleRequest request,
         List<UserArticle> userArticles) {
         this.articleType = request.getArticleType();
         this.thumbnail = thumbnail;
