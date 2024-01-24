@@ -213,7 +213,33 @@ public class ArticleService {
 
         List<UserArticle> updatedUserArticles = setUserArticle(user, request, article);
 
-        article.update(thumbnailUrl, imageUrls, fileUrls, request, updatedUserArticles);
+        article.updatePortfolio(thumbnailUrl, imageUrls, fileUrls, request, updatedUserArticles);
+
+        articleRepository.save(article);
+    }
+
+    @Transactional
+    public void editRecruit(String authorizationHeader, Long articleId, MultipartFile thumbnail,
+        List<MultipartFile> images, List<MultipartFile> files, ArticleRequest request)
+        throws IOException {
+
+        Long userId = getUserIdFromAuthorizationHeader(authorizationHeader);
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        Article article = articleRepository.findById(articleId)
+            .orElseThrow(ArticleNotFoundException::new);
+
+        if (!user.equals(article.getUser())) {
+            throw new AuthorMismatchException();
+        }
+
+        /* 기존 데이터 삭제 */
+        fileRepository.deleteAllByArticle_ArticleId(articleId);
+
+        String thumbnailUrl = s3Service.uploadImage(thumbnail);
+        List<String> imageUrls = s3Service.uploadImages(images);
+        List<String> fileUrls = s3Service.uploadFile(files);
+
+        article.updateRecruit(thumbnailUrl, imageUrls, fileUrls, request);
 
         articleRepository.save(article);
     }
