@@ -23,7 +23,7 @@ import org.example.weneedbe.domain.bookmark.domain.Bookmark;
 import org.example.weneedbe.domain.bookmark.repository.BookmarkRepository;
 import org.example.weneedbe.domain.comment.domain.Comment;
 import org.example.weneedbe.domain.comment.repository.CommentRepository;
-import org.example.weneedbe.domain.file.domain.FileRepository;
+import org.example.weneedbe.domain.file.repository.FileRepository;
 import org.example.weneedbe.domain.user.domain.User;
 import org.example.weneedbe.domain.user.domain.UserArticle;
 import org.example.weneedbe.domain.user.exception.UserNotFoundException;
