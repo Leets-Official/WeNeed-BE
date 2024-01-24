@@ -9,26 +9,30 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.example.weneedbe.domain.article.domain.Article;
 import org.example.weneedbe.domain.article.domain.ArticleLike;
-import org.example.weneedbe.domain.article.dto.request.AddArticleRequest;
+import org.example.weneedbe.domain.article.dto.request.ArticleRequest;
 import org.example.weneedbe.domain.article.dto.response.DetailResponseDto.DetailPortfolioDto;
 import org.example.weneedbe.domain.article.dto.response.DetailResponseDto.CommentResponseDto;
 import org.example.weneedbe.domain.article.dto.response.DetailResponseDto.WorkPortfolioArticleDto;
 import org.example.weneedbe.domain.article.dto.response.DetailResponseDto.DetailRecruitDto;
 import org.example.weneedbe.domain.article.dto.response.MemberInfoResponse;
 import org.example.weneedbe.domain.article.exception.ArticleNotFoundException;
+import org.example.weneedbe.domain.article.exception.AuthorMismatchException;
 import org.example.weneedbe.domain.article.repository.ArticleLikeRepository;
 import org.example.weneedbe.domain.article.repository.ArticleRepository;
 import org.example.weneedbe.domain.bookmark.domain.Bookmark;
 import org.example.weneedbe.domain.bookmark.repository.BookmarkRepository;
 import org.example.weneedbe.domain.comment.domain.Comment;
 import org.example.weneedbe.domain.comment.repository.CommentRepository;
+import org.example.weneedbe.domain.file.domain.FileRepository;
 import org.example.weneedbe.domain.user.domain.User;
 import org.example.weneedbe.domain.user.domain.UserArticle;
 import org.example.weneedbe.domain.user.exception.UserNotFoundException;
+import org.example.weneedbe.domain.user.repository.UserArticleRepository;
 import org.example.weneedbe.domain.user.repository.UserRepository;
 import org.example.weneedbe.global.jwt.TokenProvider;
 import org.example.weneedbe.global.s3.application.S3Service;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -42,9 +46,11 @@ public class ArticleService {
     private final BookmarkRepository bookmarkRepository;
     private final TokenProvider tokenProvider;
     private final CommentRepository commentRepository;
+    private final UserArticleRepository userArticleRepository;
+    private final FileRepository fileRepository;
 
     public void createPortfolio(MultipartFile thumbnail, List<MultipartFile> images,
-                                List<MultipartFile> files, AddArticleRequest request) throws IOException {
+                                List<MultipartFile> files, ArticleRequest request) throws IOException {
 
         String thumbnailUrl = s3Service.uploadImage(thumbnail);
         List<String> imageUrls = s3Service.uploadImages(images);
@@ -56,24 +62,14 @@ public class ArticleService {
 
         Article article = Article.of(thumbnailUrl, imageUrls, fileUrls, request, mockUser);
 
-        List<UserArticle> userArticles = new ArrayList<>();
-        /* 개인 프로젝트일 경우, 본인만 추가한다. */
-        userArticles.add(new UserArticle(mockUser, article));
-
-        /* 팀원 존재시 작성자를 제외한 팀원만 넣는다. */
-        if (!request.getTeamMembersId().isEmpty()) {
-            for (Long memberId : request.getTeamMembersId()) {
-                User user = userRepository.findById(memberId)
-                        .orElseThrow(UserNotFoundException::new);
-                userArticles.add(new UserArticle(user, article));
-            }
-        }
+        List<UserArticle> userArticles = setUserArticle(mockUser, request, article);
         article.setUserArticles(userArticles);
+
         articleRepository.save(article);
     }
 
     public void createRecruit(MultipartFile thumbnail, List<MultipartFile> images,
-                              List<MultipartFile> files, AddArticleRequest request) throws IOException {
+                              List<MultipartFile> files, ArticleRequest request) throws IOException {
 
         String thumbnailUrl = s3Service.uploadImage(thumbnail);
         List<String> imageUrls = s3Service.uploadImages(images);
@@ -191,5 +187,50 @@ public class ArticleService {
                 .filter(comment -> comment.getParentId() == 0)
                 .map(comment -> new CommentResponseDto(comment, commentList))
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void editPortfolio(String authorizationHeader, Long articleId, MultipartFile thumbnail,
+        List<MultipartFile> images, List<MultipartFile> files, ArticleRequest request)
+        throws IOException {
+
+        Long userId = getUserIdFromAuthorizationHeader(authorizationHeader);
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        Article article = articleRepository.findById(articleId)
+            .orElseThrow(ArticleNotFoundException::new);
+
+        if (user != article.getUser()) {
+            throw new AuthorMismatchException();
+        }
+
+        /* 기존 데이터 삭제 */
+        userArticleRepository.deleteAllByArticle_ArticleId(articleId);
+        fileRepository.deleteAllByArticle_ArticleId(articleId);
+
+        String thumbnailUrl = s3Service.uploadImage(thumbnail);
+        List<String> imageUrls = s3Service.uploadImages(images);
+        List<String> fileUrls = s3Service.uploadFile(files);
+
+        List<UserArticle> updatedUserArticles = setUserArticle(user, request, article);
+
+        article.update(thumbnailUrl, imageUrls, fileUrls, request, updatedUserArticles);
+
+        articleRepository.save(article);
+    }
+
+    private List<UserArticle> setUserArticle(User user, ArticleRequest request, Article article) {
+        List<UserArticle> userArticles = new ArrayList<>();
+        userArticles.add(new UserArticle(user, article));
+
+        if (!request.getTeamMembersId().isEmpty()) {
+            List<User> teamMembers = userRepository.findAllById(request.getTeamMembersId());
+
+            userArticles.addAll(
+                teamMembers.stream()
+                    .map(member -> new UserArticle(member, article))
+                    .toList()
+            );
+        }
+        return userArticles;
     }
 }
