@@ -123,9 +123,8 @@ public class ArticleService {
     }
 
     public DetailPortfolioDto getDetailPortfolio(String authorizationHeader, Long articleId) {
-        Long userId = getUserIdFromAuthorizationHeader(authorizationHeader);
-        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-        Article article = articleRepository.findById(articleId).orElseThrow(ArticleNotFoundException::new);
+        User user = findUser(authorizationHeader);
+        Article article = findArticle(articleId);
 
         article.plusViewCount(article.getViewCount() + 1);
         articleRepository.save(article);
@@ -156,16 +155,9 @@ public class ArticleService {
         return workList;
     }
 
-    private Long getUserIdFromAuthorizationHeader(String authorizationHeader) {
-        String token = tokenProvider.getTokenFromAuthorizationHeader(authorizationHeader);
-        Long userIdFromToken = tokenProvider.getUserIdFromToken(token);
-        return userIdFromToken;
-    }
-
     public DetailRecruitDto getDetailRecruit(String authorizationHeader, Long articleId) {
-        Long userId = getUserIdFromAuthorizationHeader(authorizationHeader);
-        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-        Article article = articleRepository.findById(articleId).orElseThrow(ArticleNotFoundException::new);
+        User user = findUser(authorizationHeader);
+        Article article = findArticle(articleId);
 
         article.plusViewCount(article.getViewCount() + 1);
         articleRepository.save(article);
@@ -194,14 +186,10 @@ public class ArticleService {
         List<MultipartFile> images, List<MultipartFile> files, ArticleRequest request)
         throws IOException {
 
-        Long userId = getUserIdFromAuthorizationHeader(authorizationHeader);
-        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-        Article article = articleRepository.findById(articleId)
-            .orElseThrow(ArticleNotFoundException::new);
+        User user = findUser(authorizationHeader);
+        Article article = findArticle(articleId);
 
-        if (!user.equals(article.getUser())) {
-            throw new AuthorMismatchException();
-        }
+        validateUserOwnership(article, user);
 
         /* 기존 데이터 삭제 */
         userArticleRepository.deleteAllByArticle_ArticleId(articleId);
@@ -223,14 +211,10 @@ public class ArticleService {
         List<MultipartFile> images, List<MultipartFile> files, ArticleRequest request)
         throws IOException {
 
-        Long userId = getUserIdFromAuthorizationHeader(authorizationHeader);
-        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-        Article article = articleRepository.findById(articleId)
-            .orElseThrow(ArticleNotFoundException::new);
+        User user = findUser(authorizationHeader);
+        Article article = findArticle(articleId);
 
-        if (!user.equals(article.getUser())) {
-            throw new AuthorMismatchException();
-        }
+        validateUserOwnership(article, user);
 
         /* 기존 데이터 삭제 */
         fileRepository.deleteAllByArticle_ArticleId(articleId);
@@ -258,5 +242,31 @@ public class ArticleService {
             );
         }
         return userArticles;
+    }
+
+    public void deleteArticle(String authorizationHeader, Long articleId){
+        User user = findUser(authorizationHeader);
+        Article article = findArticle(articleId);
+
+        validateUserOwnership(article, user);
+
+        articleRepository.delete(article);
+    }
+
+    private User findUser(String authorizationHeader){
+        String token = tokenProvider.getTokenFromAuthorizationHeader(authorizationHeader);
+        Long userId = tokenProvider.getUserIdFromToken(token);
+        return userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+    }
+
+    private Article findArticle(Long articleId){
+        return articleRepository.findById(articleId)
+                .orElseThrow(ArticleNotFoundException::new);
+    }
+
+    private void validateUserOwnership(Article article, User user){
+        if (!user.equals(article.getUser())) {
+            throw new AuthorMismatchException();
+        }
     }
 }
