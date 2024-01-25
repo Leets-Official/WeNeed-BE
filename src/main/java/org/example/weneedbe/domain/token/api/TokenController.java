@@ -12,7 +12,6 @@ import org.example.weneedbe.domain.token.dto.response.TokenResponse;
 import org.example.weneedbe.global.error.ErrorResponse;
 import org.example.weneedbe.global.jwt.TokenProvider;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,8 +29,7 @@ public class TokenController {
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @Transactional
-    @PostMapping("/regenerate-token")
+    @PostMapping("/refresh")
     public ResponseEntity<TokenResponse> regenerateToken(@RequestBody TokenRequest request) {
         return ResponseEntity.ok(tokenProvider.regenerateToken(request.getRefreshToken()));
     }
