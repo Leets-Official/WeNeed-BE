@@ -142,4 +142,18 @@ public class ArticleController {
         articleService.editPortfolio(authorizationHeader, articleId, thumbnail, images, files, request);
         return ResponseEntity.ok("포트폴리오 게시물이 수정되었습니다");
     }
+
+    @Operation(summary = "게시물 삭제", description = "게시물을 삭제합니다")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @DeleteMapping("{articleId}")
+    public ResponseEntity<String> deleteArticle(
+            @RequestHeader("Authorization") String authorizationHeader, @PathVariable Long articleId){
+        articleService.deleteArticle(authorizationHeader, articleId);
+        return ResponseEntity.ok("게시물이 삭제되었습니다.");
+    }
 }
