@@ -54,19 +54,18 @@ public class UserService {
                 .orElseThrow(IllegalArgumentException::new);
     }
 
-    public ResponseEntity<UserInfoResponse> setUserInfo(UserInfoRequest request) throws Exception {
+    public ResponseEntity<UserInfoResponse> setUserInfo(UserInfoRequest request, String authorizationHeader) throws Exception {
+        Long userId = getUserIdFromHeader(authorizationHeader);
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         try {
-            /* 토큰을 통한 user 객체를 불러옴 */
-            /* 아직 토큰이 없기 때문에 임시 객체를 사용 */
-            User mockUser = userRepository.findById(1L).orElseThrow();
-            mockUser.setUserInfo(request.getMajor(),
+            user.setUserInfo(request.getMajor(),
                     request.getDoubleMajor(),
                     request.getNickname(),
                     request.getUserGrade(),
                     request.getInterestField(),
                     true);
 
-            userRepository.save(mockUser);
+            userRepository.save(user);
         } catch (Exception e) {
             log.info(e.getMessage());
             throw e;
