@@ -22,7 +22,7 @@ public class OAuthController {
     public LoginResponse get(@RequestParam("code") String code) throws GeneralSecurityException, IOException {
         User user = oAuthService.getGoogleToken(code);
         String accessToken = this.tokenProvider.generateAccessToken(user);
-        String refreshToken = this.tokenProvider.generateRefreshToken(user);
+        String refreshToken = this.tokenProvider.returnRefreshToken(user);
 
         return new LoginResponse(accessToken, refreshToken);
     }

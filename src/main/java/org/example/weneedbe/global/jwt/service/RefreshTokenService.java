@@ -18,15 +18,25 @@ public class RefreshTokenService {
                 .orElseThrow(InvalidTokenException::new);
     }
 
-    public void saveRefreshToken(Long userId, String newRefreshToken) {
-        Optional<RefreshToken> optionalRefreshToken = refreshTokenRepository.findByUserId(userId);
+    public String returnRefreshToken(Long userId, String newRefreshToken) {
+        Optional<RefreshToken> optionalRefreshToken = refreshTokenRepository.findByUserId(userId); //유저의 refreshToken 보유 여부를 확인한다.
 
-        if (optionalRefreshToken.isPresent()) {
+        if (optionalRefreshToken.isPresent()) { // 최초 로그인이 아닐 시
             RefreshToken existingRefreshToken = optionalRefreshToken.get();
-            existingRefreshToken.update(newRefreshToken);
-            return;
+            return existingRefreshToken.getRefreshToken();
         }
+        //최초 로그인 시
         RefreshToken initialRefreshToken = new RefreshToken(userId, newRefreshToken);
         refreshTokenRepository.save(initialRefreshToken);
+        return newRefreshToken;
+    }
+
+    public String generateNewRefreshToken(Long userId, String newRefreshToken) {
+        Optional<RefreshToken> optionalRefreshToken = refreshTokenRepository.findByUserId(userId);
+
+        RefreshToken existingRefreshToken = optionalRefreshToken.get();
+
+        refreshTokenRepository.save(existingRefreshToken.update(newRefreshToken));
+        return newRefreshToken;
     }
 }
