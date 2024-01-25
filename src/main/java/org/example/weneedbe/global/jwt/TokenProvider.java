@@ -2,18 +2,22 @@ package org.example.weneedbe.global.jwt;
 
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
+import org.example.weneedbe.domain.token.domain.RefreshToken;
 import org.example.weneedbe.domain.token.dto.response.TokenResponse;
+import org.example.weneedbe.domain.token.repository.RefreshTokenRepository;
 import org.example.weneedbe.domain.user.domain.User;
 import org.example.weneedbe.domain.user.exception.UserNotFoundException;
 import org.example.weneedbe.domain.user.repository.UserRepository;
 import org.example.weneedbe.global.jwt.exception.ExpiredTokenException;
 import org.example.weneedbe.global.jwt.exception.InvalidInputValueException;
 import org.example.weneedbe.global.jwt.exception.InvalidTokenException;
+import org.example.weneedbe.global.jwt.exception.TokenNotFoundException;
 import org.example.weneedbe.global.jwt.service.RefreshTokenService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.util.Collections;
@@ -22,6 +26,7 @@ import java.util.Set;
 
 @RequiredArgsConstructor
 @Service
+@Transactional
 public class TokenProvider {
     public static final Duration REFRESH_TOKEN_DURATION = Duration.ofDays(14);
     public static final Duration ACCESS_TOKEN_DURATION = Duration.ofDays(1);
@@ -29,6 +34,7 @@ public class TokenProvider {
     private final JwtProperties jwtProperties;
     private final RefreshTokenService refreshTokenService;
     private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     public String generateAccessToken(User user) {
         return makeToken(ACCESS_TOKEN_DURATION, user);
@@ -44,7 +50,11 @@ public class TokenProvider {
 
     public String generateNewRefreshToken(User user) {
         String newRefreshToken = makeToken(REFRESH_TOKEN_DURATION, user);
-        return refreshTokenService.generateNewRefreshToken(user.getUserId(), newRefreshToken);
+        RefreshToken existingRefreshToken = refreshTokenRepository.findByUserId(user.getUserId())
+                .orElseThrow(TokenNotFoundException::new);
+
+        refreshTokenRepository.save(existingRefreshToken.update(newRefreshToken));
+        return newRefreshToken;
     }
 
     private String makeToken(Duration duration, User user) {

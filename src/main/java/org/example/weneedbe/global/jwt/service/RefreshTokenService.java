@@ -30,13 +30,4 @@ public class RefreshTokenService {
         refreshTokenRepository.save(initialRefreshToken);
         return newRefreshToken;
     }
-
-    public String generateNewRefreshToken(Long userId, String newRefreshToken) {
-        Optional<RefreshToken> optionalRefreshToken = refreshTokenRepository.findByUserId(userId);
-
-        RefreshToken existingRefreshToken = optionalRefreshToken.get();
-
-        refreshTokenRepository.save(existingRefreshToken.update(newRefreshToken));
-        return newRefreshToken;
-    }
 }
