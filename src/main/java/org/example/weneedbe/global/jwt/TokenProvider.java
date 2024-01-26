@@ -3,43 +3,57 @@ package org.example.weneedbe.global.jwt;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import org.example.weneedbe.domain.token.domain.RefreshToken;
+import org.example.weneedbe.domain.token.dto.response.TokenResponse;
 import org.example.weneedbe.domain.token.repository.RefreshTokenRepository;
 import org.example.weneedbe.domain.user.domain.User;
+import org.example.weneedbe.domain.user.exception.UserNotFoundException;
+import org.example.weneedbe.domain.user.repository.UserRepository;
 import org.example.weneedbe.global.jwt.exception.ExpiredTokenException;
 import org.example.weneedbe.global.jwt.exception.InvalidInputValueException;
 import org.example.weneedbe.global.jwt.exception.InvalidTokenException;
+import org.example.weneedbe.global.jwt.exception.TokenNotFoundException;
 import org.example.weneedbe.global.jwt.service.RefreshTokenService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Optional;
 import java.util.Set;
 
 @RequiredArgsConstructor
 @Service
+@Transactional
 public class TokenProvider {
     public static final Duration REFRESH_TOKEN_DURATION = Duration.ofDays(14);
     public static final Duration ACCESS_TOKEN_DURATION = Duration.ofDays(1);
 
     private final JwtProperties jwtProperties;
-    private final RefreshTokenRepository refreshTokenRepository;
     private final RefreshTokenService refreshTokenService;
+    private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     public String generateAccessToken(User user) {
         return makeToken(ACCESS_TOKEN_DURATION, user);
     }
-
     public String generateRefreshToken(User user) {
+        return makeToken(REFRESH_TOKEN_DURATION, user);
+    }
+
+    public String returnRefreshToken(User user) {
+        String newRefreshToken = generateRefreshToken(user);
+        return refreshTokenService.returnRefreshToken(user.getUserId(), newRefreshToken);
+    }
+
+    public String generateNewRefreshToken(User user) {
         String newRefreshToken = makeToken(REFRESH_TOKEN_DURATION, user);
-        Optional<RefreshToken> refreshToken = refreshTokenRepository.findByUserId(user.getUserId());
-        if (refreshToken.isEmpty()) {
-            refreshTokenService.saveRefreshToken(user.getUserId(), newRefreshToken);
-        }
+        RefreshToken existingRefreshToken = refreshTokenRepository.findByUserId(user.getUserId())
+                .orElseThrow(TokenNotFoundException::new);
+
+        refreshTokenRepository.save(existingRefreshToken.update(newRefreshToken));
         return newRefreshToken;
     }
 
@@ -102,5 +116,16 @@ public class TokenProvider {
             throw new InvalidInputValueException();
         }
         return authorizationHeader.substring(7);
+    }
+
+    public TokenResponse regenerateToken(String refreshToken) {
+        validToken(refreshToken);
+        Long userId = getUserIdFromToken(refreshToken);
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+
+        return TokenResponse.builder()
+                .accessToken(generateAccessToken(user))
+                .refreshToken(generateNewRefreshToken(user))
+                .build();
     }
 }
