@@ -36,8 +36,8 @@ public class MyPageController {
         @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/my-info")
-    public ResponseEntity<GetMyInfoResponse> getMyInfo(@RequestHeader("Authorization") String authorizationHeader) throws IOException {
-        return ResponseEntity.ok(userService.getMyInfo(authorizationHeader));
+    public ResponseEntity<GetMyInfoResponse> getInfo(@RequestHeader("Authorization") String authorizationHeader) throws IOException {
+        return ResponseEntity.ok(userService.getInfo(authorizationHeader));
     }
 
     @Operation(summary = "마이페이지 내 프로필 수정", description = "현재 로그인한 사용자의 프로필 정보를 수정합니다.")
@@ -48,10 +48,10 @@ public class MyPageController {
         @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PatchMapping("/my-info")
-    public ResponseEntity<EditMyInfoResponse> editMyInfo(@RequestHeader("Authorization") String authorizationHeader,
+    public ResponseEntity<EditMyInfoResponse> editInfo(@RequestHeader("Authorization") String authorizationHeader,
         @RequestPart MultipartFile profileImage,
         @RequestPart EditMyInfoRequest request) throws IOException {
-        return ResponseEntity.ok(userService.editMyInfo(authorizationHeader, profileImage, request));
+        return ResponseEntity.ok(userService.editInfo(authorizationHeader, profileImage, request));
     }
 
     @Operation(summary = "마이페이지의 관심 크루 조회", description = "사용자가 북마크한 팀원모집 게시물을 조회합니다.")
@@ -90,7 +90,7 @@ public class MyPageController {
     @GetMapping("/my-outputs")
     public ResponseEntity<List<MyPageArticleInfoResponse>> getMyOutputInfo(
             @RequestHeader("Authorization") String authorizationHeader) {
-        return ResponseEntity.ok(userService.getMyInfo(authorizationHeader, Type.PORTFOLIO));
+        return ResponseEntity.ok(userService.getArticleInfo(authorizationHeader, Type.PORTFOLIO));
     }
 
     @Operation(summary = "마이페이지의 마이 크루 조회", description = "사용자가 작성한 리크루팅 게시물을 가져옵니다.")
@@ -103,7 +103,7 @@ public class MyPageController {
     @GetMapping("/my-crews")
     public ResponseEntity<List<MyPageArticleInfoResponse>> getMyCrewInfo(
             @RequestHeader("Authorization") String authorizationHeader) {
-        return ResponseEntity.ok(userService.getMyInfo(authorizationHeader, Type.RECRUITING));
+        return ResponseEntity.ok(userService.getArticleInfo(authorizationHeader, Type.RECRUITING));
     }
 
     @Operation(summary = "다른 사용자의 세부 정보 조회", description = "userId를 통한 다른 사용자의 세부 정보를 조회합니다.")
@@ -114,8 +114,8 @@ public class MyPageController {
             @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/{userId}/info")
-    public ResponseEntity<GetMyInfoResponse> getMyInfoFromUserId(@PathVariable Long userId) {
-        return ResponseEntity.ok(userService.getMyInfoFromUserId(userId));
+    public ResponseEntity<GetMyInfoResponse> getInfoFromUserId(@PathVariable Long userId) {
+        return ResponseEntity.ok(userService.getInfoFromUserId(userId));
     }
 
     @Operation(summary = "다른 사용자의 아웃풋 조회", description = "userId를 통한 다른 사용자가 작성한 포트폴리오 게시물을 조회합니다.")

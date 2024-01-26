@@ -44,7 +44,7 @@ public class UserService {
         return userRepository.existsByNickname(nickName);
     }
 
-    public ResponseEntity<UserInfoResponse> setUserInfo(UserInfoRequest request, String authorizationHeader) throws Exception {
+    public ResponseEntity<UserInfoResponse> setInfo(UserInfoRequest request, String authorizationHeader) throws Exception {
         Long userId = getUserIdFromHeader(authorizationHeader);
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         try {
@@ -63,14 +63,14 @@ public class UserService {
         return new ResponseEntity<>(new UserInfoResponse(true, "상세 정보 입력 성공"), HttpStatus.OK);
     }
 
-    public GetMyInfoResponse getMyInfo(String authorizationHeader) {
+    public GetMyInfoResponse getInfo(String authorizationHeader) {
         Long userId = getUserIdFromHeader(authorizationHeader);
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 
         return GetMyInfoResponse.from(user);
     }
 
-    public EditMyInfoResponse editMyInfo(String authorizationHeader, MultipartFile profileImage, EditMyInfoRequest request) throws IOException{
+    public EditMyInfoResponse editInfo(String authorizationHeader, MultipartFile profileImage, EditMyInfoRequest request) throws IOException{
         Long userId = getUserIdFromHeader(authorizationHeader);
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 
@@ -110,7 +110,7 @@ public class UserService {
         }).collect(Collectors.toList());
     }
 
-    public List<MyPageArticleInfoResponse> getMyInfo(String authorizationHeader, Type articleType) {
+    public List<MyPageArticleInfoResponse> getArticleInfo(String authorizationHeader, Type articleType) {
         Long userId = getUserIdFromHeader(authorizationHeader);
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 
@@ -126,7 +126,7 @@ public class UserService {
         }).collect(Collectors.toList());
     }
 
-    public GetMyInfoResponse getMyInfoFromUserId(Long userId) {
+    public GetMyInfoResponse getInfoFromUserId(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 
         return GetMyInfoResponse.from(user);
