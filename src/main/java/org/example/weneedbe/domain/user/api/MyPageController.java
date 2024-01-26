@@ -105,4 +105,17 @@ public class MyPageController {
             @RequestHeader("Authorization") String authorizationHeader) {
         return ResponseEntity.ok(userService.getMyInfo(authorizationHeader, Type.RECRUITING));
     }
+
+    @Operation(summary = "다른 사용자의 정보를 조회", description = "다른 사용자의 세부 정보를 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping("/{userId}/info")
+    public ResponseEntity<GetMyInfoResponse> getMyInfoFromUserId(@RequestHeader("Authorization") String authorizationHeader,
+                                                     @PathVariable Long userId) {
+        return ResponseEntity.ok(userService.getMyInfoFromUserId(userId));
+    }
 }

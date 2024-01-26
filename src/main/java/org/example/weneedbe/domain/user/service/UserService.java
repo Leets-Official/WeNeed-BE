@@ -144,6 +144,20 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    public GetMyInfoResponse getMyInfoFromUserId(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+
+        return GetMyInfoResponse.from(user);
+    }
+
+    public boolean isSameUser(String authorizationHeader, Long userId) {
+        Long userIdFromHeader = getUserIdFromHeader(authorizationHeader);
+        if (userIdFromHeader.equals(userId)) {
+            return true;
+        }
+        return false;
+    }
+
     private Long getUserIdFromHeader(String authorizationHeader) {
         String token = tokenProvider.getTokenFromAuthorizationHeader(authorizationHeader);
         return tokenProvider.getUserIdFromToken(token);
