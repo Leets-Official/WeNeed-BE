@@ -106,7 +106,7 @@ public class MyPageController {
         return ResponseEntity.ok(userService.getMyInfo(authorizationHeader, Type.RECRUITING));
     }
 
-    @Operation(summary = "다른 사용자의 정보를 조회", description = "다른 사용자의 세부 정보를 조회합니다.")
+    @Operation(summary = "다른 사용자의 세부 정보 조회", description = "userId를 통한 다른 사용자의 세부 정보를 조회합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200"),
             @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -114,8 +114,19 @@ public class MyPageController {
             @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/{userId}/info")
-    public ResponseEntity<GetMyInfoResponse> getMyInfoFromUserId(@RequestHeader("Authorization") String authorizationHeader,
-                                                     @PathVariable Long userId) {
+    public ResponseEntity<GetMyInfoResponse> getMyInfoFromUserId(@PathVariable Long userId) {
         return ResponseEntity.ok(userService.getMyInfoFromUserId(userId));
+    }
+
+    @Operation(summary = "다른 사용자의 아웃풋 조회", description = "userId를 통한 다른 사용자가 작성한 포트폴리오 게시물을 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping("/{userId}/outputs")
+    public ResponseEntity<List<MyPageArticleInfoResponse>> getOutputFromUserId(@PathVariable Long userId) {
+        return ResponseEntity.ok(userService.getOutputFromUserId(userId, Type.PORTFOLIO));
     }
 }

@@ -44,16 +44,6 @@ public class UserService {
         return userRepository.existsByNickname(nickName);
     }
 
-    public User findById(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(IllegalArgumentException::new);
-    }
-
-    public User findByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(IllegalArgumentException::new);
-    }
-
     public ResponseEntity<UserInfoResponse> setUserInfo(UserInfoRequest request, String authorizationHeader) throws Exception {
         Long userId = getUserIdFromHeader(authorizationHeader);
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
@@ -136,26 +126,33 @@ public class UserService {
         }).collect(Collectors.toList());
     }
 
-    // UserArticle 테이블에서 동일한 articleId에 속한 사용자들의 프로필 url을 List<String> 으로 반환하는 메서드
-    private List<String> getTeamProfiles(Long articleId) {
-        return userArticleRepository.findAllByArticle_ArticleId(articleId)
-                .stream()
-                .map(userArticle -> userArticle.getUser().getProfile())
-                .collect(Collectors.toList());
-    }
-
     public GetMyInfoResponse getMyInfoFromUserId(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 
         return GetMyInfoResponse.from(user);
     }
 
-    public boolean isSameUser(String authorizationHeader, Long userId) {
-        Long userIdFromHeader = getUserIdFromHeader(authorizationHeader);
-        if (userIdFromHeader.equals(userId)) {
-            return true;
-        }
-        return false;
+    public List<MyPageArticleInfoResponse> getOutputFromUserId(Long userId, Type articleType) {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+
+        List<UserArticle> myArticles = userArticleRepository.findAllByUserAndArticle_ArticleTypeOrderByArticle_CreatedAtDesc(
+                user, articleType);
+
+        return myArticles.stream().map(s -> {
+            List<String> teamProfiles = getTeamProfiles(s.getArticle().getArticleId());
+
+            return new MyPageArticleInfoResponse(s.getArticle(),
+                    articleLikeRepository.countByArticle(s.getArticle()),
+                    teamProfiles);
+        }).collect(Collectors.toList());
+    }
+
+    // UserArticle 테이블에서 동일한 articleId에 속한 사용자들의 프로필 url을 List<String> 으로 반환하는 메서드
+    private List<String> getTeamProfiles(Long articleId) {
+        return userArticleRepository.findAllByArticle_ArticleId(articleId)
+                .stream()
+                .map(userArticle -> userArticle.getUser().getProfile())
+                .collect(Collectors.toList());
     }
 
     private Long getUserIdFromHeader(String authorizationHeader) {
