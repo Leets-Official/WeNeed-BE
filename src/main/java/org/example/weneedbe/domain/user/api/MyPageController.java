@@ -106,7 +106,7 @@ public class MyPageController {
         return ResponseEntity.ok(userService.getArticleInfo(authorizationHeader, Type.RECRUITING));
     }
 
-    @Operation(summary = "다른 사용자의 세부 정보 조회", description = "userId를 통한 다른 사용자의 세부 정보를 조회합니다.")
+    @Operation(summary = "다른 사용자의 마이페이지 내 세부정보 조회", description = "userId를 통한 다른 사용자의 세부 정보를 조회합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200"),
             @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -118,7 +118,7 @@ public class MyPageController {
         return ResponseEntity.ok(userService.getInfoFromUserId(userId));
     }
 
-    @Operation(summary = "다른 사용자의 아웃풋 조회", description = "userId를 통한 다른 사용자가 작성한 포트폴리오 게시물을 조회합니다.")
+    @Operation(summary = "다른 사용자의 마이페이지 내 아웃풋 조회", description = "userId를 통한 다른 사용자가 작성한 포트폴리오 게시물을 조회합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200"),
             @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
