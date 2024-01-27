@@ -49,38 +49,34 @@ public class ArticleService {
     private final UserArticleRepository userArticleRepository;
     private final FileRepository fileRepository;
 
-    public void createPortfolio(MultipartFile thumbnail, List<MultipartFile> images,
+    public void createPortfolio(String authorizationHeader, MultipartFile thumbnail, List<MultipartFile> images,
                                 List<MultipartFile> files, ArticleRequest request) throws IOException {
 
         String thumbnailUrl = s3Service.uploadImage(thumbnail);
         List<String> imageUrls = s3Service.uploadImages(images);
         List<String> fileUrls = s3Service.uploadFile(files);
 
-        /* 토큰을 통한 user 객체를 불러옴 */
-        /* 아직 토큰이 없기 때문에 임시 객체를 사용 */
-        User mockUser = userRepository.findById(1L).orElseThrow();
+        User user = findUser(authorizationHeader);
 
-        Article article = Article.of(thumbnailUrl, imageUrls, fileUrls, request, mockUser);
+        Article article = Article.of(thumbnailUrl, imageUrls, fileUrls, request, user);
 
-        List<UserArticle> userArticles = setUserArticle(mockUser, request, article);
+        List<UserArticle> userArticles = setUserArticle(user, request, article);
         article.setUserArticles(userArticles);
 
         articleRepository.save(article);
     }
 
-    public void createRecruit(MultipartFile thumbnail, List<MultipartFile> images,
+    public void createRecruit(String authorizationHeader, MultipartFile thumbnail, List<MultipartFile> images,
                               List<MultipartFile> files, ArticleRequest request) throws IOException {
 
         String thumbnailUrl = s3Service.uploadImage(thumbnail);
         List<String> imageUrls = s3Service.uploadImages(images);
         List<String> fileUrls = s3Service.uploadFile(files);
 
-        /* 토큰을 통한 user 객체를 불러옴 */
-        /* 아직 토큰이 없기 때문에 임시 객체를 사용 */
-        User mockUser = userRepository.findById(1L).orElseThrow();
+        User user = findUser(authorizationHeader);
 
-        Article article = Article.of(thumbnailUrl, imageUrls, fileUrls, request, mockUser);
-        article.setUserArticles(List.of(new UserArticle(mockUser, article)));
+        Article article = Article.of(thumbnailUrl, imageUrls, fileUrls, request, user);
+        article.setUserArticles(List.of(new UserArticle(user, article)));
 
         articleRepository.save(article);
     }
@@ -90,33 +86,29 @@ public class ArticleService {
                 .map(MemberInfoResponse::new).toList();
     }
 
-    public void likeArticle(Long articleId) {
-        /* 토큰을 통한 user 객체를 불러옴 */
-        /* 아직 토큰이 없기 때문에 임시 객체를 사용 */
-        User mockUser = userRepository.findById(1L).orElseThrow(UserNotFoundException::new);
-        Article article = articleRepository.findById(articleId).orElseThrow(ArticleNotFoundException::new);
+    public void likeArticle(String authorizationHeader, Long articleId) {
 
-        Optional<ArticleLike> articleLike = articleLikeRepository.findByArticleAndUser(article,
-                mockUser);
+        User user = findUser(authorizationHeader);
+        Article article = findArticle(articleId);
+
+        Optional<ArticleLike> articleLike = articleLikeRepository.findByArticleAndUser(article, user);
 
         if (articleLike.isEmpty()) {
-            articleLikeRepository.save(new ArticleLike(mockUser, article));
+            articleLikeRepository.save(new ArticleLike(user, article));
         } else {
             articleLikeRepository.delete(articleLike.get());
         }
     }
 
-    public void bookmarkArticle(Long articleId) {
-        /* 토큰을 통한 user 객체를 불러옴 */
-        /* 아직 토큰이 없기 때문에 임시 객체를 사용 */
-        User mockUser = userRepository.findById(1L).orElseThrow(UserNotFoundException::new);
-        Article article = articleRepository.findById(articleId).orElseThrow(ArticleNotFoundException::new);
+    public void bookmarkArticle(String authorizationHeader, Long articleId) {
 
-        Optional<Bookmark> bookmark = bookmarkRepository.findByArticleAndUser(article,
-                mockUser);
+        User user = findUser(authorizationHeader);
+        Article article = findArticle(articleId);
+
+        Optional<Bookmark> bookmark = bookmarkRepository.findByArticleAndUser(article, user);
 
         if (bookmark.isEmpty()) {
-            bookmarkRepository.save(new Bookmark(mockUser, article));
+            bookmarkRepository.save(new Bookmark(user, article));
         } else {
             bookmarkRepository.delete(bookmark.get());
         }
