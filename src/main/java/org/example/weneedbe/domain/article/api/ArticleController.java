@@ -31,33 +31,39 @@ public class ArticleController {
 
     @Operation(summary = "포트폴리오 게시물 작성", description = "사용자가 포트폴리오 게시물을 작성합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "201"),
-            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+        @ApiResponse(responseCode = "201"),
+        @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/portfolio")
-    public ResponseEntity<Void> createPortfolio(@RequestPart MultipartFile thumbnail,
-                                                @RequestPart List<MultipartFile> images,
-                                                @RequestPart List<MultipartFile> files, @RequestPart ArticleRequest request) throws IOException {
+    public ResponseEntity<Void> createPortfolio(
+        @RequestHeader("Authorization") String authorizationHeader,
+        @RequestPart MultipartFile thumbnail,
+        @RequestPart List<MultipartFile> images,
+        @RequestPart List<MultipartFile> files, @RequestPart ArticleRequest request)
+        throws IOException {
 
-        articleService.createPortfolio(thumbnail, images, files, request);
+        articleService.createPortfolio(authorizationHeader, thumbnail, images, files, request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Operation(summary = "리크루팅 게시물 작성", description = "사용자가 리크루팅 게시물을 작성합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "201"),
-            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+        @ApiResponse(responseCode = "201"),
+        @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/recruit")
-    public ResponseEntity<Void> createRecruit(@RequestPart MultipartFile thumbnail,
-                                              @RequestPart List<MultipartFile> images,
-                                              @RequestPart List<MultipartFile> files, @RequestPart ArticleRequest request) throws IOException {
+    public ResponseEntity<Void> createRecruit(
+        @RequestHeader("Authorization") String authorizationHeader,
+        @RequestPart MultipartFile thumbnail,
+        @RequestPart List<MultipartFile> images,
+        @RequestPart List<MultipartFile> files, @RequestPart ArticleRequest request)
+        throws IOException {
 
-        articleService.createRecruit(thumbnail, images, files, request);
+        articleService.createRecruit(authorizationHeader, thumbnail, images, files, request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -81,8 +87,8 @@ public class ArticleController {
             @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/likes/{articleId}")
-    public ResponseEntity<Void> likeArticle(@PathVariable Long articleId) {
-        articleService.likeArticle(articleId);
+    public ResponseEntity<Void> likeArticle(@RequestHeader("Authorization") String authorizationHeader, @PathVariable Long articleId) {
+        articleService.likeArticle(authorizationHeader, articleId);
         return ResponseEntity.ok().build();
     }
 
@@ -94,8 +100,8 @@ public class ArticleController {
             @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/bookmarks/{articleId}")
-    public ResponseEntity<Void> bookmarkArticle(@PathVariable Long articleId) {
-        articleService.bookmarkArticle(articleId);
+    public ResponseEntity<Void> bookmarkArticle(@RequestHeader("Authorization") String authorizationHeader, @PathVariable Long articleId) {
+        articleService.bookmarkArticle(authorizationHeader, articleId);
         return ResponseEntity.ok().build();
     }
 
