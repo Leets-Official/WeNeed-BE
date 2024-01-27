@@ -195,11 +195,7 @@ public class MainService {
     private User getUserFromAuthorizationHeader(String authorizationHeader) {
         String token = tokenProvider.getTokenFromAuthorizationHeader(authorizationHeader);
         Long userIdFromToken = tokenProvider.getUserIdFromToken(token);
-        User user = userRepository.findById(userIdFromToken).orElseThrow(UserNotFoundException::new);
-        if (!user.getHasRegistered()) {
-            throw new UserNotRegisteredException();
-        }
-        return user;
+        return userRepository.findById(userIdFromToken).orElseThrow(UserNotFoundException::new);
     }
 
     private boolean containsBookmarkId(List<Bookmark> bookmarks, Long articleId) {
