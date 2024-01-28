@@ -7,7 +7,6 @@ import org.example.weneedbe.domain.comment.domain.Comment;
 import org.example.weneedbe.domain.file.domain.File;
 import org.example.weneedbe.domain.user.domain.Department;
 import org.example.weneedbe.domain.user.domain.User;
-import org.example.weneedbe.domain.user.domain.UserArticle;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -41,12 +40,14 @@ public class DetailResponseDto {
     @Getter
     public static class DetailUserDto {
         private String nickname;
+        private String profile;
         private boolean sameUser;
         private boolean isHearted;
         private boolean isBookmarked;
 
         public DetailUserDto(User user, boolean sameUser, boolean isHearted, boolean isBookmarked) {
             this.nickname = user.getNickname();
+            this.profile = user.getProfile();
             this.sameUser = sameUser;
             this.isHearted = isHearted;
             this.isBookmarked = isBookmarked;
