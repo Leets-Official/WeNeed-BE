@@ -15,7 +15,7 @@ public class BasicInfoResponse {
     private GetMyInfoResponse userInfo;
     private List<MyPageArticleInfoResponse> myOutputList;
 
-    public static BasicInfoResponse from(String userNickname, Boolean sameUser, GetMyInfoResponse userInfo, List<MyPageArticleInfoResponse> myOutputList) {
+    public static BasicInfoResponse of(String userNickname, Boolean sameUser, GetMyInfoResponse userInfo, List<MyPageArticleInfoResponse> myOutputList) {
         return BasicInfoResponse.builder()
                 .userNickname(userNickname)
                 .sameUser(sameUser)

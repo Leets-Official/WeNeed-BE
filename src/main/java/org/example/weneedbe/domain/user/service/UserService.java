@@ -83,7 +83,7 @@ public class UserService {
         GetMyInfoResponse userInfo = GetMyInfoResponse.from(user);
         List<MyPageArticleInfoResponse> myOutputList =  getOutputFromUser(user, articleType);
 
-        return BasicInfoResponse.from(userNickname, sameUser, userInfo, myOutputList);
+        return BasicInfoResponse.of(userNickname, sameUser, userInfo, myOutputList);
     }
 
     public EditMyInfoResponse editInfo(String authorizationHeader, MultipartFile profileImage, EditMyInfoRequest request) throws IOException{
