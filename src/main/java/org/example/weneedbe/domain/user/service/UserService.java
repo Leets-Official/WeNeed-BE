@@ -29,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -123,7 +122,7 @@ public class UserService {
             return new MyPageArticleInfoResponse(s.getArticle(),
                     articleLikeRepository.countByArticle(s.getArticle()),
                     teamProfiles);
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     public List<MyPageArticleInfoResponse> getArticleInfo(String authorizationHeader, Type articleType) {
@@ -151,7 +150,7 @@ public class UserService {
         return userArticleRepository.findAllByArticle_ArticleId(articleId)
                 .stream()
                 .map(userArticle -> userArticle.getUser().getProfile())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private Long getUserIdFromHeader(String authorizationHeader) {
