@@ -45,6 +45,6 @@ public class UserInfoController {
     @PostMapping("/info")
     public ResponseEntity<UserInfoResponse> setUserInfo(@RequestBody UserInfoRequest request,
                                                         @RequestHeader("Authorization") String authorizationHeader) throws Exception {
-        return userService.setUserInfo(request, authorizationHeader);
+        return userService.setInfo(request, authorizationHeader);
     }
 }
