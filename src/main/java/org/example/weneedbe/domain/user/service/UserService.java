@@ -12,6 +12,7 @@ import org.example.weneedbe.domain.user.domain.UserArticle;
 import org.example.weneedbe.domain.user.dto.request.EditMyInfoRequest;
 import org.example.weneedbe.domain.user.dto.request.UserInfoRequest;
 import org.example.weneedbe.domain.user.dto.response.UserInfoResponse;
+import org.example.weneedbe.domain.user.dto.response.mypage.BasicInfoResponse;
 import org.example.weneedbe.domain.user.dto.response.mypage.MyPageArticleInfoResponse;
 import org.example.weneedbe.domain.user.dto.response.mypage.EditMyInfoResponse;
 import org.example.weneedbe.domain.user.dto.response.mypage.GetMyInfoResponse;
@@ -24,6 +25,7 @@ import org.example.weneedbe.global.s3.application.S3Service;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -40,6 +42,7 @@ public class UserService {
     private final ArticleLikeRepository articleLikeRepository;
     private final S3Service s3Service;
     private final UserArticleRepository userArticleRepository;
+
     public Boolean checkNicknameDuplicate(String nickName) {
         return userRepository.existsByNickname(nickName);
     }
@@ -63,11 +66,24 @@ public class UserService {
         return new ResponseEntity<>(new UserInfoResponse(true, "상세 정보 입력 성공"), HttpStatus.OK);
     }
 
-    public GetMyInfoResponse getInfo(String authorizationHeader) {
-        Long userId = getUserIdFromHeader(authorizationHeader);
-        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+    @Transactional
+    public BasicInfoResponse getBasicInfo(String authorizationHeader, Long userId, Type articleType) {
+        Long userIdFromHeader = getUserIdFromHeader(authorizationHeader);
+        String userNickname = userRepository.findById(userIdFromHeader).orElseThrow(UserNotFoundException::new).getNickname();
+        if (userIdFromHeader.equals(userId)) {
+            // '로그인한 사용자'의 정보 + MyOutput 노출
+            return setBasicInfoResponse(userNickname, true, userIdFromHeader, articleType);
+        }
+        // 주어진 userId의 사용자 정보 + MyOutput 노출
+        return setBasicInfoResponse(userNickname, false, userId, articleType);
+    }
 
-        return GetMyInfoResponse.from(user);
+    private BasicInfoResponse setBasicInfoResponse(String userNickname, Boolean sameUser, Long userId, Type articleType) {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        GetMyInfoResponse userInfo = GetMyInfoResponse.from(user);
+        List<MyPageArticleInfoResponse> myOutputList =  getOutputFromUser(user, articleType);
+
+        return BasicInfoResponse.from(userNickname, sameUser, userInfo, myOutputList);
     }
 
     public EditMyInfoResponse editInfo(String authorizationHeader, MultipartFile profileImage, EditMyInfoRequest request) throws IOException{
@@ -114,6 +130,10 @@ public class UserService {
         Long userId = getUserIdFromHeader(authorizationHeader);
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 
+        return getOutputFromUser(user, articleType);
+    }
+
+    public List<MyPageArticleInfoResponse> getOutputFromUser(User user, Type articleType) {
         List<UserArticle> myArticles = userArticleRepository.findAllByUserAndArticle_ArticleTypeOrderByArticle_CreatedAtDesc(
                 user, articleType);
 
@@ -123,28 +143,7 @@ public class UserService {
             return new MyPageArticleInfoResponse(s.getArticle(),
                     articleLikeRepository.countByArticle(s.getArticle()),
                     teamProfiles);
-        }).collect(Collectors.toList());
-    }
-
-    public GetMyInfoResponse getInfoFromUserId(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-
-        return GetMyInfoResponse.from(user);
-    }
-
-    public List<MyPageArticleInfoResponse> getOutputFromUserId(Long userId, Type articleType) {
-        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-
-        List<UserArticle> myArticles = userArticleRepository.findAllByUserAndArticle_ArticleTypeOrderByArticle_CreatedAtDesc(
-                user, articleType);
-
-        return myArticles.stream().map(s -> {
-            List<String> teamProfiles = getTeamProfiles(s.getArticle().getArticleId());
-
-            return new MyPageArticleInfoResponse(s.getArticle(),
-                    articleLikeRepository.countByArticle(s.getArticle()),
-                    teamProfiles);
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     // UserArticle 테이블에서 동일한 articleId에 속한 사용자들의 프로필 url을 List<String> 으로 반환하는 메서드
