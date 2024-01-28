@@ -11,8 +11,8 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.example.weneedbe.domain.article.domain.Type;
 import org.example.weneedbe.domain.user.dto.request.EditMyInfoRequest;
+import org.example.weneedbe.domain.user.dto.response.mypage.BasicInfoResponse;
 import org.example.weneedbe.domain.user.dto.response.mypage.EditMyInfoResponse;
-import org.example.weneedbe.domain.user.dto.response.mypage.GetMyInfoResponse;
 import org.example.weneedbe.domain.user.dto.response.mypage.MyPageArticleInfoResponse;
 import org.example.weneedbe.domain.user.service.UserService;
 import org.example.weneedbe.global.error.ErrorResponse;
@@ -28,16 +28,18 @@ public class MyPageController {
 
     private final UserService userService;
 
-    @Operation(summary = "마이페이지의 내 정보", description = "현재 로그인한 사용자의 정보를 마이페이지 내 불러옵니다.")
+    @Operation(summary = "마이페이지의 사용자 정보 및 Output 정보",
+            description = "헤더와 userId를 비교해 상황에 맞는 사용자 정보 및 작성한 포트폴리오 정보를 조회합니다.")
     @ApiResponses({
         @ApiResponse(responseCode = "200"),
         @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
         @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
         @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @GetMapping("/my-info")
-    public ResponseEntity<GetMyInfoResponse> getInfo(@RequestHeader("Authorization") String authorizationHeader) throws IOException {
-        return ResponseEntity.ok(userService.getInfo(authorizationHeader));
+    @GetMapping("/basic-info")
+    public ResponseEntity<BasicInfoResponse> getInfo(@RequestHeader("Authorization") String authorizationHeader,
+                                                     @RequestParam Long userId) {
+        return ResponseEntity.ok(userService.getBasicInfo(authorizationHeader, userId));
     }
 
     @Operation(summary = "마이페이지 내 프로필 수정", description = "현재 로그인한 사용자의 프로필 정보를 수정합니다.")
@@ -104,29 +106,5 @@ public class MyPageController {
     public ResponseEntity<List<MyPageArticleInfoResponse>> getMyCrewInfo(
             @RequestHeader("Authorization") String authorizationHeader) {
         return ResponseEntity.ok(userService.getArticleInfo(authorizationHeader, Type.RECRUITING));
-    }
-
-    @Operation(summary = "다른 사용자의 마이페이지 내 세부정보 조회", description = "userId를 통한 다른 사용자의 세부 정보를 조회합니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @GetMapping("/{userId}/info")
-    public ResponseEntity<GetMyInfoResponse> getInfoFromUserId(@PathVariable Long userId) {
-        return ResponseEntity.ok(userService.getInfoFromUserId(userId));
-    }
-
-    @Operation(summary = "다른 사용자의 마이페이지 내 아웃풋 조회", description = "userId를 통한 다른 사용자가 작성한 포트폴리오 게시물을 조회합니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @GetMapping("/{userId}/outputs")
-    public ResponseEntity<List<MyPageArticleInfoResponse>> getOutputFromUserId(@PathVariable Long userId) {
-        return ResponseEntity.ok(userService.getOutputFromUserId(userId, Type.PORTFOLIO));
     }
 }
