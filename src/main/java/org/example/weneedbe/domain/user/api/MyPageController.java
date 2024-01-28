@@ -39,7 +39,7 @@ public class MyPageController {
     @GetMapping("/basic-info")
     public ResponseEntity<BasicInfoResponse> getInfo(@RequestHeader("Authorization") String authorizationHeader,
                                                      @RequestParam Long userId) {
-        return ResponseEntity.ok(userService.getBasicInfo(authorizationHeader, userId));
+        return ResponseEntity.ok(userService.getBasicInfo(authorizationHeader, userId, Type.PORTFOLIO));
     }
 
     @Operation(summary = "마이페이지 내 프로필 수정", description = "현재 로그인한 사용자의 프로필 정보를 수정합니다.")
@@ -80,19 +80,6 @@ public class MyPageController {
     public ResponseEntity<List<MyPageArticleInfoResponse>> getInterestingPortfolioInfo(
             @RequestHeader("Authorization") String authorizationHeader) {
         return ResponseEntity.ok(userService.getBookmarkInfo(authorizationHeader, Type.PORTFOLIO));
-    }
-
-    @Operation(summary = "마이페이지의 마이 아웃풋 조회", description = "사용자가 작성한 포트폴리오 게시물을 가져옵니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @GetMapping("/my-outputs")
-    public ResponseEntity<List<MyPageArticleInfoResponse>> getMyOutputInfo(
-            @RequestHeader("Authorization") String authorizationHeader) {
-        return ResponseEntity.ok(userService.getArticleInfo(authorizationHeader, Type.PORTFOLIO));
     }
 
     @Operation(summary = "마이페이지의 마이 크루 조회", description = "사용자가 작성한 리크루팅 게시물을 가져옵니다.")
