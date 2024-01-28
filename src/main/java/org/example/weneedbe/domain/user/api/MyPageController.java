@@ -36,9 +36,9 @@ public class MyPageController {
         @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
         @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @GetMapping("/basic-info")
+    @GetMapping("/basic-info/{userId}")
     public ResponseEntity<BasicInfoResponse> getInfo(@RequestHeader("Authorization") String authorizationHeader,
-                                                     @RequestParam Long userId) {
+                                                     @PathVariable Long userId) {
         return ResponseEntity.ok(userService.getBasicInfo(authorizationHeader, userId, Type.PORTFOLIO));
     }
 
