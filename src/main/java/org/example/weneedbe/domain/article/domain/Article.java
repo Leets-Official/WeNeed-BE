@@ -59,10 +59,6 @@ public class Article extends BaseTimeEntity {
     private LocalDateTime deletedAt;
 
     @ElementCollection
-    @CollectionTable(name = "article_links", joinColumns = @JoinColumn(name = "article_id"))
-    private List<String> articleLinks;
-
-    @ElementCollection
     @CollectionTable(name = "detail_skills", joinColumns = @JoinColumn(name = "article_id"))
     private List<String> detailSkills;
 
@@ -93,7 +89,6 @@ public class Article extends BaseTimeEntity {
             .articleType(request.getArticleType())
             .thumbnail(thumbnail)
             .title(request.getTitle())
-            .articleLinks(request.getLinks())
             .detailSkills(request.getSkills())
             .detailTags(request.getTags())
             .build();
@@ -114,7 +109,6 @@ public class Article extends BaseTimeEntity {
         this.articleType = request.getArticleType();
         this.thumbnail = thumbnail;
         this.title = request.getTitle();
-        this.articleLinks = request.getLinks();
         this.detailSkills = request.getSkills();
         this.detailTags = request.getTags();
         this.content = convertImagesToContent(images, request);
@@ -127,7 +121,6 @@ public class Article extends BaseTimeEntity {
         this.articleType = request.getArticleType();
         this.thumbnail = thumbnail;
         this.title = request.getTitle();
-        this.articleLinks = request.getLinks();
         this.detailSkills = request.getSkills();
         this.detailTags = request.getTags();
         this.content = convertImagesToContent(images, request);
@@ -142,7 +135,7 @@ public class Article extends BaseTimeEntity {
 
         for (ContentData contentData : contentDatas) {
             if ("image".equals(contentData.getType()) && imagesIterator.hasNext()) {
-                contentData.setImageData(imagesIterator.next());
+                contentData.setData(imagesIterator.next());
             }
         }
         return contentDatas;
