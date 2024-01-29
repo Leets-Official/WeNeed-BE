@@ -1,6 +1,7 @@
 package org.example.weneedbe.domain.article.domain;
 
 import jakarta.persistence.Embeddable;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,8 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ContentData {
-  private Long id;
+  private UUID id = UUID.randomUUID();
   private String type;
-  private String textData;
-  private String imageData;
+  private String data;
 }
