@@ -11,7 +11,6 @@ public class ArticleRequest {
   private Type articleType;
   private String title;
   private List<ContentData> content;
-  private List<String> links;
   private List<String> skills;
   private List<String> tags;
   private List<Long> teamMembersId;

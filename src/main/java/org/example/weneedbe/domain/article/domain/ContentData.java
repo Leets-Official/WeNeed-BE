@@ -8,8 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ContentData {
-  private Long id;
+  private String id;
   private String type;
-  private String textData;
-  private String imageData;
+  private String data;
 }
