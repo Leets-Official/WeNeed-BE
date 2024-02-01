@@ -98,9 +98,13 @@ public class DetailResponseDto {
             contentDto.setId(contentData.getId());
             contentDto.setType(contentData.getType());
             if ("image".equals(contentData.getType())) {
-                contentDto.setImageData(contentData.getData());
+                contentDto.setData(contentData.getData());
             } else if ("text".equals(contentData.getType())) {
-                contentDto.setTextData(contentData.getData());
+                contentDto.setData(contentData.getData());
+            } else if ("link".equals(contentData.getType())){
+                contentDto.setData(contentData.getData());
+            } else if ("sound".equals(contentData.getType())) {
+                contentDto.setData(contentData.getData());
             }
             contentDtoList.add(contentDto);
         }
@@ -129,8 +133,7 @@ public class DetailResponseDto {
     public static class DetailPortfolioContentDto {
         private String id;
         private String type;
-        private String textData;
-        private String imageData;
+        private String data;
     }
 
     @Getter
