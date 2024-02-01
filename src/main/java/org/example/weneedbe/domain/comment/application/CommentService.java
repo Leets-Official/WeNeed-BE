@@ -1,15 +1,14 @@
 package org.example.weneedbe.domain.comment.application;
 
 import lombok.RequiredArgsConstructor;
+import org.example.weneedbe.domain.article.application.ArticleService;
 import org.example.weneedbe.domain.article.domain.Article;
-import org.example.weneedbe.domain.article.exception.ArticleNotFoundException;
-import org.example.weneedbe.domain.article.repository.ArticleRepository;
+import org.example.weneedbe.domain.article.exception.AuthorMismatchException;
 import org.example.weneedbe.domain.comment.domain.Comment;
 import org.example.weneedbe.domain.comment.dto.request.AddCommentRequest;
 import org.example.weneedbe.domain.comment.exception.CommentNotFoundException;
 import org.example.weneedbe.domain.comment.repository.CommentRepository;
 import org.example.weneedbe.domain.user.domain.User;
-import org.example.weneedbe.domain.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,25 +16,19 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CommentService {
 
-  private final ArticleRepository articleRepository;
   private final CommentRepository commentRepository;
-  private final UserRepository userRepository;
+  private final ArticleService articleService;
 
   @Transactional
-  public void createComment(Long articleId, AddCommentRequest request) {
-    Article article = articleRepository.findById(articleId).orElseThrow(
-        ArticleNotFoundException::new);
+  public void createComment(String authorizationHeader, Long articleId, AddCommentRequest request) {
+    Article article = articleService.findArticle(articleId);
+    User user = articleService.findUser(authorizationHeader);
 
-    /* 토큰을 통한 user 객체를 불러옴 */
-    /* 아직 토큰이 없기 때문에 임시 객체를 사용 */
-    User mockUser = userRepository.findById(1L).orElseThrow();
-
-    Comment comment = Comment.of(request, article, mockUser);
+    Comment comment = Comment.of(request, article, user);
 
     /* 부모 댓글이 있는 경우 */
     if (request.getParentId() != 0) {
-      Comment parentComment = commentRepository.findById(request.getParentId())
-          .orElseThrow(CommentNotFoundException::new);
+      Comment parentComment = findComment(request.getParentId());
       parentComment.addChild(comment);
     } else {
       article.getCommentList().add(comment);
@@ -43,12 +36,13 @@ public class CommentService {
     }
   }
 
-  public void deleteComment(Long articleId, Long commentId) {
-    Article article = articleRepository.findById(articleId)
-        .orElseThrow(ArticleNotFoundException::new);
+  public void deleteComment(String authorizationHeader, Long articleId, Long commentId) {
+    Article article = articleService.findArticle(articleId);
+    User user = articleService.findUser(authorizationHeader);
 
-    Comment comment = commentRepository.findById(commentId)
-        .orElseThrow(CommentNotFoundException::new);
+    Comment comment = findComment(commentId);
+
+    validateUserOwnership(comment, user);
 
     /* 최상위 댓글일 경우 */
     if (comment.getParentId() == 0) {
@@ -58,5 +52,16 @@ public class CommentService {
     }
 
     commentRepository.delete(comment);
+  }
+
+  private Comment findComment(Long commentId){
+    return commentRepository.findById(commentId)
+            .orElseThrow(CommentNotFoundException::new);
+  }
+
+  private void validateUserOwnership(Comment comment, User user){
+    if (!user.equals(comment.getWriter())) {
+      throw new AuthorMismatchException();
+    }
   }
 }
