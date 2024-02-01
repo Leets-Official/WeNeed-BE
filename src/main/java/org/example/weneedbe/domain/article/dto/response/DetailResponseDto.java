@@ -64,7 +64,6 @@ public class DetailResponseDto {
         private int bookmarkCount;
         private int commentCount;
         private List<String> skills;
-        private List<String> links;
         private List<String> tags;
         private List<String> files;
         private DetailWriterDto writer;
@@ -80,7 +79,6 @@ public class DetailResponseDto {
             this.bookmarkCount = bookmarkCount;
             this.commentCount = article.getCommentList().size();
             this.skills = article.getDetailSkills();
-            this.links = article.getArticleLinks();
             this.tags = article.getDetailTags();
             this.files = article.getFiles().stream()
                     .map(File::getFileUrl)
@@ -99,11 +97,7 @@ public class DetailResponseDto {
             DetailPortfolioContentDto contentDto = new DetailPortfolioContentDto();
             contentDto.setId(contentData.getId());
             contentDto.setType(contentData.getType());
-            if ("image".equals(contentData.getType())) {
-                contentDto.setImageData(contentData.getImageData());
-            } else if ("text".equals(contentData.getType())) {
-                contentDto.setTextData(contentData.getTextData());
-            }
+            contentDto.setData(contentData.getData());
             contentDtoList.add(contentDto);
         }
         return contentDtoList;
@@ -129,10 +123,9 @@ public class DetailResponseDto {
     @Getter
     @Setter
     public static class DetailPortfolioContentDto {
-        private Long id;
+        private String id;
         private String type;
-        private String textData;
-        private String imageData;
+        private String data;
     }
 
     @Getter

@@ -47,8 +47,7 @@ public class UserService {
     }
 
     public ResponseEntity<UserInfoResponse> setInfo(UserInfoRequest request, String authorizationHeader) throws Exception {
-        Long userId = getUserIdFromHeader(authorizationHeader);
-        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        User user = findUser(authorizationHeader);
         try {
             user.setUserInfo(request.getMajor(),
                     request.getDoubleMajor(),
@@ -67,8 +66,9 @@ public class UserService {
 
     @Transactional
     public BasicInfoResponse getBasicInfo(String authorizationHeader, Long userId, Type articleType) {
-        Long userIdFromHeader = getUserIdFromHeader(authorizationHeader);
+        Long userIdFromHeader = findUser(authorizationHeader).getUserId();
         String userNickname = userRepository.findById(userIdFromHeader).orElseThrow(UserNotFoundException::new).getNickname();
+
         if (userIdFromHeader.equals(userId)) {
             // '로그인한 사용자'의 정보 + MyOutput 노출
             return setBasicInfoResponse(userNickname, true, userIdFromHeader, articleType);
@@ -79,6 +79,7 @@ public class UserService {
 
     private BasicInfoResponse setBasicInfoResponse(String userNickname, Boolean sameUser, Long userId, Type articleType) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+
         GetMyInfoResponse userInfo = GetMyInfoResponse.from(user);
         List<MyPageArticleInfoResponse> myOutputList =  getOutputFromUser(user, articleType);
 
@@ -86,8 +87,7 @@ public class UserService {
     }
 
     public EditMyInfoResponse editInfo(String authorizationHeader, MultipartFile profileImage, EditMyInfoRequest request) throws IOException{
-        Long userId = getUserIdFromHeader(authorizationHeader);
-        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        User user = findUser(authorizationHeader);
 
         try {
             String profileImageUrl = s3Service.uploadImage(profileImage);
@@ -110,8 +110,7 @@ public class UserService {
     }
 
     public List<MyPageArticleInfoResponse> getBookmarkInfo(String authorizationHeader, Type articleType) {
-        Long userId = getUserIdFromHeader(authorizationHeader);
-        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        User user = findUser(authorizationHeader);
 
         List<Bookmark> recruitingBookmarks = bookmarkRepository.findAllByUserAndArticle_ArticleTypeOrderByArticle_CreatedAtDesc(
                 user, articleType);
@@ -126,8 +125,7 @@ public class UserService {
     }
 
     public List<MyPageArticleInfoResponse> getArticleInfo(String authorizationHeader, Type articleType) {
-        Long userId = getUserIdFromHeader(authorizationHeader);
-        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        User user = findUser(authorizationHeader);
 
         return getOutputFromUser(user, articleType);
     }
@@ -153,8 +151,9 @@ public class UserService {
                 .toList();
     }
 
-    private Long getUserIdFromHeader(String authorizationHeader) {
+    public User findUser(String authorizationHeader){
         String token = tokenProvider.getTokenFromAuthorizationHeader(authorizationHeader);
-        return tokenProvider.getUserIdFromToken(token);
+        Long userId = tokenProvider.getUserIdFromToken(token);
+        return userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
     }
 }

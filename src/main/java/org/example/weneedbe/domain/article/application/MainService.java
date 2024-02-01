@@ -10,10 +10,7 @@ import org.example.weneedbe.domain.article.repository.ArticleRepository;
 import org.example.weneedbe.domain.bookmark.domain.Bookmark;
 import org.example.weneedbe.domain.bookmark.repository.BookmarkRepository;
 import org.example.weneedbe.domain.user.domain.User;
-import org.example.weneedbe.domain.user.exception.UserNotFoundException;
-import org.example.weneedbe.domain.user.exception.UserNotRegisteredException;
-import org.example.weneedbe.domain.user.repository.UserRepository;
-import org.example.weneedbe.global.jwt.TokenProvider;
+import org.example.weneedbe.domain.user.service.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,11 +24,10 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class MainService {
-    private final UserRepository userRepository;
     private final ArticleRepository articleRepository;
     private final ArticleLikeRepository articleLikeRepository;
     private final BookmarkRepository bookmarkRepository;
-    private final TokenProvider tokenProvider;
+    private final UserService userService;
     private final static String SORT_BY_RECENT = "DESC";
     private final static String SORT_BY_HEARTS = "HEART";
     private final static String SORT_BY_VIEWS = "VIEW";
@@ -41,7 +37,7 @@ public class MainService {
         String guestNickname = "guest";
 
         if (authorizationHeader != null) {
-            user = getUserFromAuthorizationHeader(authorizationHeader);
+            user = userService.findUser(authorizationHeader);
         }
 
         Pageable pageable = PageRequest.of(page - 1, size);
@@ -145,7 +141,7 @@ public class MainService {
         String guestNickname = "guest";
 
         if (authorizationHeader != null) {
-            user = getUserFromAuthorizationHeader(authorizationHeader);
+            user = userService.findUser(authorizationHeader);
         }
 
         Pageable pageable = PageRequest.of(page - 1, size);
@@ -186,16 +182,10 @@ public class MainService {
         StringBuilder allContent = new StringBuilder();
         for (ContentData data : contentData) {
             if ("text".equals(data.getType())) {
-                allContent.append(data.getTextData()).append(" ");
+                allContent.append(data.getType()).append(" ");
             }
         }
         return allContent.toString().trim();
-    }
-
-    private User getUserFromAuthorizationHeader(String authorizationHeader) {
-        String token = tokenProvider.getTokenFromAuthorizationHeader(authorizationHeader);
-        Long userIdFromToken = tokenProvider.getUserIdFromToken(token);
-        return userRepository.findById(userIdFromToken).orElseThrow(UserNotFoundException::new);
     }
 
     private boolean containsBookmarkId(List<Bookmark> bookmarks, Long articleId) {
@@ -212,7 +202,7 @@ public class MainService {
         String guestNickname = "guest";
 
         if (authorizationHeader != null) {
-            user = getUserFromAuthorizationHeader(authorizationHeader);
+            user = userService.findUser(authorizationHeader);
         }
 
         Pageable pageable = PageRequest.of(page - 1, size);
