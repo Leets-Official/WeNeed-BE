@@ -9,6 +9,8 @@ import org.example.weneedbe.domain.comment.dto.request.AddCommentRequest;
 import org.example.weneedbe.domain.comment.exception.CommentNotFoundException;
 import org.example.weneedbe.domain.comment.repository.CommentRepository;
 import org.example.weneedbe.domain.user.domain.User;
+import org.example.weneedbe.domain.user.service.UserService;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,11 +20,12 @@ public class CommentService {
 
   private final CommentRepository commentRepository;
   private final ArticleService articleService;
+  private final UserService userService;
 
   @Transactional
   public void createComment(String authorizationHeader, Long articleId, AddCommentRequest request) {
     Article article = articleService.findArticle(articleId);
-    User user = articleService.findUser(authorizationHeader);
+    User user = userService.findUser(authorizationHeader);
 
     Comment comment = Comment.of(request, article, user);
 
@@ -38,7 +41,7 @@ public class CommentService {
 
   public void deleteComment(String authorizationHeader, Long articleId, Long commentId) {
     Article article = articleService.findArticle(articleId);
-    User user = articleService.findUser(authorizationHeader);
+    User user = userService.findUser(authorizationHeader);
 
     Comment comment = findComment(commentId);
 

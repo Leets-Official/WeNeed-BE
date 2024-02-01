@@ -29,6 +29,7 @@ import org.example.weneedbe.domain.user.domain.UserArticle;
 import org.example.weneedbe.domain.user.exception.UserNotFoundException;
 import org.example.weneedbe.domain.user.repository.UserArticleRepository;
 import org.example.weneedbe.domain.user.repository.UserRepository;
+import org.example.weneedbe.domain.user.service.UserService;
 import org.example.weneedbe.global.jwt.TokenProvider;
 import org.example.weneedbe.global.s3.application.S3Service;
 import org.springframework.stereotype.Service;
@@ -48,6 +49,7 @@ public class ArticleService {
     private final CommentRepository commentRepository;
     private final UserArticleRepository userArticleRepository;
     private final FileRepository fileRepository;
+    private final UserService userService;
 
     public void createPortfolio(String authorizationHeader, MultipartFile thumbnail, List<MultipartFile> images,
                                 List<MultipartFile> files, ArticleRequest request) throws IOException {
@@ -56,7 +58,7 @@ public class ArticleService {
         List<String> imageUrls = s3Service.uploadImages(images);
         List<String> fileUrls = s3Service.uploadFile(files);
 
-        User user = findUser(authorizationHeader);
+        User user = userService.findUser(authorizationHeader);
 
         Article article = Article.of(thumbnailUrl, imageUrls, fileUrls, request, user);
 
@@ -73,7 +75,7 @@ public class ArticleService {
         List<String> imageUrls = s3Service.uploadImages(images);
         List<String> fileUrls = s3Service.uploadFile(files);
 
-        User user = findUser(authorizationHeader);
+        User user = userService.findUser(authorizationHeader);
 
         Article article = Article.of(thumbnailUrl, imageUrls, fileUrls, request, user);
         article.setUserArticles(List.of(new UserArticle(user, article)));
@@ -88,7 +90,7 @@ public class ArticleService {
 
     public void likeArticle(String authorizationHeader, Long articleId) {
 
-        User user = findUser(authorizationHeader);
+        User user = userService.findUser(authorizationHeader);
         Article article = findArticle(articleId);
 
         Optional<ArticleLike> articleLike = articleLikeRepository.findByArticleAndUser(article, user);
@@ -102,7 +104,7 @@ public class ArticleService {
 
     public void bookmarkArticle(String authorizationHeader, Long articleId) {
 
-        User user = findUser(authorizationHeader);
+        User user = userService.findUser(authorizationHeader);
         Article article = findArticle(articleId);
 
         Optional<Bookmark> bookmark = bookmarkRepository.findByArticleAndUser(article, user);
@@ -115,7 +117,7 @@ public class ArticleService {
     }
 
     public DetailPortfolioDto getDetailPortfolio(String authorizationHeader, Long articleId) {
-        User user = findUser(authorizationHeader);
+        User user = userService.findUser(authorizationHeader);
         Article article = findArticle(articleId);
 
         article.plusViewCount(article.getViewCount() + 1);
@@ -148,7 +150,7 @@ public class ArticleService {
     }
 
     public DetailRecruitDto getDetailRecruit(String authorizationHeader, Long articleId) {
-        User user = findUser(authorizationHeader);
+        User user = userService.findUser(authorizationHeader);
         Article article = findArticle(articleId);
 
         article.plusViewCount(article.getViewCount() + 1);
@@ -178,7 +180,7 @@ public class ArticleService {
         List<MultipartFile> images, List<MultipartFile> files, ArticleRequest request)
         throws IOException {
 
-        User user = findUser(authorizationHeader);
+        User user = userService.findUser(authorizationHeader);
         Article article = findArticle(articleId);
 
         validateUserOwnership(article, user);
@@ -203,7 +205,7 @@ public class ArticleService {
         List<MultipartFile> images, List<MultipartFile> files, ArticleRequest request)
         throws IOException {
 
-        User user = findUser(authorizationHeader);
+        User user = userService.findUser(authorizationHeader);
         Article article = findArticle(articleId);
 
         validateUserOwnership(article, user);
@@ -237,18 +239,12 @@ public class ArticleService {
     }
 
     public void deleteArticle(String authorizationHeader, Long articleId){
-        User user = findUser(authorizationHeader);
+        User user = userService.findUser(authorizationHeader);
         Article article = findArticle(articleId);
 
         validateUserOwnership(article, user);
 
         articleRepository.delete(article);
-    }
-
-    public User findUser(String authorizationHeader){
-        String token = tokenProvider.getTokenFromAuthorizationHeader(authorizationHeader);
-        Long userId = tokenProvider.getUserIdFromToken(token);
-        return userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
     }
 
     public Article findArticle(Long articleId){
