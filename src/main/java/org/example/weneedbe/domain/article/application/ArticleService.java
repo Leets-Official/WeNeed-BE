@@ -245,13 +245,13 @@ public class ArticleService {
         articleRepository.delete(article);
     }
 
-    private User findUser(String authorizationHeader){
+    public User findUser(String authorizationHeader){
         String token = tokenProvider.getTokenFromAuthorizationHeader(authorizationHeader);
         Long userId = tokenProvider.getUserIdFromToken(token);
         return userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
     }
 
-    private Article findArticle(Long articleId){
+    public Article findArticle(Long articleId){
         return articleRepository.findById(articleId)
                 .orElseThrow(ArticleNotFoundException::new);
     }
