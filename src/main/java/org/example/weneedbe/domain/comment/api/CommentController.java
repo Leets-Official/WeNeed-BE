@@ -11,12 +11,7 @@ import org.example.weneedbe.domain.comment.dto.request.AddCommentRequest;
 import org.example.weneedbe.global.error.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/comments")
@@ -33,9 +28,9 @@ public class CommentController {
       @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
   })
   @PostMapping("/{articleId}")
-  public ResponseEntity<Void> createComment(@PathVariable Long articleId,
-      @RequestBody AddCommentRequest request) {
-    commentService.createComment(articleId, request);
+  public ResponseEntity<Void> createComment(@RequestHeader("Authorization") String authorizationHeader,
+                                            @PathVariable Long articleId, @RequestBody AddCommentRequest request) {
+    commentService.createComment(authorizationHeader, articleId, request);
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
@@ -47,9 +42,9 @@ public class CommentController {
       @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
   })
   @DeleteMapping("/{articleId}/{commentId}")
-  public ResponseEntity<Void> deleteComment(@PathVariable Long articleId,
-      @PathVariable Long commentId) {
-    commentService.deleteComment(articleId, commentId);
+  public ResponseEntity<Void> deleteComment(@RequestHeader("Authorization") String authorizationHeader,
+                                            @PathVariable Long articleId, @PathVariable Long commentId) {
+    commentService.deleteComment(authorizationHeader, articleId, commentId);
     return ResponseEntity.ok().build();
   }
 }
