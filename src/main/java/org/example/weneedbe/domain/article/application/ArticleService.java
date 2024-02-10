@@ -21,16 +21,15 @@ import org.example.weneedbe.domain.article.repository.ArticleLikeRepository;
 import org.example.weneedbe.domain.article.repository.ArticleRepository;
 import org.example.weneedbe.domain.bookmark.domain.Bookmark;
 import org.example.weneedbe.domain.bookmark.repository.BookmarkRepository;
+import org.example.weneedbe.domain.bookmark.service.BookmarkService;
 import org.example.weneedbe.domain.comment.domain.Comment;
 import org.example.weneedbe.domain.comment.repository.CommentRepository;
 import org.example.weneedbe.domain.file.repository.FileRepository;
 import org.example.weneedbe.domain.user.domain.User;
 import org.example.weneedbe.domain.user.domain.UserArticle;
-import org.example.weneedbe.domain.user.exception.UserNotFoundException;
 import org.example.weneedbe.domain.user.repository.UserArticleRepository;
 import org.example.weneedbe.domain.user.repository.UserRepository;
 import org.example.weneedbe.domain.user.service.UserService;
-import org.example.weneedbe.global.jwt.TokenProvider;
 import org.example.weneedbe.global.s3.application.S3Service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,12 +43,12 @@ public class ArticleService {
     private final UserRepository userRepository;
     private final S3Service s3Service;
     private final ArticleLikeRepository articleLikeRepository;
-    private final BookmarkRepository bookmarkRepository;
-    private final TokenProvider tokenProvider;
     private final CommentRepository commentRepository;
     private final UserArticleRepository userArticleRepository;
     private final FileRepository fileRepository;
     private final UserService userService;
+    private final BookmarkService bookmarkService;
+    private final BookmarkRepository bookmarkRepository;
 
     public void createPortfolio(String authorizationHeader, MultipartFile thumbnail, List<MultipartFile> images,
                                 List<MultipartFile> files, ArticleRequest request) throws IOException {
@@ -116,6 +115,7 @@ public class ArticleService {
         }
     }
 
+
     public DetailPortfolioDto getDetailPortfolio(String authorizationHeader, Long articleId) {
         User user = userService.findUser(authorizationHeader);
         Article article = findArticle(articleId);
@@ -123,11 +123,11 @@ public class ArticleService {
         article.plusViewCount(article.getViewCount() + 1);
         articleRepository.save(article);
 
-        int heartCount = articleLikeRepository.countByArticle(article);
-        int bookmarkCount = bookmarkRepository.countByArticle(article);
+        int heartCount = countHeartByArticle(article);
+        int bookmarkCount = bookmarkService.countBookmarkByArticle(article);
 
-        boolean isHearted = articleLikeRepository.existsByArticleAndUser(article, user);
-        boolean isBookmarked = bookmarkRepository.existsByArticleAndUser(article, user);
+        boolean isHearted = isArticleLikedByUser(article, user);
+        boolean isBookmarked = bookmarkService.isArticleBookmarkedByUser(article, user);
 
         List<Article> portfolioArticlesByUser = articleRepository.findPortfolioArticlesByUser(article.getUser());
         List<Comment> commentList = commentRepository.findAllByArticle(article);
@@ -142,7 +142,7 @@ public class ArticleService {
         for (Article portfolio : userPortfolio) {
             /* 상세조회하는 게시물 제외하고 workList에 추가 */
             if (!portfolio.getArticleId().equals(article.getArticleId())) {
-                boolean bookmarked = bookmarkRepository.existsByArticleAndUser(portfolio, user);
+                boolean bookmarked = bookmarkService.isArticleBookmarkedByUser(portfolio, user);
                 workList.add(new WorkPortfolioArticleDto(portfolio, bookmarked));
             }
         }
@@ -156,11 +156,11 @@ public class ArticleService {
         article.plusViewCount(article.getViewCount() + 1);
         articleRepository.save(article);
 
-        int heartCount = articleLikeRepository.countByArticle(article);
-        int bookmarkCount = bookmarkRepository.countByArticle(article);
+        int heartCount = countHeartByArticle(article);
+        int bookmarkCount = bookmarkService.countBookmarkByArticle(article);
 
-        boolean isHearted = articleLikeRepository.existsByArticleAndUser(article, user);
-        boolean isBookmarked = bookmarkRepository.existsByArticleAndUser(article, user);
+        boolean isHearted = isArticleLikedByUser(article, user);
+        boolean isBookmarked = bookmarkService.isArticleBookmarkedByUser(article, user);
 
         List<Comment> commentList = commentRepository.findAllByArticle(article);
         List<CommentResponseDto> commentResponseDtos = mapToResponseDto(commentList);
@@ -256,5 +256,12 @@ public class ArticleService {
         if (!user.equals(article.getUser())) {
             throw new AuthorMismatchException();
         }
+    }
+    public boolean isArticleLikedByUser(Article article, User user){
+        return articleLikeRepository.existsByArticleAndUser(article, user);
+    }
+
+    public int countHeartByArticle(Article article){
+        return articleLikeRepository.countByArticle(article);
     }
 }
