@@ -11,9 +11,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.weneedbe.domain.user.dto.request.CertifyCodeRequest;
 import org.example.weneedbe.global.error.ErrorResponse;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.Map;
 
 @Tag(name = "Mail Certification Controller", description = "메일 인증 관련 API입니다.")
 @RestController
@@ -32,9 +34,9 @@ public class UnivCertController {
             @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/certify")
-    public void checkMailWithUniv(@RequestParam String email) throws IOException {
+    public ResponseEntity<Map<String, Object>> checkMailWithUniv(@RequestParam String email) throws IOException {
         log.info("\nemail:{}", email);
-        UnivCert.certify(apiKey, email, UNIV_NAME, true);
+        return ResponseEntity.ok(UnivCert.certify(apiKey, email, UNIV_NAME, true));
     }
 
     @Operation(summary = "인증 코드 입력", description = "입력한 이메일에 발송한 입력 코드를 토대로 메일을 인증합니다.")
@@ -45,7 +47,19 @@ public class UnivCertController {
             @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/certifycode")
-    public void checkVerificationCode(@RequestBody CertifyCodeRequest request) throws IOException {
-        UnivCert.certifyCode(apiKey, request.getEmail(), UNIV_NAME, request.getCode());
+    public ResponseEntity<Map<String, Object>> checkVerificationCode(@RequestBody CertifyCodeRequest request) throws IOException {
+        return ResponseEntity.ok(UnivCert.certifyCode(apiKey, request.getEmail(), UNIV_NAME, request.getCode()));
+    }
+
+    @Operation(summary = "인증된 메일 목록 초기화", description = "인증된 모든 메일 목록을 초기화합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/clear")
+    public ResponseEntity<Map<String, Object>> clearAllMail() throws IOException {
+        return ResponseEntity.ok(UnivCert.clear(apiKey));
     }
 }
