@@ -5,10 +5,9 @@ import org.example.weneedbe.domain.article.domain.Article;
 import org.example.weneedbe.domain.article.domain.ContentData;
 import org.example.weneedbe.domain.article.dto.response.main.*;
 import org.example.weneedbe.domain.article.exception.InvalidSortException;
-import org.example.weneedbe.domain.article.repository.ArticleLikeRepository;
 import org.example.weneedbe.domain.article.repository.ArticleRepository;
 import org.example.weneedbe.domain.bookmark.domain.Bookmark;
-import org.example.weneedbe.domain.bookmark.repository.BookmarkRepository;
+import org.example.weneedbe.domain.bookmark.service.BookmarkService;
 import org.example.weneedbe.domain.user.domain.User;
 import org.example.weneedbe.domain.user.service.UserService;
 import org.springframework.data.domain.Page;
@@ -25,9 +24,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class MainService {
     private final ArticleRepository articleRepository;
-    private final ArticleLikeRepository articleLikeRepository;
-    private final BookmarkRepository bookmarkRepository;
+    private final ArticleService articleService;
     private final UserService userService;
+    private final BookmarkService bookmarkService;
     private final static String SORT_BY_RECENT = "DESC";
     private final static String SORT_BY_HEARTS = "HEART";
     private final static String SORT_BY_VIEWS = "VIEW";
@@ -67,7 +66,7 @@ public class MainService {
     private PortfolioArticleDto convertToArticleDto(Article article, User user) {
         boolean isBookmarked = user != null && containsBookmarkId(user.getBookmarks(), article.getArticleId());
 
-        int heartCount = articleLikeRepository.countByArticle(article);
+        int heartCount = articleService.countHeartByArticle(article);
 
         return PortfolioArticleDto.builder()
                 .articleId(article.getArticleId())
@@ -122,8 +121,8 @@ public class MainService {
 
     private double calculateWeight(Article article) {
         double viewCountWeight = 0.5 * article.getViewCount();
-        double likeCountWeight = 1.0 * articleLikeRepository.countByArticle(article);
-        double bookmarkCountWeight = 0.7 * bookmarkRepository.countByArticle(article);
+        double likeCountWeight = 1.0 * articleService.countHeartByArticle(article);
+        double bookmarkCountWeight = 0.7 * bookmarkService.countBookmarkByArticle(article);
         return viewCountWeight + likeCountWeight + bookmarkCountWeight;
     }
 
@@ -160,8 +159,8 @@ public class MainService {
     }
 
     private RecruitArticleDto convertToRecruitArticleDto(Article article) {
-        int heartCount = articleLikeRepository.countByArticle(article);
-        int bookmarkCount = bookmarkRepository.countByArticle(article);
+        int heartCount = articleService.countHeartByArticle(article);
+        int bookmarkCount = bookmarkService.countBookmarkByArticle(article);
         String contentByListContent = getContentByListContent(article.getContent());
         return RecruitArticleDto.builder()
                 .articleId(article.getArticleId())
@@ -209,21 +208,23 @@ public class MainService {
         Page<Article> articlesPage = articleRepository.findAllByTitleOrTextDataContaining(keyword, pageable);
         PageableDto pageableDto = new PageableDto(size, page, articlesPage.getTotalPages(), articlesPage.getTotalElements());
 
-        List<SearchArticleDto> articleList = convertToSearchArticleDtoList(articlesPage.getContent());
+        List<SearchArticleDto> articleList = convertToSearchArticleDtoList(articlesPage.getContent(), user);
 
         return new MainSearchDto(new MainUserDto(user != null ? user.getNickname() : guestNickname), pageableDto, articleList);
     }
 
-    private List<SearchArticleDto> convertToSearchArticleDtoList(List<Article> articlesPage) {
+    private List<SearchArticleDto> convertToSearchArticleDtoList(List<Article> articlesPage, User user) {
         return articlesPage.stream()
-                .map(article -> convertToSearchArticleDto(article))
+                .map(article -> convertToSearchArticleDto(article, user))
                 .collect(Collectors.toList());
 
     }
 
-    private SearchArticleDto convertToSearchArticleDto(Article article) {
-        int heartCount = articleLikeRepository.countByArticle(article);
-        int bookmarkCount = bookmarkRepository.countByArticle(article);
-        return new SearchArticleDto(article, heartCount, bookmarkCount);
+    private SearchArticleDto convertToSearchArticleDto(Article article, User user) {
+        int heartCount = articleService.countHeartByArticle(article);
+        int bookmarkCount = bookmarkService.countBookmarkByArticle(article);
+        boolean isHearted = articleService.isArticleLikedByUser(article, user);
+        boolean isBookmarked = bookmarkService.isArticleBookmarkedByUser(article, user);
+        return new SearchArticleDto(article, heartCount, bookmarkCount, isHearted, isBookmarked);
     }
 }
