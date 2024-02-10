@@ -19,6 +19,8 @@ import org.example.weneedbe.domain.article.exception.ArticleNotFoundException;
 import org.example.weneedbe.domain.article.exception.AuthorMismatchException;
 import org.example.weneedbe.domain.article.repository.ArticleLikeRepository;
 import org.example.weneedbe.domain.article.repository.ArticleRepository;
+import org.example.weneedbe.domain.bookmark.domain.Bookmark;
+import org.example.weneedbe.domain.bookmark.repository.BookmarkRepository;
 import org.example.weneedbe.domain.bookmark.service.BookmarkService;
 import org.example.weneedbe.domain.comment.domain.Comment;
 import org.example.weneedbe.domain.comment.repository.CommentRepository;
@@ -46,6 +48,7 @@ public class ArticleService {
     private final FileRepository fileRepository;
     private final UserService userService;
     private final BookmarkService bookmarkService;
+    private final BookmarkRepository bookmarkRepository;
 
     public void createPortfolio(String authorizationHeader, MultipartFile thumbnail, List<MultipartFile> images,
                                 List<MultipartFile> files, ArticleRequest request) throws IOException {
@@ -98,6 +101,19 @@ public class ArticleService {
         }
     }
 
+    public void bookmarkArticle(String authorizationHeader, Long articleId) {
+
+        User user = userService.findUser(authorizationHeader);
+        Article article = findArticle(articleId);
+
+        Optional<Bookmark> bookmark = bookmarkRepository.findByArticleAndUser(article, user);
+
+        if (bookmark.isEmpty()) {
+            bookmarkRepository.save(new Bookmark(user, article));
+        } else {
+            bookmarkRepository.delete(bookmark.get());
+        }
+    }
 
 
     public DetailPortfolioDto getDetailPortfolio(String authorizationHeader, Long articleId) {

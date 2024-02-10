@@ -225,6 +225,6 @@ public class MainService {
         int bookmarkCount = bookmarkService.countBookmarkByArticle(article);
         boolean isHearted = articleService.isArticleLikedByUser(article, user);
         boolean isBookmarked = bookmarkService.isArticleBookmarkedByUser(article, user);
-        return new SearchArticleDto(article, heartCount, bookmarkCount, isHearted, isBookmarked);
+        return new SearchArticleDto(article, heartCount, bookmarkCount, isBookmarked, isHearted);
     }
 }

@@ -16,7 +16,6 @@ import org.example.weneedbe.domain.article.dto.request.ArticleRequest;
 import org.example.weneedbe.domain.article.dto.response.DetailResponseDto.DetailPortfolioDto;
 import org.example.weneedbe.domain.article.dto.response.DetailResponseDto.DetailRecruitDto;
 import org.example.weneedbe.domain.article.dto.response.MemberInfoResponse;
-import org.example.weneedbe.domain.bookmark.service.BookmarkService;
 import org.example.weneedbe.global.error.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +28,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class ArticleController {
 
     private final ArticleService articleService;
-    private final BookmarkService bookmarkService;
 
     @Operation(summary = "포트폴리오 게시물 작성", description = "사용자가 포트폴리오 게시물을 작성합니다.")
     @ApiResponses({
@@ -103,7 +101,7 @@ public class ArticleController {
     })
     @PostMapping("/bookmarks/{articleId}")
     public ResponseEntity<Void> bookmarkArticle(@RequestHeader("Authorization") String authorizationHeader, @PathVariable Long articleId) {
-        bookmarkService.bookmarkArticle(authorizationHeader, articleId);
+        articleService.bookmarkArticle(authorizationHeader, articleId);
         return ResponseEntity.ok().build();
     }
 
