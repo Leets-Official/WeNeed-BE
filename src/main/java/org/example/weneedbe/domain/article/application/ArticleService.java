@@ -2,6 +2,7 @@ package org.example.weneedbe.domain.article.application;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -54,8 +55,8 @@ public class ArticleService {
                                 List<MultipartFile> files, ArticleRequest request) throws IOException {
 
         String thumbnailUrl = s3Service.uploadImage(thumbnail);
-        List<String> imageUrls = s3Service.uploadImages(images);
-        List<String> fileUrls = s3Service.uploadFile(files);
+        List<String> imageUrls = (images != null) ? s3Service.uploadImages(images) : Collections.emptyList();
+        List<String> fileUrls = (files != null) ? s3Service.uploadFile(files) : Collections.emptyList();
 
         User user = userService.findUser(authorizationHeader);
 
@@ -71,8 +72,8 @@ public class ArticleService {
                               List<MultipartFile> files, ArticleRequest request) throws IOException {
 
         String thumbnailUrl = s3Service.uploadImage(thumbnail);
-        List<String> imageUrls = s3Service.uploadImages(images);
-        List<String> fileUrls = s3Service.uploadFile(files);
+        List<String> imageUrls = (images != null) ? s3Service.uploadImages(images) : Collections.emptyList();
+        List<String> fileUrls = (files != null) ? s3Service.uploadFile(files) : Collections.emptyList();
 
         User user = userService.findUser(authorizationHeader);
 
@@ -190,8 +191,8 @@ public class ArticleService {
         fileRepository.deleteAllByArticle_ArticleId(articleId);
 
         String thumbnailUrl = s3Service.uploadImage(thumbnail);
-        List<String> imageUrls = s3Service.uploadImages(images);
-        List<String> fileUrls = s3Service.uploadFile(files);
+        List<String> imageUrls = (images != null) ? s3Service.uploadImages(images) : Collections.emptyList();
+        List<String> fileUrls = (files != null) ? s3Service.uploadFile(files) : Collections.emptyList();
 
         List<UserArticle> updatedUserArticles = setUserArticle(user, request, article);
 
@@ -214,8 +215,8 @@ public class ArticleService {
         fileRepository.deleteAllByArticle_ArticleId(articleId);
 
         String thumbnailUrl = s3Service.uploadImage(thumbnail);
-        List<String> imageUrls = s3Service.uploadImages(images);
-        List<String> fileUrls = s3Service.uploadFile(files);
+        List<String> imageUrls = (images != null) ? s3Service.uploadImages(images) : Collections.emptyList();
+        List<String> fileUrls = (files != null) ? s3Service.uploadFile(files) : Collections.emptyList();
 
         article.updateRecruit(thumbnailUrl, imageUrls, fileUrls, request);
 
