@@ -18,6 +18,7 @@ import org.example.weneedbe.domain.article.dto.response.DetailResponseDto.Detail
 import org.example.weneedbe.domain.article.dto.response.MemberInfoResponse;
 import org.example.weneedbe.global.error.ErrorResponse;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,10 +41,9 @@ public class ArticleController {
     public ResponseEntity<Void> createPortfolio(
         @RequestHeader("Authorization") String authorizationHeader,
         @RequestPart MultipartFile thumbnail,
-        @RequestPart List<MultipartFile> images,
-        @RequestPart List<MultipartFile> files, @RequestPart ArticleRequest request)
+        @RequestPart(required = false) List<MultipartFile> images,
+        @RequestPart(required = false) List<MultipartFile> files, @RequestPart ArticleRequest request)
         throws IOException {
-
         articleService.createPortfolio(authorizationHeader, thumbnail, images, files, request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -59,8 +59,8 @@ public class ArticleController {
     public ResponseEntity<Void> createRecruit(
         @RequestHeader("Authorization") String authorizationHeader,
         @RequestPart MultipartFile thumbnail,
-        @RequestPart List<MultipartFile> images,
-        @RequestPart List<MultipartFile> files, @RequestPart ArticleRequest request)
+        @RequestPart(required = false) List<MultipartFile> images,
+        @RequestPart(required = false) List<MultipartFile> files, @RequestPart ArticleRequest request)
         throws IOException {
 
         articleService.createRecruit(authorizationHeader, thumbnail, images, files, request);
@@ -141,8 +141,8 @@ public class ArticleController {
         @RequestHeader("Authorization") String authorizationHeader,
         @PathVariable Long articleId,
         @RequestPart MultipartFile thumbnail,
-        @RequestPart List<MultipartFile> images,
-        @RequestPart List<MultipartFile> files, @RequestPart ArticleRequest request)
+        @RequestPart(required = false) List<MultipartFile> images,
+        @RequestPart(required = false) List<MultipartFile> files, @RequestPart ArticleRequest request)
         throws IOException {
 
         articleService.editPortfolio(authorizationHeader, articleId, thumbnail, images, files, request);
@@ -161,8 +161,8 @@ public class ArticleController {
         @RequestHeader("Authorization") String authorizationHeader,
         @PathVariable Long articleId,
         @RequestPart MultipartFile thumbnail,
-        @RequestPart List<MultipartFile> images,
-        @RequestPart List<MultipartFile> files, @RequestPart ArticleRequest request)
+        @RequestPart(required = false) List<MultipartFile> images,
+        @RequestPart(required = false) List<MultipartFile> files, @RequestPart ArticleRequest request)
         throws IOException {
 
         articleService.editRecruit(authorizationHeader, articleId, thumbnail, images, files, request);
