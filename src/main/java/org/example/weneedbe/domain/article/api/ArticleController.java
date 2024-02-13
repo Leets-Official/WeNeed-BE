@@ -37,7 +37,7 @@ public class ArticleController {
         @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
         @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @PostMapping("/portfolio")
+    @PostMapping(value = "/portfolio", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> createPortfolio(
         @RequestHeader("Authorization") String authorizationHeader,
         @RequestPart MultipartFile thumbnail,
@@ -55,7 +55,7 @@ public class ArticleController {
         @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
         @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @PostMapping("/recruit")
+    @PostMapping(value = "/recruit", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> createRecruit(
         @RequestHeader("Authorization") String authorizationHeader,
         @RequestPart MultipartFile thumbnail,
@@ -136,7 +136,7 @@ public class ArticleController {
         @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
         @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @PatchMapping("/portfolio/{articleId}")
+    @PatchMapping(value = "/portfolio/{articleId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> editPortfolio(
         @RequestHeader("Authorization") String authorizationHeader,
         @PathVariable Long articleId,
@@ -156,7 +156,7 @@ public class ArticleController {
         @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
         @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @PatchMapping("/recruit/{articleId}")
+    @PatchMapping(value = "/recruit/{articleId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> editRecruit(
         @RequestHeader("Authorization") String authorizationHeader,
         @PathVariable Long articleId,
