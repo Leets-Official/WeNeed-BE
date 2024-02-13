@@ -11,6 +11,7 @@ public class PortfolioArticleDto {
     private Long articleId;
     private String thumbnail;
     private String writerNickname;
+    private String profile;
     private int viewCount;
     private int heartCount;
     private boolean isBookmarked;

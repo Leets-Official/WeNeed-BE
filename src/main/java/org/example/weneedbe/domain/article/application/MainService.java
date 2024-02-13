@@ -73,6 +73,7 @@ public class MainService {
                 .articleId(article.getArticleId())
                 .thumbnail(article.getThumbnail())
                 .writerNickname(article.getUser().getNickname())
+                .profile(article.getUser().getProfile())
                 .heartCount(heartCount)
                 .viewCount(article.getViewCount())
                 .isBookmarked(isBookmarked)

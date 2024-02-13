@@ -59,7 +59,7 @@ public class DetailResponseDto {
         private String thumbnail;
         private String title;
         private LocalDateTime createdAt;
-        private int heatCount;
+        private int heartCount;
         private int viewCount;
         private int bookmarkCount;
         private int commentCount;
@@ -70,11 +70,11 @@ public class DetailResponseDto {
         private List<DetailPortfolioContentDto> contents;
         private List<DetailTeamMemberDto> teamMembers;
 
-        public DetailArticleDto(Article article, int heatCount, int bookmarkCount) {
+        public DetailArticleDto(Article article, int heartCount, int bookmarkCount) {
             this.thumbnail = article.getThumbnail();
             this.title = article.getTitle();
             this.createdAt = article.getCreatedAt();
-            this.heatCount = heatCount;
+            this.heartCount = heartCount;
             this.viewCount = article.getViewCount();
             this.bookmarkCount = bookmarkCount;
             this.commentCount = article.getCommentList().size();
