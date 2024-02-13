@@ -31,9 +31,10 @@ public class MainService {
     private final static String SORT_BY_HEARTS = "HEART";
     private final static String SORT_BY_VIEWS = "VIEW";
 
-    public MainPortfolioDto getPortfolioArticleList(int size, int page, String sort, String[] detailTags, String authorizationHeader) {
+    public MainPortfolioDto getPortfolioArticleList(int size, int page, String sort, String tags, String authorizationHeader) {
         User user = null;
         String guestNickname = "guest";
+        String[] detailTags = parseStringToTags(tags);
 
         if (authorizationHeader != null) {
             user = userService.findUser(authorizationHeader);
@@ -135,9 +136,10 @@ public class MainService {
                 .build();
     }
 
-    public MainRecruitDto getRecruitArticleList(int size, int page, String[] detailTags, String authorizationHeader) {
+    public MainRecruitDto getRecruitArticleList(int size, int page, String tags, String authorizationHeader) {
         User user = null;
         String guestNickname = "guest";
+        String[] detailTags = parseStringToTags(tags);
 
         if (authorizationHeader != null) {
             user = userService.findUser(authorizationHeader);
@@ -226,5 +228,12 @@ public class MainService {
         boolean isHearted = articleService.isArticleLikedByUser(article, user);
         boolean isBookmarked = bookmarkService.isArticleBookmarkedByUser(article, user);
         return new SearchArticleDto(article, heartCount, bookmarkCount, isBookmarked, isHearted);
+    }
+
+    private String[] parseStringToTags(String tags){
+        if(tags == null || tags.isEmpty()){
+            return new String[0];
+        }
+        return tags.split(",");
     }
 }
