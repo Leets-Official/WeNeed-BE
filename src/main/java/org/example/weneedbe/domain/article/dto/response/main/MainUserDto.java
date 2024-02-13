@@ -7,4 +7,5 @@ import lombok.Getter;
 @AllArgsConstructor
 public class MainUserDto {
     private String nickname;
+    private Long userId;
 }
