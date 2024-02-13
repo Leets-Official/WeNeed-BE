@@ -40,6 +40,7 @@ public class DetailResponseDto {
     @Getter
     public static class DetailUserDto {
         private String nickname;
+        private Long userId;
         private String profile;
         private boolean sameUser;
         private boolean isHearted;
@@ -47,6 +48,7 @@ public class DetailResponseDto {
 
         public DetailUserDto(User user, boolean sameUser, boolean isHearted, boolean isBookmarked) {
             this.nickname = user.getNickname();
+            this.userId = user.getUserId();
             this.profile = user.getProfile();
             this.sameUser = sameUser;
             this.isHearted = isHearted;

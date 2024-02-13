@@ -47,8 +47,9 @@ public class MainService {
 
         List<RecommendArticleDto> recommendArticleList = getRecommendArticleList(user);
         List<HotArticleDto> hotArticleList = getHotArticleList();
+        MainUserDto userDto = new MainUserDto(user != null ? user.getNickname() : guestNickname, user != null ? user.getUserId() : -1L);
 
-        return new MainPortfolioDto(new MainUserDto(user != null ? user.getNickname() : guestNickname), pageableDto, hotArticleList, articleList, recommendArticleList);
+        return new MainPortfolioDto(userDto, pageableDto, hotArticleList, articleList, recommendArticleList);
     }
 
     private Page<Article> getSortedArticlesPage(String sort, String[] detailTags, Pageable pageable) {
@@ -151,8 +152,9 @@ public class MainService {
         PageableDto pageableDto = new PageableDto(size, page, recruitingPage.getTotalPages(), recruitingPage.getTotalElements());
 
         List<RecruitArticleDto> recruitList = convertToRecruitArticleDtoList(recruitingPage.getContent());
+        MainUserDto userDto = new MainUserDto(user != null ? user.getNickname() : guestNickname, user != null ? user.getUserId() : -1L);
 
-        return new MainRecruitDto(new MainUserDto(user != null ? user.getNickname() : guestNickname), pageableDto, recruitList);
+        return new MainRecruitDto(userDto, pageableDto, recruitList);
     }
 
     private List<RecruitArticleDto> convertToRecruitArticleDtoList(List<Article> articles) {
@@ -212,8 +214,9 @@ public class MainService {
         PageableDto pageableDto = new PageableDto(size, page, articlesPage.getTotalPages(), articlesPage.getTotalElements());
 
         List<SearchArticleDto> articleList = convertToSearchArticleDtoList(articlesPage.getContent(), user);
+        MainUserDto userDto = new MainUserDto(user != null ? user.getNickname() : guestNickname, user != null ? user.getUserId() : -1L);
 
-        return new MainSearchDto(new MainUserDto(user != null ? user.getNickname() : guestNickname), pageableDto, articleList);
+        return new MainSearchDto(userDto, pageableDto, articleList);
     }
 
     private List<SearchArticleDto> convertToSearchArticleDtoList(List<Article> articlesPage, User user) {
