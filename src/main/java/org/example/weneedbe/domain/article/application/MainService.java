@@ -1,8 +1,10 @@
 package org.example.weneedbe.domain.article.application;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.weneedbe.domain.article.domain.Article;
 import org.example.weneedbe.domain.article.domain.ContentData;
+import org.example.weneedbe.domain.article.domain.Type;
 import org.example.weneedbe.domain.article.dto.response.main.*;
 import org.example.weneedbe.domain.article.exception.InvalidSortException;
 import org.example.weneedbe.domain.article.repository.ArticleRepository;
@@ -10,6 +12,7 @@ import org.example.weneedbe.domain.bookmark.domain.Bookmark;
 import org.example.weneedbe.domain.bookmark.service.BookmarkService;
 import org.example.weneedbe.domain.user.domain.User;
 import org.example.weneedbe.domain.user.service.UserService;
+import org.example.weneedbe.global.jwt.exception.InvalidInputValueException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +25,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MainService {
     private final ArticleRepository articleRepository;
     private final ArticleService articleService;
@@ -34,14 +38,19 @@ public class MainService {
     public MainPortfolioDto getPortfolioArticleList(int size, int page, String sort, String tags, String authorizationHeader) {
         User user = null;
         String guestNickname = "guest";
-        String[] detailTags = parseStringToTags(tags);
-
         if (authorizationHeader != null) {
             user = userService.findUser(authorizationHeader);
         }
 
         Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Article> articlesPage = getSortedArticlesPage(sort, detailTags, pageable);
+        Page<Article> articlesPage = null;
+        if ("ALL".equals(tags)) {
+            articlesPage = getSortedArticlesPageAll(sort, pageable);
+        }else {
+            String[] detailTags = parseStringToTags(tags);
+            articlesPage = getSortedArticlesPage(sort, detailTags, pageable);
+        }
+
         PageableDto pageableDto = new PageableDto(size, page, articlesPage.getTotalPages(), articlesPage.getTotalElements());
         List<PortfolioArticleDto> articleList = convertToPortfolioArticleDtoList(articlesPage.getContent(), user);
 
@@ -52,6 +61,18 @@ public class MainService {
         return new MainPortfolioDto(userDto, pageableDto, hotArticleList, articleList, recommendArticleList);
     }
 
+    private Page<Article> getSortedArticlesPageAll(String sort, Pageable pageable) {
+        switch (sort) {
+            case SORT_BY_RECENT:
+                return articleRepository.findAllByTypeOrderByCreatedAtDesc(Type.PORTFOLIO,pageable);
+            case SORT_BY_HEARTS:
+                return articleRepository.findAllByPortfolioTypeOrderByLikesDesc(pageable);
+            case SORT_BY_VIEWS:
+                return articleRepository.findAllByPortfolioTypeOrderByViewCountDesc(pageable);
+            default:
+                throw new InvalidSortException();
+        }
+    }
     private Page<Article> getSortedArticlesPage(String sort, String[] detailTags, Pageable pageable) {
         switch (sort) {
             case SORT_BY_RECENT:
@@ -141,14 +162,18 @@ public class MainService {
     public MainRecruitDto getRecruitArticleList(int size, int page, String tags, String authorizationHeader) {
         User user = null;
         String guestNickname = "guest";
-        String[] detailTags = parseStringToTags(tags);
 
         if (authorizationHeader != null) {
             user = userService.findUser(authorizationHeader);
         }
-
         Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Article> recruitingPage = articleRepository.findRecruitingByDetailTagsInOrderByCreatedAtDesc(detailTags, pageable);
+        Page<Article> recruitingPage = null;
+        if ("ALL".equals(tags)) {
+            recruitingPage = articleRepository.findAllByTypeOrderByCreatedAtDesc(Type.RECRUITING,pageable);
+        }else {
+            String[] detailTags = parseStringToTags(tags);
+            recruitingPage = articleRepository.findRecruitingByDetailTagsInOrderByCreatedAtDesc(detailTags, pageable);
+        }
         PageableDto pageableDto = new PageableDto(size, page, recruitingPage.getTotalPages(), recruitingPage.getTotalElements());
 
         List<RecruitArticleDto> recruitList = convertToRecruitArticleDtoList(recruitingPage.getContent());
@@ -237,7 +262,7 @@ public class MainService {
 
     private String[] parseStringToTags(String tags){
         if(tags == null || tags.isEmpty()){
-            return new String[0];
+            throw new InvalidInputValueException();
         }
         return tags.split(",");
     }
