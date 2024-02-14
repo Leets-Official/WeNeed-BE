@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 public class RecruitArticleDto {
     private Long articleId;
     private String nickname;
+    private String profile;
     private Department major;
     private Integer grade;
     private LocalDateTime createdAt;

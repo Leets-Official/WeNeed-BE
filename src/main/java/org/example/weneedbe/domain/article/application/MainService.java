@@ -170,6 +170,7 @@ public class MainService {
         return RecruitArticleDto.builder()
                 .articleId(article.getArticleId())
                 .nickname(article.getUser().getNickname())
+                .profile(article.getUser().getProfile())
                 .grade(article.getUser().getGrade())
                 .major(article.getUser().getMajor())
                 .thumbnail(article.getThumbnail())
