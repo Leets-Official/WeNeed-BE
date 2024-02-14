@@ -34,8 +34,8 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
             nativeQuery = true)
     Page<Article> findPortfoliosByDetailTagsOrderByLikesDesc(@Param("detailTags") String[] detailTags, Pageable pageable);
 
-    @Query(value = "SELECT a.* FROM article a LEFT JOIN detail_tags dt ON a.article_id = dt.article_id AND a.article_type = 'PORTFOLIO' AND (:detailTags IS NULL OR dt.detail_tags IN :detailTags) ORDER BY a.view_count DESC",
-            countQuery = "SELECT count(*) FROM article a LEFT JOIN detail_tags dt ON a.article_id = dt.article_id AND a.article_type = 'PORTFOLIO' AND (:detailTags IS NULL OR dt.detail_tags IN :detailTags)",
+    @Query(value = "SELECT a.* FROM article a LEFT JOIN detail_tags dt ON a.article_id = dt.article_id WHERE a.article_type = 'PORTFOLIO' AND (:detailTags IS NULL OR dt.detail_tags IN :detailTags) ORDER BY a.view_count DESC",
+            countQuery = "SELECT count(*) FROM article a LEFT JOIN detail_tags dt ON a.article_id = dt.article_id WHERE a.article_type = 'PORTFOLIO' AND (:detailTags IS NULL OR dt.detail_tags IN :detailTags)",
             nativeQuery = true)
     Page<Article> findPortfoliosByDetailTagsInOrderByViewCountDesc(@Param("detailTags") String[] detailTags, Pageable pageable);
 
