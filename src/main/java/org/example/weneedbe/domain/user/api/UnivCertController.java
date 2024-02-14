@@ -59,7 +59,31 @@ public class UnivCertController {
             @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/clear")
-    public ResponseEntity<Map<String, Object>> clearAllMail() throws IOException {
-        return ResponseEntity.ok(UnivCert.clear(apiKey));
+    public ResponseEntity<Map<String, Object>> clearAllMail(@RequestParam String key) throws IOException {
+        return ResponseEntity.ok(UnivCert.clear(key));
+    }
+
+    @Operation(summary = "인증된 메일 목록 조회", description = "인증된 모든 메일 목록을 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/certifiedlist")
+    public ResponseEntity<Map<String, Object>> showCertifiedList() throws IOException {
+        return ResponseEntity.ok(UnivCert.list(apiKey));
+    }
+
+    @Operation(summary = "인증된 특정 메일 초기화", description = "인증된 특정 메일을 초기화합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/clearSpecific")
+    public ResponseEntity<Map<String, Object>> clearSpecificMail(@RequestParam String key, @RequestParam String email) throws IOException {
+        return ResponseEntity.ok(UnivCert.clear(key, email));
     }
 }
