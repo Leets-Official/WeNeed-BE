@@ -212,7 +212,7 @@ public class MainService {
         StringBuilder allContent = new StringBuilder();
         for (ContentData data : contentData) {
             if ("text".equals(data.getType())) {
-                allContent.append(data.getType()).append(" ");
+                allContent.append(data.getData()).append(" ");
             }
         }
         return allContent.toString().trim();
