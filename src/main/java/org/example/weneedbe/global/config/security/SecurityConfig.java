@@ -68,7 +68,7 @@ public class SecurityConfig {
   @Bean
   CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
-    configuration.setAllowedOrigins(Arrays.asList("http://localhost:8080", "http://localhost:3000", "https://main.d2tymbwxxoagk6.amplifyapp.com/"));
+    configuration.setAllowedOrigins(Arrays.asList("http://localhost:8080", "http://localhost:3000", "https://main.d2tymbwxxoagk6.amplifyapp.com/", "https://weneed.site/", "https://www.weneed.site/"));
     configuration.setAllowedMethods(Arrays.asList("HEAD", "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
     configuration.setAllowCredentials(true);
     configuration.setAllowedHeaders(Arrays.asList("*"));
