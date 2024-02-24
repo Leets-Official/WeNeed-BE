@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.weneedbe.domain.article.domain.Type;
 import org.example.weneedbe.domain.article.dto.response.main.PageableDto;
 import org.example.weneedbe.domain.article.repository.ArticleLikeRepository;
-import org.example.weneedbe.domain.article.repository.ArticleRepository;
 import org.example.weneedbe.domain.bookmark.domain.Bookmark;
 import org.example.weneedbe.domain.bookmark.repository.BookmarkRepository;
 import org.example.weneedbe.domain.user.domain.User;
@@ -81,7 +80,7 @@ public class UserService {
             user = userRepository.findById(userIdFromHeader).orElseThrow(UserNotFoundException::new);
             articlesPage = getArticlesFromUser(pageable, user, articleType);
             PageableDto pageableDto = new PageableDto(size, page, articlesPage.getTotalPages(), articlesPage.getTotalElements());
-            List<MyPageArticleInfoResponse> myOutputList = convertToMyOutputList(articlesPage.getContent(), user);
+            List<MyPageArticleInfoResponse> myOutputList = convertToMyOutputList(articlesPage.getContent());
 
             return setBasicInfoResponse(userNickname, true, userIdFromHeader, myOutputList, pageableDto);
         }
@@ -89,7 +88,7 @@ public class UserService {
         user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         articlesPage = getArticlesFromUser(pageable, user, articleType);
         PageableDto pageableDto = new PageableDto(size, page, articlesPage.getTotalPages(), articlesPage.getTotalElements());
-        List<MyPageArticleInfoResponse> myOutputList = convertToMyOutputList(articlesPage.getContent(), user);
+        List<MyPageArticleInfoResponse> myOutputList = convertToMyOutputList(articlesPage.getContent());
 
         return setBasicInfoResponse(userNickname, false, userId, myOutputList, pageableDto);
     }
@@ -98,7 +97,7 @@ public class UserService {
         return userArticleRepository.findAllByUserAndArticle_ArticleTypeOrderByArticle_CreatedAtDesc(user, articletype, pageable);
     }
 
-    private List<MyPageArticleInfoResponse> convertToMyOutputList(List<UserArticle> myArticles, User user) {
+    private List<MyPageArticleInfoResponse> convertToMyOutputList(List<UserArticle> myArticles) {
         return myArticles.stream().map(s -> {
             List<String> teamProfiles = getTeamProfiles(s.getArticle().getArticleId());
 
@@ -138,19 +137,26 @@ public class UserService {
         return EditMyInfoResponse.from(user);
     }
 
-    public List<MyPageArticleInfoResponse> getBookmarkInfo(String authorizationHeader, Type articleType) {
+    @Transactional
+    public MyPageArticleListResponse getBookmarkInfo(int size, int page, String authorizationHeader, Type articleType) {
         User user = findUser(authorizationHeader);
 
-        List<Bookmark> recruitingBookmarks = bookmarkRepository.findAllByUserAndArticle_ArticleTypeOrderByArticle_CreatedAtDesc(
-                user, articleType);
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Bookmark> bookmarksPage = null;
 
-        return recruitingBookmarks.stream().map(s -> {
+        bookmarksPage = bookmarkRepository.findAllByUserAndArticle_ArticleTypeOrderByArticle_CreatedAtDesc(user, articleType, pageable);
+        PageableDto pageableDto = new PageableDto(size, page, bookmarksPage.getTotalPages(), bookmarksPage.getTotalElements());
+        List<MyPageArticleInfoResponse> bookmarkList = null;
+
+        bookmarkList = bookmarksPage.getContent().stream().map(s -> {
             List<String> teamProfiles = getTeamProfiles(s.getArticle().getArticleId());
 
             return new MyPageArticleInfoResponse(s.getArticle(),
                     articleLikeRepository.countByArticle(s.getArticle()),
                     teamProfiles);
         }).toList();
+
+        return MyPageArticleListResponse.of(bookmarkList, pageableDto);
     }
 
     public MyPageArticleListResponse getArticleInfo(int size, int page, String authorizationHeader, Type articleType) {
@@ -161,7 +167,7 @@ public class UserService {
 
         articlesPage = getArticlesFromUser(pageable, user, articleType);
         PageableDto pageableDto = new PageableDto(size, page, articlesPage.getTotalPages(), articlesPage.getTotalElements());
-        List<MyPageArticleInfoResponse> myOutputList = convertToMyOutputList(articlesPage.getContent(), user);
+        List<MyPageArticleInfoResponse> myOutputList = convertToMyOutputList(articlesPage.getContent());
 
         return MyPageArticleListResponse.of(myOutputList, pageableDto);
     }
