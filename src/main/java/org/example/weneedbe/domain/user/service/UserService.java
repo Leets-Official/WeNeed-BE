@@ -14,10 +14,7 @@ import org.example.weneedbe.domain.user.domain.UserArticle;
 import org.example.weneedbe.domain.user.dto.request.EditMyInfoRequest;
 import org.example.weneedbe.domain.user.dto.request.UserInfoRequest;
 import org.example.weneedbe.domain.user.dto.response.UserInfoResponse;
-import org.example.weneedbe.domain.user.dto.response.mypage.BasicInfoResponse;
-import org.example.weneedbe.domain.user.dto.response.mypage.MyPageArticleInfoResponse;
-import org.example.weneedbe.domain.user.dto.response.mypage.EditMyInfoResponse;
-import org.example.weneedbe.domain.user.dto.response.mypage.GetMyInfoResponse;
+import org.example.weneedbe.domain.user.dto.response.mypage.*;
 import org.example.weneedbe.domain.user.exception.InvalidProfileEditException;
 import org.example.weneedbe.domain.user.exception.UserNotFoundException;
 import org.example.weneedbe.domain.user.repository.UserArticleRepository;
@@ -118,19 +115,6 @@ public class UserService {
         return BasicInfoResponse.of(userNickname, sameUser, userInfo, myOutputList, pageableDto);
     }
 
-    public List<MyPageArticleInfoResponse> getOutputFromUser(User user, Type articleType) {
-        List<UserArticle> myArticles = userArticleRepository.findAllByUserAndArticle_ArticleTypeOrderByArticle_CreatedAtDesc(
-                user, articleType);
-
-        return myArticles.stream().map(s -> {
-            List<String> teamProfiles = getTeamProfiles(s.getArticle().getArticleId());
-
-            return new MyPageArticleInfoResponse(s.getArticle(),
-                    articleLikeRepository.countByArticle(s.getArticle()),
-                    teamProfiles);
-        }).toList();
-    }
-
     public EditMyInfoResponse editInfo(String authorizationHeader, MultipartFile profileImage, EditMyInfoRequest request) throws IOException{
         User user = findUser(authorizationHeader);
 
@@ -169,10 +153,17 @@ public class UserService {
         }).toList();
     }
 
-    public List<MyPageArticleInfoResponse> getArticleInfo(String authorizationHeader, Type articleType) {
+    public MyPageArticleListResponse getArticleInfo(int size, int page, String authorizationHeader, Type articleType) {
         User user = findUser(authorizationHeader);
 
-        return getOutputFromUser(user, articleType);
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<UserArticle> articlesPage = null;
+
+        articlesPage = getArticlesFromUser(pageable, user, articleType);
+        PageableDto pageableDto = new PageableDto(size, page, articlesPage.getTotalPages(), articlesPage.getTotalElements());
+        List<MyPageArticleInfoResponse> myOutputList = convertToMyOutputList(articlesPage.getContent(), user);
+
+        return MyPageArticleListResponse.of(myOutputList, pageableDto);
     }
 
     // UserArticle 테이블에서 동일한 articleId에 속한 사용자들의 프로필 url을 List<String> 으로 반환하는 메서드

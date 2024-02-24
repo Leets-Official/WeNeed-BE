@@ -14,6 +14,7 @@ import org.example.weneedbe.domain.user.dto.request.EditMyInfoRequest;
 import org.example.weneedbe.domain.user.dto.response.mypage.BasicInfoResponse;
 import org.example.weneedbe.domain.user.dto.response.mypage.EditMyInfoResponse;
 import org.example.weneedbe.domain.user.dto.response.mypage.MyPageArticleInfoResponse;
+import org.example.weneedbe.domain.user.dto.response.mypage.MyPageArticleListResponse;
 import org.example.weneedbe.domain.user.service.UserService;
 import org.example.weneedbe.global.error.ErrorResponse;
 import org.springframework.http.ResponseEntity;
@@ -66,7 +67,7 @@ public class MyPageController {
     })
     @GetMapping("/interesting-crews")
     public ResponseEntity<List<MyPageArticleInfoResponse>> getInterestingCrewInfo(
-            @RequestParam int size, @RequestParam int page, @RequestParam(defaultValue = "DESC") String sort,
+            @RequestParam int size, @RequestParam int page,
             @RequestHeader("Authorization") String authorizationHeader) {
         return ResponseEntity.ok(userService.getBookmarkInfo(authorizationHeader, Type.RECRUITING));
     }
@@ -80,7 +81,7 @@ public class MyPageController {
     })
     @GetMapping("/interesting-portfolios")
     public ResponseEntity<List<MyPageArticleInfoResponse>> getInterestingPortfolioInfo(
-            @RequestParam int size, @RequestParam int page, @RequestParam(defaultValue = "DESC") String sort,
+            @RequestParam int size, @RequestParam int page,
             @RequestHeader("Authorization") String authorizationHeader) {
         return ResponseEntity.ok(userService.getBookmarkInfo(authorizationHeader, Type.PORTFOLIO));
     }
@@ -93,9 +94,9 @@ public class MyPageController {
             @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/my-crews")
-    public ResponseEntity<List<MyPageArticleInfoResponse>> getMyCrewInfo(
-            @RequestParam int size, @RequestParam int page, @RequestParam(defaultValue = "DESC") String sort,
+    public ResponseEntity<MyPageArticleListResponse> getMyCrewInfo(
+            @RequestParam int size, @RequestParam int page,
             @RequestHeader("Authorization") String authorizationHeader) {
-        return ResponseEntity.ok(userService.getArticleInfo(authorizationHeader, Type.RECRUITING));
+        return ResponseEntity.ok(userService.getArticleInfo(size, page, authorizationHeader, Type.RECRUITING));
     }
 }
