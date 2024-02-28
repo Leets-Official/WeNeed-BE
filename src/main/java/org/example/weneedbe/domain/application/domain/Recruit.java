@@ -9,10 +9,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.weneedbe.domain.application.dto.request.RecruitFormRequest;
 import org.example.weneedbe.domain.article.domain.Article;
@@ -20,6 +22,7 @@ import org.example.weneedbe.domain.user.domain.User;
 import org.example.weneedbe.global.shared.entity.BaseTimeEntity;
 
 @Entity
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -55,7 +58,7 @@ public class Recruit extends BaseTimeEntity {
   @CollectionTable(name = "keywords", joinColumns = @JoinColumn(name = "recruit_id"))
   private List<String> keywords = new ArrayList<>();
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "article_id")
   private Article article;
 
