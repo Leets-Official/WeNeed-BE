@@ -68,6 +68,7 @@ public class DetailResponseDto {
         private List<String> skills;
         private List<String> tags;
         private List<String> files;
+        private String sharedText;
         private DetailWriterDto writer;
         private List<DetailPortfolioContentDto> contents;
         private List<DetailTeamMemberDto> teamMembers;
@@ -85,6 +86,7 @@ public class DetailResponseDto {
             this.files = article.getFiles().stream()
                     .map(File::getFileUrl)
                     .collect(Collectors.toList());
+            this.sharedText = article.getSharedText();
             this.writer = new DetailWriterDto(article);
             this.contents = getPortfolioContents(article.getContent());
             this.teamMembers = article.getUserArticles().stream()
