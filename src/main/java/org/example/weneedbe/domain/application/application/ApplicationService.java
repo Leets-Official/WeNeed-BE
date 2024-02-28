@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.weneedbe.domain.application.domain.Recruit;
 import org.example.weneedbe.domain.application.dto.request.RecruitFormRequest;
 import org.example.weneedbe.domain.application.dto.response.RecruitFormResponse;
+import org.example.weneedbe.domain.application.exception.RecruitNotFoundException;
 import org.example.weneedbe.domain.application.repository.RecruitRepository;
 import org.example.weneedbe.domain.article.application.ArticleService;
 import org.example.weneedbe.domain.article.domain.Article;
@@ -39,7 +40,7 @@ public class ApplicationService {
     int heartCount = articleService.countHeartByArticle(article);
     int bookmarkCount = bookmarkService.countBookmarkByArticle(article);
 
-    Recruit recruit = recruitRepository.findByArticle_ArticleId(articleId).orElseThrow();
+    Recruit recruit = recruitRepository.findByArticle_ArticleId(articleId).orElseThrow(RecruitNotFoundException::new);
 
     return new RecruitFormResponse(user, article, heartCount, bookmarkCount, recruit);
   }
