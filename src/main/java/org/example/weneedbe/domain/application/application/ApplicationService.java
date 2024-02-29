@@ -57,7 +57,7 @@ public class ApplicationService {
   public void createApplicationForm(String authorizationHeader, Long recruitId, MultipartFile appeal, ApplicationFormRequest request) throws IOException {
     User user = userService.findUser(authorizationHeader);
     Recruit recruit = recruitRepository.findById(recruitId).orElseThrow(RecruitNotFoundException::new);
-    String appealUrl = s3Service.uploadImage(appeal);
+    String appealUrl = s3Service.uploadFile(appeal);
 
     Application application = Application.of(recruit, user, request, appealUrl);
 
