@@ -19,7 +19,8 @@ public enum ErrorCode {
     INVALID_EDIT_VALUE(400, "INVALID_EDIT_VALUE", "유효하지 않은 변경값입니다."),
     USER_NOT_REGISTERED(400, "USER_NOT_REGISTERED","회원가입이 완료되지 않은 유저입니다."),
     AUTHOR_MISMATCH_ERROR(400, "AUTHOR_MISMATCH_ERROR", "작성자와 사용자가 일치하지 않습니다."),
-    TOKEN_NOT_FOUND(400, "TOKEN_NOT_FOUND", "해당 유저의 리프레시 토큰을 찾을 수 없습니다.");
+    TOKEN_NOT_FOUND(400, "TOKEN_NOT_FOUND", "해당 유저의 리프레시 토큰을 찾을 수 없습니다."),
+    RECRUIT_NOT_FOUND_EXCEPTION(400, "RECRUIT_NOT_FOUND_EXCEPTION", "존재하지 않는 모집 지원서입니다.");
 
     private final int httpStatus;
     private final String code;
