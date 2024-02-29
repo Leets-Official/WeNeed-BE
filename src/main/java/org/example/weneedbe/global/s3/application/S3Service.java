@@ -12,6 +12,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.weneedbe.global.s3.exception.FileUploadErrorException;
+import org.example.weneedbe.global.s3.exception.InvalidFileException;
 import org.example.weneedbe.global.s3.exception.InvalidImageFileException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -96,6 +97,28 @@ public class S3Service {
       fileNameList.add(getS3(bucketName, fileName));
     });
     return fileNameList;
+  }
+
+  public String uploadFile(MultipartFile file){
+    String fileName = createFileName(file.getOriginalFilename());
+    String fileExtension = getFileExtension(fileName);
+
+    if(fileExtension.equalsIgnoreCase(".pdf")){
+      ObjectMetadata objectMetadata = new ObjectMetadata();
+      objectMetadata.setContentLength(file.getSize());
+      objectMetadata.setContentType(file.getContentType());
+
+      try (InputStream inputStream = file.getInputStream()) {
+        amazonS3Client.putObject(
+                new PutObjectRequest(bucketName, fileName, inputStream, objectMetadata)
+                        .withCannedAcl(CannedAccessControlList.PublicRead));
+      } catch (IOException e) {
+        throw new FileUploadErrorException();
+      }
+      return getS3(bucketName, fileName);
+    }else {
+      throw new InvalidFileException();
+    }
   }
 
   public String createFileName(String fileName){
