@@ -1,17 +1,24 @@
 package org.example.weneedbe.domain.application.application;
 
 import lombok.RequiredArgsConstructor;
+import org.example.weneedbe.domain.application.domain.Application;
 import org.example.weneedbe.domain.application.domain.Recruit;
+import org.example.weneedbe.domain.application.dto.request.ApplicationFormRequest;
 import org.example.weneedbe.domain.application.dto.request.RecruitFormRequest;
 import org.example.weneedbe.domain.application.dto.response.RecruitFormResponse;
 import org.example.weneedbe.domain.application.exception.RecruitNotFoundException;
+import org.example.weneedbe.domain.application.repository.ApplicationRepository;
 import org.example.weneedbe.domain.application.repository.RecruitRepository;
 import org.example.weneedbe.domain.article.application.ArticleService;
 import org.example.weneedbe.domain.article.domain.Article;
 import org.example.weneedbe.domain.bookmark.service.BookmarkService;
 import org.example.weneedbe.domain.user.domain.User;
 import org.example.weneedbe.domain.user.service.UserService;
+import org.example.weneedbe.global.s3.application.S3Service;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +28,8 @@ public class ApplicationService {
   private final UserService userService;
   private final ArticleService articleService;
   private final BookmarkService bookmarkService;
+  private final S3Service s3Service;
+  private final ApplicationRepository applicationRepository;
 
   public void createRecruitForm(String authorizationHeader, Long articleId, RecruitFormRequest request) {
 
@@ -44,4 +53,15 @@ public class ApplicationService {
 
     return new RecruitFormResponse(user, article, heartCount, bookmarkCount, recruit);
   }
+
+  public void createApplicationForm(String authorizationHeader, Long recruitId, MultipartFile appeal, ApplicationFormRequest request) throws IOException {
+    User user = userService.findUser(authorizationHeader);
+    Recruit recruit = recruitRepository.findById(recruitId).orElseThrow(RecruitNotFoundException::new);
+    String appealUrl = s3Service.uploadImage(appeal);
+
+    Application application = Application.of(recruit, user, request, appealUrl);
+
+    applicationRepository.save(application);
+  }
+
 }
