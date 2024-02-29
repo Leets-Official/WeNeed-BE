@@ -29,6 +29,7 @@ public class Application extends BaseTimeEntity {
     @Column(nullable = false)
     private String major;
 
+    @Column(nullable = false)
     private String doubleMajor;
 
     @Column(nullable = false)
