@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.weneedbe.domain.application.dto.request.ApplicationFormRequest;
+import org.example.weneedbe.domain.user.domain.Department;
 import org.example.weneedbe.domain.user.domain.User;
 import org.example.weneedbe.global.shared.entity.BaseTimeEntity;
 
@@ -27,10 +28,10 @@ public class Application extends BaseTimeEntity {
     private String name;
 
     @Column(nullable = false)
-    private String major;
+    private Department major;
 
     @Column(nullable = false)
-    private String doubleMajor;
+    private Department doubleMajor;
 
     @Column(nullable = false)
     private boolean international;
