@@ -1,14 +1,16 @@
 package org.example.weneedbe.domain.application.dto.request;
 
 import lombok.Getter;
+import org.example.weneedbe.domain.user.domain.Department;
+
 import java.util.List;
 
 @Getter
 public class ApplicationFormRequest {
 
     private String name;
-    private String major;
-    private String doubleMajor;
+    private Department major;
+    private Department doubleMajor;
     private boolean international;
     private Integer grade;
     private String status;
