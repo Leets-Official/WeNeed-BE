@@ -55,7 +55,7 @@ public class Recruit extends BaseTimeEntity {
   private String content;
 
   @ElementCollection
-  @CollectionTable(name = "keywords", joinColumns = @JoinColumn(name = "recruit_id"))
+  @CollectionTable(name = "recruit_keywords", joinColumns = @JoinColumn(name = "recruit_id"))
   private List<String> keywords = new ArrayList<>();
 
   @OneToOne(fetch = FetchType.LAZY)
