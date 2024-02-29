@@ -13,6 +13,7 @@ import org.example.weneedbe.domain.application.dto.request.RecruitFormRequest;
 import org.example.weneedbe.domain.application.dto.response.RecruitFormResponse;
 import org.example.weneedbe.global.error.ErrorResponse;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -63,7 +64,7 @@ public class ApplicationController {
           @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
           @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
   })
-  @PostMapping("/applicationForms/{recruitId}")
+  @PostMapping(value = "/applicationForms/{recruitId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<Void> createApplicationForm(
           @RequestHeader("Authorization") String authorizationHeader, @PathVariable Long recruitId,
           @RequestBody ApplicationFormRequest request, @RequestPart MultipartFile appeal) throws IOException {
