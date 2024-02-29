@@ -10,10 +10,10 @@ public class RecruitFormRequest {
   private List<String> detailTags;
   private String deadline;
   private String description;
-  private String task_need;
-  private Integer member_count;
+  private String taskNeed;
+  private Integer memberCount;
   private String phone;
-  private List<String> crew_questions;
+  private List<String> crewQuestions;
   private String content;
   private List<String> keywords;
 }

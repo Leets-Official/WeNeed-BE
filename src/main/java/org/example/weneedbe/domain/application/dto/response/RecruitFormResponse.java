@@ -60,10 +60,10 @@ public class RecruitFormResponse {
     private List<String> detailTags;
     private String deadline;
     private String description;
-    private String task_need;
-    private Integer member_count;
+    private String taskNeed;
+    private Integer memberCount;
     private String phone;
-    private List<String> crew_questions;
+    private List<String> crewQuestions;
     private String content;
     private List<String> keywords;
 
@@ -72,10 +72,10 @@ public class RecruitFormResponse {
       this.detailTags = recruit.getDetailTags();
       this.deadline = recruit.getDeadline();
       this.description = recruit.getDescription();
-      this.task_need = recruit.getTaskNeed();
-      this.member_count = recruit.getMemberCount();
+      this.taskNeed = recruit.getTaskNeed();
+      this.memberCount = recruit.getMemberCount();
       this.phone = recruit.getPhone();
-      this.crew_questions = recruit.getCrewQuestions();
+      this.crewQuestions = recruit.getCrewQuestions();
       this.content = recruit.getContent();
       this.keywords = recruit.getKeywords();
     }
