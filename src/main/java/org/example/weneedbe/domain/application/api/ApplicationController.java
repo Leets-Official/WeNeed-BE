@@ -67,7 +67,7 @@ public class ApplicationController {
   @PostMapping(value = "/applicationForms/{recruitId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<Void> createApplicationForm(
           @RequestHeader("Authorization") String authorizationHeader, @PathVariable Long recruitId,
-          @RequestBody ApplicationFormRequest request, @RequestPart MultipartFile appeal) throws IOException {
+          @RequestPart ApplicationFormRequest request, @RequestPart MultipartFile appeal) throws IOException {
 
     applicationService.createApplicationForm(authorizationHeader, recruitId, appeal, request);
     return ResponseEntity.status(HttpStatus.CREATED).build();
