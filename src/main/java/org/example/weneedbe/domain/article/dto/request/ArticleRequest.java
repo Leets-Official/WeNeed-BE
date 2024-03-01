@@ -14,4 +14,5 @@ public class ArticleRequest {
   private List<String> skills;
   private List<String> tags;
   private List<Long> teamMembersId;
+  private String sharedText;
 }

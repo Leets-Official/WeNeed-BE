@@ -20,6 +20,7 @@ public class RecruitArticleDto {
     private String title;
     private String thumbnail;
     private String content;
+    private String sharedText;
     private int commentCount;
     private int viewCount;
     private int heartCount;

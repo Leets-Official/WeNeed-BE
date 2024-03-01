@@ -81,6 +81,8 @@ public class Article extends BaseTimeEntity {
     @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Bookmark> bookmarkList = new ArrayList<>();
 
+    private String sharedText;
+
     public static Article of(String thumbnail, List<String> images, List<String> files,
         ArticleRequest request, User user) {
 
@@ -91,6 +93,7 @@ public class Article extends BaseTimeEntity {
             .title(request.getTitle())
             .detailSkills(request.getSkills())
             .detailTags(request.getTags())
+            .sharedText(request.getSharedText())
             .build();
 
         article.setContent(convertImagesToContent(images, request));
@@ -125,6 +128,7 @@ public class Article extends BaseTimeEntity {
         this.detailTags = request.getTags();
         this.content = convertImagesToContent(images, request);
         this.files = convertFilesToEntity(files, this);
+        this.sharedText = request.getSharedText();
     }
 
     private static List<ContentData> convertImagesToContent(List<String> images,

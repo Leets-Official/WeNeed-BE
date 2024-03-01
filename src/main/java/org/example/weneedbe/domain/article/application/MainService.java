@@ -201,6 +201,7 @@ public class MainService {
                 .thumbnail(article.getThumbnail())
                 .title(article.getTitle())
                 .content(contentByListContent)
+                .sharedText(article.getSharedText())
                 .createdAt(article.getCreatedAt())
                 .viewCount(article.getViewCount())
                 .bookmarkCount(bookmarkCount)
