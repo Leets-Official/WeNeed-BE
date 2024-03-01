@@ -93,6 +93,33 @@ public class MyPageController {
     })
     @GetMapping("/my-crews")
     public ResponseEntity<MyPageArticleListResponse> getMyCrewInfo(
+            @RequestHeader("Authorization") String authorizationHeader) {
+        return ResponseEntity.ok(userService.getArticleInfo(authorizationHeader, Type.RECRUITING));
+    }
+
+    @Operation(summary = "나의 지원 크루 조회", description = "사용자가 지원한(지원서) 리크루팅 게시물을 가져옵니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping("/my-applied-crews")
+    public ResponseEntity<MyPageArticleListResponse> getAppliedCrewInfo(
+            @RequestParam int size, @RequestParam int page,
+            @RequestHeader("Authorization") String authorizationHeader) {
+        return ResponseEntity.ok(userService.getArticleInfo(size, page, authorizationHeader, Type.RECRUITING));
+    }
+
+    @Operation(summary = "나의 모집 크루 조회", description = "사용자가 모집하는 리크루팅(지원서) 게시물을 가져옵니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping("/my-recruiting-crews")
+    public ResponseEntity<MyPageArticleListResponse> getRecruitingCrewInfo(
             @RequestParam int size, @RequestParam int page,
             @RequestHeader("Authorization") String authorizationHeader) {
         return ResponseEntity.ok(userService.getArticleInfo(size, page, authorizationHeader, Type.RECRUITING));
