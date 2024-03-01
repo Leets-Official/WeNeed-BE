@@ -10,18 +10,12 @@ import java.util.List;
 @Getter
 @Builder
 @AllArgsConstructor
-public class BasicInfoResponse {
-    private String userNickname;
-    private Boolean sameUser;
-    private GetMyInfoResponse userInfo;
+public class MyPageArticleListResponse {
     private List<MyPageArticleInfoResponse> myOutputList;
     private PageableDto pageableDto;
 
-    public static BasicInfoResponse of(String userNickname, Boolean sameUser, GetMyInfoResponse userInfo, List<MyPageArticleInfoResponse> myOutputList, PageableDto pageableDto) {
-        return BasicInfoResponse.builder()
-                .userNickname(userNickname)
-                .sameUser(sameUser)
-                .userInfo(userInfo)
+    public static MyPageArticleListResponse of(List<MyPageArticleInfoResponse> myOutputList, PageableDto pageableDto) {
+        return MyPageArticleListResponse.builder()
                 .myOutputList(myOutputList)
                 .pageableDto(pageableDto)
                 .build();
