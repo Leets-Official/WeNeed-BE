@@ -13,6 +13,10 @@ import java.util.List;
 public interface UserArticleRepository extends JpaRepository<UserArticle, Long> {
 
     List<UserArticle> findAllByArticle_ArticleId(Long articleId);
+
     void deleteAllByArticle_ArticleId(Long article_articleId);
+
     Page<UserArticle> findAllByUserAndArticle_ArticleTypeOrderByArticle_CreatedAtDesc(User user, @Param("articleType") Type articleType, Pageable pageable);
+
+    List<UserArticle> findTop3ByUserAndArticle_ArticleTypeOrderByArticle_CreatedAtDesc(User user, Type articleType);
 }
