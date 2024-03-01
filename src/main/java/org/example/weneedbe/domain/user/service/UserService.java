@@ -152,6 +152,14 @@ public class UserService {
         return MyPageArticleListResponse.of(bookmarkList, pageableDto);
     }
 
+    public MyPageArticleListResponse getRecruitingCrewInfo(int size, int page, String authorizationHeader, Type articleType) {
+
+    }
+
+    public MyPageArticleListResponse getAppliedCrewInfo(int size, int page, String authorizationHeader, Type articleType) {
+
+    }
+
     private Page<UserArticle> getPagedArticlesFromUser(Pageable pageable, User user, Type articletype) {
         return userArticleRepository.findAllByUserAndArticle_ArticleTypeOrderByArticle_CreatedAtDesc(user, articletype, pageable);
     }
