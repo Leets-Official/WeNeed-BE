@@ -116,9 +116,8 @@ public class S3Service {
         throw new FileUploadErrorException();
       }
       return getS3(bucketName, fileName);
-    }else {
-      throw new InvalidFileException();
     }
+    throw new InvalidFileException();
   }
 
   public String createFileName(String fileName){
