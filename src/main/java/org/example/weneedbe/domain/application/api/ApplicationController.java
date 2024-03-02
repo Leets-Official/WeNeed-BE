@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.weneedbe.domain.application.application.ApplicationService;
 import org.example.weneedbe.domain.application.dto.request.ApplicationFormRequest;
 import org.example.weneedbe.domain.application.dto.request.RecruitFormRequest;
+import org.example.weneedbe.domain.application.dto.response.ApplicationFormResponse;
 import org.example.weneedbe.domain.application.dto.response.RecruitFormResponse;
 import org.example.weneedbe.global.error.ErrorResponse;
 import org.springframework.http.HttpStatus;
@@ -71,6 +72,19 @@ public class ApplicationController {
 
     applicationService.createApplicationForm(authorizationHeader, recruitId, appeal, request);
     return ResponseEntity.status(HttpStatus.CREATED).build();
+  }
+
+  @Operation(summary = "지원서 조회", description = "지원했던 지원서를 조회합니다.")
+  @ApiResponses({
+          @ApiResponse(responseCode = "200"),
+          @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+          @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+          @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+  })
+  @GetMapping("/application-forms/{applicationId}")
+  public ResponseEntity<ApplicationFormResponse> getApplicationForm(
+          @RequestHeader("Authorization") String authorizationHeader, @PathVariable Long applicationId) {
+    return ResponseEntity.ok(applicationService.getApplicationForm(authorizationHeader, applicationId));
   }
 
 }
