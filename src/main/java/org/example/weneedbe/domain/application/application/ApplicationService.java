@@ -5,7 +5,9 @@ import org.example.weneedbe.domain.application.domain.Application;
 import org.example.weneedbe.domain.application.domain.Recruit;
 import org.example.weneedbe.domain.application.dto.request.ApplicationFormRequest;
 import org.example.weneedbe.domain.application.dto.request.RecruitFormRequest;
+import org.example.weneedbe.domain.application.dto.response.ApplicationFormResponse;
 import org.example.weneedbe.domain.application.dto.response.RecruitFormResponse;
+import org.example.weneedbe.domain.application.exception.ApplicationNotFoundException;
 import org.example.weneedbe.domain.application.exception.RecruitNotFoundException;
 import org.example.weneedbe.domain.application.repository.ApplicationRepository;
 import org.example.weneedbe.domain.application.repository.RecruitRepository;
@@ -64,4 +66,10 @@ public class ApplicationService {
     applicationRepository.save(application);
   }
 
+  public ApplicationFormResponse getApplicationForm(String authorizationHeader, Long applicationId){
+    User user = userService.findUser(authorizationHeader);
+    Application application = applicationRepository.findById(applicationId).orElseThrow(ApplicationNotFoundException::new);
+
+    return new ApplicationFormResponse(application.getUser(), application, user.getNickname(), user.getUserId() == application.getUser().getUserId());
+  }
 }
