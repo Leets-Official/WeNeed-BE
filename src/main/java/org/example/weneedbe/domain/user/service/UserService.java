@@ -120,12 +120,15 @@ public class UserService {
     public MyPageBasicCrewListResponse getBasicCrewInfo(String authorizationHeader, Type articleType) {
         User user = findUser(authorizationHeader);
 
-        List<UserArticle> appliedCrews = getArticlesFromUser(user, articleType);
-        List<UserArticle> recruitingCrews = getArticlesFromUser(user, articleType);
+        List<UserArticle> recruitingCrews = userArticleRepository.findTop3ByUserAndArticle_ArticleTypeOrderByArticle_CreatedAtDesc(user, articleType);
+        List<UserArticle> appliedCrews = getTop3ApplicationsFromUser(user, articleType);
+
+        //나의 모집 CREW
+        // TODO: Application->Recruit->Article
+        List<MyPageArticleInfoResponse> recruitingCrewList = convertToMyArticleList(recruitingCrews);
 
         //나의 지원 CREW
-        List<MyPageArticleInfoResponse> recruitingCrewList = convertToMyArticleList(recruitingCrews);
-        //나의 모집 CREW
+        // TODO: Recruit->Article
         List<MyPageArticleInfoResponse> appliedCrewList = convertToMyArticleList(appliedCrews);
 
         return MyPageBasicCrewListResponse.of(recruitingCrewList, appliedCrewList);
@@ -152,19 +155,36 @@ public class UserService {
         return MyPageArticleListResponse.of(bookmarkList, pageableDto);
     }
 
+    // 내가 모집하는 Crew 게시물
     public MyPageArticleListResponse getRecruitingCrewInfo(int size, int page, String authorizationHeader, Type articleType) {
+        User user = findUser(authorizationHeader);
 
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<UserArticle> recruitsPages = null;
+
+        recruitsPages = userArticleRepository.findAllByUserAndArticle_ArticleTypeOrderByArticle_CreatedAtDesc(user, articleType, pageable);
+        PageableDto pageableDto = new PageableDto(size, page, recruitsPages.getTotalPages(), recruitsPages.getTotalElements());
+        List<MyPageArticleInfoResponse> recruitList = convertToMyArticleList(recruitsPages.getContent());
+
+        return MyPageArticleListResponse.of(recruitList, pageableDto);
     }
 
+    // 내가 지원한 Crew 게시물
     public MyPageArticleListResponse getAppliedCrewInfo(int size, int page, String authorizationHeader, Type articleType) {
+        User user = findUser(authorizationHeader);
 
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Bookmark> bookmarksPage = null;
+
+        // TODO: Application->Recruit->Article
+        return MyPageArticleListResponse.of(null, null);
     }
 
     private Page<UserArticle> getPagedArticlesFromUser(Pageable pageable, User user, Type articletype) {
         return userArticleRepository.findAllByUserAndArticle_ArticleTypeOrderByArticle_CreatedAtDesc(user, articletype, pageable);
     }
 
-    private List<UserArticle> getArticlesFromUser(User user, Type articletype) {
+    private List<UserArticle> getTop3ApplicationsFromUser(User user, Type articletype) {
         return userArticleRepository.findTop3ByUserAndArticle_ArticleTypeOrderByArticle_CreatedAtDesc(user, articletype);
     }
 
