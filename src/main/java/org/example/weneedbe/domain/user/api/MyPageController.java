@@ -111,7 +111,7 @@ public class MyPageController {
     public ResponseEntity<MyPageArticleListResponse> getAppliedCrewInfo(
             @RequestParam int size, @RequestParam int page,
             @RequestHeader("Authorization") String authorizationHeader) {
-        return ResponseEntity.ok(userService.getAppliedCrewInfo(size, page, authorizationHeader, Type.RECRUITING));
+        return ResponseEntity.ok(userService.getAppliedCrewInfo(size, page, authorizationHeader));
     }
 
     @Operation(summary = "나의 모집 크루 조회", description = "사용자가 모집하는 리크루팅(지원서) 게시물을 가져옵니다.")

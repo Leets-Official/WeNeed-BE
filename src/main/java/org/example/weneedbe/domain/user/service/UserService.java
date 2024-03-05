@@ -1,9 +1,13 @@
 package org.example.weneedbe.domain.user.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.weneedbe.domain.application.domain.Application;
+import org.example.weneedbe.domain.application.domain.Recruit;
+import org.example.weneedbe.domain.application.repository.ApplicationRepository;
 import org.example.weneedbe.domain.article.domain.Type;
 import org.example.weneedbe.domain.article.dto.response.main.PageableDto;
 import org.example.weneedbe.domain.article.repository.ArticleLikeRepository;
@@ -44,6 +48,7 @@ public class UserService {
     private final ArticleLikeRepository articleLikeRepository;
     private final S3Service s3Service;
     private final UserArticleRepository userArticleRepository;
+    private final ApplicationRepository applicationRepository;
 
     public Boolean checkNicknameDuplicate(String nickName) {
         return userRepository.existsByNickname(nickName);
@@ -121,14 +126,10 @@ public class UserService {
         User user = findUser(authorizationHeader);
 
         List<UserArticle> recruitingCrews = userArticleRepository.findTop3ByUserAndArticle_ArticleTypeOrderByArticle_CreatedAtDesc(user, articleType);
-        List<UserArticle> appliedCrews = getTop3ApplicationsFromUser(user, articleType);
-
-        //나의 모집 CREW
-        // TODO: Application->Recruit->Article
         List<MyPageArticleInfoResponse> recruitingCrewList = convertToMyArticleList(recruitingCrews);
 
-        //나의 지원 CREW
         // TODO: Recruit->Article
+        List<Application> appliedCrews = getTop3AppliedArticlesFromUser(user);
         List<MyPageArticleInfoResponse> appliedCrewList = convertToMyArticleList(appliedCrews);
 
         return MyPageBasicCrewListResponse.of(recruitingCrewList, appliedCrewList);
@@ -170,22 +171,45 @@ public class UserService {
     }
 
     // 내가 지원한 Crew 게시물
-    public MyPageArticleListResponse getAppliedCrewInfo(int size, int page, String authorizationHeader, Type articleType) {
+    public MyPageArticleListResponse getAppliedCrewInfo(int size, int page, String authorizationHeader) {
         User user = findUser(authorizationHeader);
 
         Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Bookmark> bookmarksPage = null;
+        Page<Application> applicationsPage = null;
 
-        // TODO: Application->Recruit->Article
-        return MyPageArticleListResponse.of(null, null);
+        applicationsPage = applicationRepository.findAllByUser(user, pageable);
+
+        List<Recruit> appliedRecruits = new ArrayList<>();
+
+        for (Application application : applicationsPage.getContent()) {
+            Recruit recruit = application.getRecruit();
+            if (recruit != null) {
+                appliedRecruits.add(recruit);
+            }
+        }
+
+        PageableDto pageableDto = new PageableDto(size, page, applicationsPage.getTotalPages(), applicationsPage.getTotalElements());
+        List<MyPageArticleInfoResponse> appliedCrews = convertCrewToMyArticleList(appliedRecruits);
+
+        return MyPageArticleListResponse.of(appliedCrews, pageableDto);
+    }
+
+    private List<MyPageArticleInfoResponse> convertCrewToMyArticleList(List<Recruit> appliedRecruits) {
+        return appliedRecruits.stream().map(s -> {
+            List<String> teamProfiles = getTeamProfiles(s.getArticle().getArticleId());
+
+            return new MyPageArticleInfoResponse(s.getArticle(),
+                    articleLikeRepository.countByArticle(s.getArticle()),
+                    teamProfiles);
+        }).toList();
     }
 
     private Page<UserArticle> getPagedArticlesFromUser(Pageable pageable, User user, Type articletype) {
         return userArticleRepository.findAllByUserAndArticle_ArticleTypeOrderByArticle_CreatedAtDesc(user, articletype, pageable);
     }
 
-    private List<UserArticle> getTop3ApplicationsFromUser(User user, Type articletype) {
-        return userArticleRepository.findTop3ByUserAndArticle_ArticleTypeOrderByArticle_CreatedAtDesc(user, articletype);
+    private List<Application> getTop3AppliedArticlesFromUser(User user) {
+        return applicationRepository.findTop3ByUser(user);
     }
 
     private BasicInfoResponse setBasicInfoResponse(String userNickname, Boolean sameUser, Long userId, List<MyPageArticleInfoResponse> myOutputList, PageableDto pageableDto) {
