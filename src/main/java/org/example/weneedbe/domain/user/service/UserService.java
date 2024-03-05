@@ -128,9 +128,9 @@ public class UserService {
         List<UserArticle> recruitingCrews = userArticleRepository.findTop3ByUserAndArticle_ArticleTypeOrderByArticle_CreatedAtDesc(user, articleType);
         List<MyPageArticleInfoResponse> recruitingCrewList = convertToMyArticleList(recruitingCrews);
 
-        // TODO: Recruit->Article
-        List<Application> appliedCrews = getTop3AppliedArticlesFromUser(user);
-        List<MyPageArticleInfoResponse> appliedCrewList = convertToMyArticleList(appliedCrews);
+        List<Application> applications = applicationRepository.findTop3ByUser(user);
+        List<Recruit> appliedCrews = getCrewsFromApplications(applications);
+        List<MyPageArticleInfoResponse> appliedCrewList = convertCrewToMyArticleList(appliedCrews);
 
         return MyPageBasicCrewListResponse.of(recruitingCrewList, appliedCrewList);
     }
@@ -179,14 +179,7 @@ public class UserService {
 
         applicationsPage = applicationRepository.findAllByUser(user, pageable);
 
-        List<Recruit> appliedRecruits = new ArrayList<>();
-
-        for (Application application : applicationsPage.getContent()) {
-            Recruit recruit = application.getRecruit();
-            if (recruit != null) {
-                appliedRecruits.add(recruit);
-            }
-        }
+        List<Recruit> appliedRecruits = getCrewsFromApplications(applicationsPage.getContent());
 
         PageableDto pageableDto = new PageableDto(size, page, applicationsPage.getTotalPages(), applicationsPage.getTotalElements());
         List<MyPageArticleInfoResponse> appliedCrews = convertCrewToMyArticleList(appliedRecruits);
@@ -208,8 +201,18 @@ public class UserService {
         return userArticleRepository.findAllByUserAndArticle_ArticleTypeOrderByArticle_CreatedAtDesc(user, articletype, pageable);
     }
 
-    private List<Application> getTop3AppliedArticlesFromUser(User user) {
-        return applicationRepository.findTop3ByUser(user);
+    private List<Recruit> getCrewsFromApplications(List<Application> applications) {
+
+        List<Recruit> appliedRecruits = new ArrayList<>();
+
+        for (Application application : applications) {
+            Recruit recruit = application.getRecruit();
+            if (recruit != null) {
+                appliedRecruits.add(recruit);
+            }
+        }
+
+        return appliedRecruits;
     }
 
     private BasicInfoResponse setBasicInfoResponse(String userNickname, Boolean sameUser, Long userId, List<MyPageArticleInfoResponse> myOutputList, PageableDto pageableDto) {
