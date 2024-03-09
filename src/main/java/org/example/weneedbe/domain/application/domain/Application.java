@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.weneedbe.domain.application.dto.request.ApplicationFormRequest;
+import org.example.weneedbe.domain.article.domain.Type;
 import org.example.weneedbe.domain.user.domain.Department;
 import org.example.weneedbe.domain.user.domain.User;
 import org.example.weneedbe.global.shared.entity.BaseTimeEntity;
@@ -56,6 +57,10 @@ public class Application extends BaseTimeEntity {
     @Column(nullable = false)
     private String content;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Status status;
+
     @ElementCollection
     @CollectionTable(name = "application_keywords", joinColumns = @JoinColumn(name = "application_id"))
     private List<String> keywords = new ArrayList<>();
@@ -84,6 +89,7 @@ public class Application extends BaseTimeEntity {
                 .aboutMe(request.getAboutMe())
                 .appeal(appeal)
                 .content(request.getContent())
+                .status(Status.PENDING)
                 .keywords(request.getKeywords())
                 .crewAnswers(request.getCrewAnswers())
                 .recruit(recruit)
