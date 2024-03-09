@@ -1,12 +1,10 @@
 package org.example.weneedbe.domain.user.service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.weneedbe.domain.application.domain.Application;
-import org.example.weneedbe.domain.application.domain.Recruit;
 import org.example.weneedbe.domain.application.repository.ApplicationRepository;
 import org.example.weneedbe.domain.article.domain.Type;
 import org.example.weneedbe.domain.article.dto.response.main.PageableDto;
@@ -122,19 +120,6 @@ public class UserService {
         return setBasicInfoResponse(userNickname, false, userId, myOutputList, pageableDto);
     }
 
-    public MyPageBasicCrewListResponse getBasicCrewInfo(String authorizationHeader, Type articleType) {
-        User user = findUser(authorizationHeader);
-
-        List<UserArticle> recruitingCrews = userArticleRepository.findTop3ByUserAndArticle_ArticleTypeOrderByArticle_CreatedAtDesc(user, articleType);
-        List<MyPageArticleInfoResponse> recruitingCrewList = convertToMyArticleList(recruitingCrews);
-
-        List<Application> applications = applicationRepository.findTop3ByUser(user);
-        List<Recruit> appliedCrews = getCrewsFromApplications(applications);
-        List<MyPageArticleInfoResponse> appliedCrewList = convertCrewToMyArticleList(appliedCrews);
-
-        return MyPageBasicCrewListResponse.of(recruitingCrewList, appliedCrewList);
-    }
-
     public MyPageArticleListResponse getBookmarkInfo(int size, int page, String authorizationHeader, Type articleType) {
         User user = findUser(authorizationHeader);
 
@@ -171,7 +156,7 @@ public class UserService {
     }
 
     // 내가 지원한 Crew 게시물
-    public MyPageArticleListResponse getAppliedCrewInfo(int size, int page, String authorizationHeader) {
+    public MyPageApplicationListResponse getAppliedCrewInfo(int size, int page, String authorizationHeader) {
         User user = findUser(authorizationHeader);
 
         Pageable pageable = PageRequest.of(page - 1, size);
@@ -179,40 +164,24 @@ public class UserService {
 
         applicationsPage = applicationRepository.findAllByUser(user, pageable);
 
-        List<Recruit> appliedRecruits = getCrewsFromApplications(applicationsPage.getContent());
-
         PageableDto pageableDto = new PageableDto(size, page, applicationsPage.getTotalPages(), applicationsPage.getTotalElements());
-        List<MyPageArticleInfoResponse> appliedCrews = convertCrewToMyArticleList(appliedRecruits);
+        List<MyPageApplicationInfoResponse> applications = convertApplicationToMyArticleList(applicationsPage.getContent());
 
-        return MyPageArticleListResponse.of(appliedCrews, pageableDto);
+        return MyPageApplicationListResponse.of(applications, pageableDto);
     }
 
-    private List<MyPageArticleInfoResponse> convertCrewToMyArticleList(List<Recruit> appliedRecruits) {
-        return appliedRecruits.stream().map(s -> {
-            List<String> teamProfiles = getTeamProfiles(s.getArticle().getArticleId());
+    private List<MyPageApplicationInfoResponse> convertApplicationToMyArticleList(List<Application> applications) {
+        return applications.stream().map(s -> {
+            List<String> teamProfiles = getTeamProfiles(s.getRecruit().getArticle().getArticleId());
 
-            return new MyPageArticleInfoResponse(s.getArticle(),
-                    articleLikeRepository.countByArticle(s.getArticle()),
+            return new MyPageApplicationInfoResponse(s,
+                    articleLikeRepository.countByArticle(s.getRecruit().getArticle()),
                     teamProfiles);
         }).toList();
     }
 
     private Page<UserArticle> getPagedArticlesFromUser(Pageable pageable, User user, Type articletype) {
         return userArticleRepository.findAllByUserAndArticle_ArticleTypeOrderByArticle_CreatedAtDesc(user, articletype, pageable);
-    }
-
-    private List<Recruit> getCrewsFromApplications(List<Application> applications) {
-
-        List<Recruit> appliedRecruits = new ArrayList<>();
-
-        for (Application application : applications) {
-            Recruit recruit = application.getRecruit();
-            if (recruit != null) {
-                appliedRecruits.add(recruit);
-            }
-        }
-
-        return appliedRecruits;
     }
 
     private BasicInfoResponse setBasicInfoResponse(String userNickname, Boolean sameUser, Long userId, List<MyPageArticleInfoResponse> myOutputList, PageableDto pageableDto) {

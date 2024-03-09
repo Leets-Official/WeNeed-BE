@@ -12,10 +12,7 @@ import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.example.weneedbe.domain.article.domain.Type;
 import org.example.weneedbe.domain.user.dto.request.EditMyInfoRequest;
-import org.example.weneedbe.domain.user.dto.response.mypage.BasicInfoResponse;
-import org.example.weneedbe.domain.user.dto.response.mypage.EditMyInfoResponse;
-import org.example.weneedbe.domain.user.dto.response.mypage.MyPageArticleListResponse;
-import org.example.weneedbe.domain.user.dto.response.mypage.MyPageBasicCrewListResponse;
+import org.example.weneedbe.domain.user.dto.response.mypage.*;
 import org.example.weneedbe.domain.user.service.UserService;
 import org.example.weneedbe.global.error.ErrorResponse;
 import org.springframework.http.ResponseEntity;
@@ -87,19 +84,6 @@ public class MyPageController {
         return ResponseEntity.ok(userService.getBookmarkInfo(size, page, authorizationHeader, Type.PORTFOLIO));
     }
 
-    @Operation(summary = "마이페이지의 마이 크루 조회", description = "사용자가 작성한 리크루팅 게시물을 가져옵니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @GetMapping("/my-crews")
-    public ResponseEntity<MyPageBasicCrewListResponse> getBasicCrewInfo(
-            @RequestHeader("Authorization") String authorizationHeader) {
-        return ResponseEntity.ok(userService.getBasicCrewInfo(authorizationHeader, Type.RECRUITING));
-    }
-
     @Operation(summary = "나의 지원 크루 조회", description = "사용자가 지원한(지원서) 리크루팅 게시물을 가져옵니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200"),
@@ -108,7 +92,7 @@ public class MyPageController {
             @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/my-applied-crews")
-    public ResponseEntity<MyPageArticleListResponse> getAppliedCrewInfo(
+    public ResponseEntity<MyPageApplicationListResponse> getAppliedCrewInfo(
             @RequestParam int size, @RequestParam int page,
             @RequestHeader("Authorization") String authorizationHeader) {
         return ResponseEntity.ok(userService.getAppliedCrewInfo(size, page, authorizationHeader));
