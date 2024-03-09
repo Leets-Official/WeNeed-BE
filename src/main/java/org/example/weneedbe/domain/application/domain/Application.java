@@ -59,7 +59,7 @@ public class Application extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Status status;
+    private Status result;
 
     @ElementCollection
     @CollectionTable(name = "application_keywords", joinColumns = @JoinColumn(name = "application_id"))
@@ -89,10 +89,14 @@ public class Application extends BaseTimeEntity {
                 .aboutMe(request.getAboutMe())
                 .appeal(appeal)
                 .content(request.getContent())
-                .status(Status.PENDING)
+                .result(Status.PENDING)
                 .keywords(request.getKeywords())
                 .crewAnswers(request.getCrewAnswers())
                 .recruit(recruit)
                 .user(user).build();
+    }
+
+    public void updateResult(Status result) {
+        this.result = result;
     }
 }

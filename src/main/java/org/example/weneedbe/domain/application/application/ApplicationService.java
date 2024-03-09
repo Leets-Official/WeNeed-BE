@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.weneedbe.domain.application.domain.Application;
 import org.example.weneedbe.domain.application.domain.Recruit;
 import org.example.weneedbe.domain.application.dto.request.ApplicationFormRequest;
+import org.example.weneedbe.domain.application.dto.request.ApplicationResultRequest;
 import org.example.weneedbe.domain.application.dto.request.RecruitFormRequest;
 import org.example.weneedbe.domain.application.dto.response.ApplicationFormResponse;
 import org.example.weneedbe.domain.application.dto.response.RecruitFormResponse;
@@ -71,5 +72,12 @@ public class ApplicationService {
     Application application = applicationRepository.findById(applicationId).orElseThrow(ApplicationNotFoundException::new);
 
     return new ApplicationFormResponse(application.getUser(), application, user.getNickname(), user.getUserId() == application.getUser().getUserId());
+  }
+
+  public void updateApplicationStatus(Long applicationId, ApplicationResultRequest request) {
+    Application application = applicationRepository.findById(applicationId).orElseThrow(ApplicationNotFoundException::new);
+    application.updateResult(request.getResult());
+
+    applicationRepository.save(application);
   }
 }
