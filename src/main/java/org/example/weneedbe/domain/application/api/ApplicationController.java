@@ -66,12 +66,12 @@ public class ApplicationController {
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @PostMapping(value = "/application-forms/{recruitId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/application-forms/{articleId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> createApplicationForm(
-            @RequestHeader("Authorization") String authorizationHeader, @PathVariable Long recruitId,
+            @RequestHeader("Authorization") String authorizationHeader, @PathVariable Long articleId,
             @RequestPart ApplicationFormRequest request, @RequestPart MultipartFile appeal) throws IOException {
 
-        applicationService.createApplicationForm(authorizationHeader, recruitId, appeal, request);
+        applicationService.createApplicationForm(authorizationHeader, articleId, appeal, request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

@@ -57,9 +57,10 @@ public class ApplicationService {
     return new RecruitFormResponse(user, article, heartCount, bookmarkCount, recruit);
   }
 
-  public void createApplicationForm(String authorizationHeader, Long recruitId, MultipartFile appeal, ApplicationFormRequest request) throws IOException {
+  public void createApplicationForm(String authorizationHeader, Long articleId, MultipartFile appeal, ApplicationFormRequest request) throws IOException {
     User user = userService.findUser(authorizationHeader);
-    Recruit recruit = recruitRepository.findById(recruitId).orElseThrow(RecruitNotFoundException::new);
+    Recruit recruit = recruitRepository.findByArticle_ArticleId(articleId).orElseThrow(RecruitNotFoundException::new);
+
     String appealUrl = s3Service.uploadFile(appeal);
 
     Application application = Application.of(recruit, user, request, appealUrl);
