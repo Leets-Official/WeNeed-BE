@@ -10,11 +10,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ApplicationRepository extends JpaRepository<Application, Long> {
 
-    List<Application> findTop3ByUser(User user);
-
     Page<Application> findAllByUser(User user, Pageable pageable);
 
+    List<Application> findByRecruitId(Long recruitId);
 }

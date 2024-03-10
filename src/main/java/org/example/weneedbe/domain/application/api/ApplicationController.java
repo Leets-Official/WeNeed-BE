@@ -102,4 +102,17 @@ public class ApplicationController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @Operation(summary = "지원서 목록 조회", description = "내가 작성한 Recruit의 지원서 목록을 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping("/application-forms/applications/{recruitId}")
+    public ResponseEntity<Void> getApplications(@PathVariable Long recruitId) {
+        applicationService.getApplications(recruitId);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
 }

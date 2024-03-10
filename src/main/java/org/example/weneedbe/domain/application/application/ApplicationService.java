@@ -19,12 +19,15 @@ import org.example.weneedbe.domain.user.domain.User;
 import org.example.weneedbe.domain.user.service.UserService;
 import org.example.weneedbe.global.s3.application.S3Service;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ApplicationService {
 
   private final RecruitRepository recruitRepository;
@@ -80,5 +83,21 @@ public class ApplicationService {
     application.updateResult(request.getResult());
 
     applicationRepository.save(application);
+  }
+
+  public void getApplications(Long recruitId) {
+    List<Application> applications = applicationRepository.findByRecruitId(recruitId);
+
+    List<Application> acceptedApplications = applications.stream()
+            .filter(application -> application.getResult().getStatus().equals("수락함"))
+            .toList();
+
+    List<Application> pendingApplications = applications.stream()
+            .filter(application -> application.getResult().getStatus().equals("대기중"))
+            .toList();
+
+    List<Application> refusedApplications = applications.stream()
+            .filter(application -> application.getResult().getStatus().equals("거절함"))
+            .toList();
   }
 }
