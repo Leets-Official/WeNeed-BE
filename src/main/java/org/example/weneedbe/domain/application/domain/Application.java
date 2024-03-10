@@ -64,7 +64,7 @@ public class Application extends BaseTimeEntity {
     @CollectionTable(name = "crew_answers", joinColumns = @JoinColumn(name = "application_id"))
     private List<String> crewAnswers = new ArrayList<>();
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
