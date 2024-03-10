@@ -90,7 +90,8 @@ public class ApplicationController {
         return ResponseEntity.ok(applicationService.getApplicationForm(authorizationHeader, applicationId));
     }
 
-    @Operation(summary = "지원서 상태 변경", description = "지원서의 상태 여부를 변경합니다.")
+    @Operation(summary = "지원서 상태 변경", description = "지원서의 상태 여부를 변경합니다. " +
+            "PENDING, ACCEPTED, REFUSED 총 세 가지의 상태로 나뉩니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "201"),
             @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),

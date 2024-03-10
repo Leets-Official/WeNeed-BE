@@ -88,7 +88,7 @@ public class ApplicationService {
     }
 
     public List<List<ApplicationInfoResponse>> getApplications(Long recruitId) {
-        List<Application> applications = applicationRepository.findByRecruitId(recruitId);
+        List<Application> applications = applicationRepository.findAllByRecruit_RecruitId(recruitId);
 
         List<ApplicationInfoResponse> acceptedApplications = sortApplicationsByStatus(applications, "수락함");
         List<ApplicationInfoResponse> pendingApplications = sortApplicationsByStatus(applications, "대기중");
