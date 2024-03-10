@@ -12,6 +12,7 @@ import org.example.weneedbe.domain.application.dto.request.ApplicationFormReques
 import org.example.weneedbe.domain.application.dto.request.ApplicationResultRequest;
 import org.example.weneedbe.domain.application.dto.request.RecruitFormRequest;
 import org.example.weneedbe.domain.application.dto.response.ApplicationFormResponse;
+import org.example.weneedbe.domain.application.dto.response.ApplicationInfoResponse;
 import org.example.weneedbe.domain.application.dto.response.RecruitFormResponse;
 import org.example.weneedbe.global.error.ErrorResponse;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @Tag(name = "Application Controller", description = "지원서 관련 API입니다.")
 @RestController
@@ -110,9 +112,8 @@ public class ApplicationController {
             @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/application-forms/applications/{recruitId}")
-    public ResponseEntity<Void> getApplications(@PathVariable Long recruitId) {
-        applicationService.getApplications(recruitId);
-        return ResponseEntity.status(HttpStatus.OK).build();
+    public ResponseEntity<List<List<ApplicationInfoResponse>>> getApplications(@PathVariable Long recruitId) {
+        return ResponseEntity.ok(applicationService.getApplications(recruitId));
     }
 
 }

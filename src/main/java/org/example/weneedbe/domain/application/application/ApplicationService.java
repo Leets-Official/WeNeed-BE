@@ -7,6 +7,7 @@ import org.example.weneedbe.domain.application.dto.request.ApplicationFormReques
 import org.example.weneedbe.domain.application.dto.request.ApplicationResultRequest;
 import org.example.weneedbe.domain.application.dto.request.RecruitFormRequest;
 import org.example.weneedbe.domain.application.dto.response.ApplicationFormResponse;
+import org.example.weneedbe.domain.application.dto.response.ApplicationInfoResponse;
 import org.example.weneedbe.domain.application.dto.response.RecruitFormResponse;
 import org.example.weneedbe.domain.application.exception.ApplicationNotFoundException;
 import org.example.weneedbe.domain.application.exception.RecruitNotFoundException;
@@ -23,81 +24,83 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class ApplicationService {
+    private final RecruitRepository recruitRepository;
+    private final UserService userService;
+    private final ArticleService articleService;
+    private final BookmarkService bookmarkService;
+    private final S3Service s3Service;
+    private final ApplicationRepository applicationRepository;
 
-  private final RecruitRepository recruitRepository;
-  private final UserService userService;
-  private final ArticleService articleService;
-  private final BookmarkService bookmarkService;
-  private final S3Service s3Service;
-  private final ApplicationRepository applicationRepository;
+    public void createRecruitForm(String authorizationHeader, Long articleId, RecruitFormRequest request) {
 
-  public void createRecruitForm(String authorizationHeader, Long articleId, RecruitFormRequest request) {
+        Article article = articleService.findArticle(articleId);
+        User user = userService.findUser(authorizationHeader);
 
-    Article article = articleService.findArticle(articleId);
-    User user = userService.findUser(authorizationHeader);
+        Recruit recruit = Recruit.of(article, user, request);
 
-    Recruit recruit = Recruit.of(article, user, request);
+        recruitRepository.save(recruit);
+    }
 
-    recruitRepository.save(recruit);
-  }
+    public RecruitFormResponse getRecruitForm(String authorizationHeader, Long articleId) {
 
-  public RecruitFormResponse getRecruitForm(String authorizationHeader, Long articleId) {
+        User user = userService.findUser(authorizationHeader);
 
-    User user = userService.findUser(authorizationHeader);
+        Article article = articleService.findArticle(articleId);
+        int heartCount = articleService.countHeartByArticle(article);
+        int bookmarkCount = bookmarkService.countBookmarkByArticle(article);
 
-    Article article = articleService.findArticle(articleId);
-    int heartCount = articleService.countHeartByArticle(article);
-    int bookmarkCount = bookmarkService.countBookmarkByArticle(article);
+        Recruit recruit = recruitRepository.findByArticle_ArticleId(articleId).orElseThrow(RecruitNotFoundException::new);
 
-    Recruit recruit = recruitRepository.findByArticle_ArticleId(articleId).orElseThrow(RecruitNotFoundException::new);
+        return new RecruitFormResponse(user, article, heartCount, bookmarkCount, recruit);
+    }
 
-    return new RecruitFormResponse(user, article, heartCount, bookmarkCount, recruit);
-  }
+    public void createApplicationForm(String authorizationHeader, Long articleId, MultipartFile appeal, ApplicationFormRequest request) throws IOException {
+        User user = userService.findUser(authorizationHeader);
+        Recruit recruit = recruitRepository.findByArticle_ArticleId(articleId).orElseThrow(RecruitNotFoundException::new);
 
-  public void createApplicationForm(String authorizationHeader, Long articleId, MultipartFile appeal, ApplicationFormRequest request) throws IOException {
-    User user = userService.findUser(authorizationHeader);
-    Recruit recruit = recruitRepository.findByArticle_ArticleId(articleId).orElseThrow(RecruitNotFoundException::new);
+        String appealUrl = s3Service.uploadFile(appeal);
 
-    String appealUrl = s3Service.uploadFile(appeal);
+        Application application = Application.of(recruit, user, request, appealUrl);
 
-    Application application = Application.of(recruit, user, request, appealUrl);
+        applicationRepository.save(application);
+    }
 
-    applicationRepository.save(application);
-  }
+    public ApplicationFormResponse getApplicationForm(String authorizationHeader, Long applicationId) {
+        User user = userService.findUser(authorizationHeader);
+        Application application = applicationRepository.findById(applicationId).orElseThrow(ApplicationNotFoundException::new);
 
-  public ApplicationFormResponse getApplicationForm(String authorizationHeader, Long applicationId){
-    User user = userService.findUser(authorizationHeader);
-    Application application = applicationRepository.findById(applicationId).orElseThrow(ApplicationNotFoundException::new);
+        return new ApplicationFormResponse(application.getUser(), application, user.getNickname(), user.getUserId() == application.getUser().getUserId());
+    }
 
-    return new ApplicationFormResponse(application.getUser(), application, user.getNickname(), user.getUserId() == application.getUser().getUserId());
-  }
+    public void updateApplicationStatus(Long applicationId, ApplicationResultRequest request) {
+        Application application = applicationRepository.findById(applicationId).orElseThrow(ApplicationNotFoundException::new);
+        application.updateResult(request.getResult());
 
-  public void updateApplicationStatus(Long applicationId, ApplicationResultRequest request) {
-    Application application = applicationRepository.findById(applicationId).orElseThrow(ApplicationNotFoundException::new);
-    application.updateResult(request.getResult());
+        applicationRepository.save(application);
+    }
 
-    applicationRepository.save(application);
-  }
+    public List<List<ApplicationInfoResponse>> getApplications(Long recruitId) {
+        List<Application> applications = applicationRepository.findByRecruitId(recruitId);
 
-  public void getApplications(Long recruitId) {
-    List<Application> applications = applicationRepository.findByRecruitId(recruitId);
+        List<ApplicationInfoResponse> acceptedApplications = sortApplicationsByStatus(applications, "수락함");
+        List<ApplicationInfoResponse> pendingApplications = sortApplicationsByStatus(applications, "대기중");
+        List<ApplicationInfoResponse> refusedApplications = sortApplicationsByStatus(applications, "거절함");
 
-    List<Application> acceptedApplications = applications.stream()
-            .filter(application -> application.getResult().getStatus().equals("수락함"))
-            .toList();
+        return Arrays.asList(acceptedApplications, pendingApplications, refusedApplications);
+    }
 
-    List<Application> pendingApplications = applications.stream()
-            .filter(application -> application.getResult().getStatus().equals("대기중"))
-            .toList();
-
-    List<Application> refusedApplications = applications.stream()
-            .filter(application -> application.getResult().getStatus().equals("거절함"))
-            .toList();
-  }
+    private List<ApplicationInfoResponse> sortApplicationsByStatus(List<Application> applications, String status) {
+        return applications.stream()
+                .filter(application -> application.getResult().getStatus().equals(status))
+                .map(application -> new ApplicationInfoResponse(application.getUser(), application))
+                .toList();
+    }
 }
