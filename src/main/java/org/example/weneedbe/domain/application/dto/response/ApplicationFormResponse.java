@@ -16,11 +16,11 @@ public class ApplicationFormResponse {
     private UserDetailDto user;
     private ApplicationFormDto applicationForm;
 
-    public ApplicationFormResponse(User applciationUser, Application application, User user, boolean sameUser, Recruit recruit){
+    public ApplicationFormResponse(User applicationUser, Application application, User user, boolean sameUser, Recruit recruit){
         this.nickname = user.getNickname();
         this.userId = user.getUserId();
         this.sameUser = sameUser;
-        this.user = new UserDetailDto(applciationUser);
+        this.user = new UserDetailDto(applicationUser);
         this.applicationForm = new ApplicationFormDto(application, recruit);
     }
 
