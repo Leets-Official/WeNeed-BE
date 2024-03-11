@@ -77,7 +77,7 @@ public class ApplicationService {
         User user = userService.findUser(authorizationHeader);
         Application application = applicationRepository.findById(applicationId).orElseThrow(ApplicationNotFoundException::new);
 
-        return new ApplicationFormResponse(application.getUser(), application, user.getNickname(), user.getUserId() == application.getUser().getUserId());
+        return new ApplicationFormResponse(application.getUser(), application, user, application.getRecruit());
     }
 
     public void updateApplicationStatus(Long applicationId, ApplicationResultRequest request) {
