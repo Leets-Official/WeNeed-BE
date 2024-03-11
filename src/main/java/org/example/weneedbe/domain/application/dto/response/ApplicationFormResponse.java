@@ -16,10 +16,10 @@ public class ApplicationFormResponse {
     private UserDetailDto user;
     private ApplicationFormDto applicationForm;
 
-    public ApplicationFormResponse(User applicationUser, Application application, User user, boolean sameUser, Recruit recruit){
+    public ApplicationFormResponse(User applicationUser, Application application, User user, Recruit recruit){
         this.nickname = user.getNickname();
         this.userId = user.getUserId();
-        this.sameUser = sameUser;
+        this.sameUser = applicationUser.getUserId() == user.getUserId();
         this.user = new UserDetailDto(applicationUser);
         this.applicationForm = new ApplicationFormDto(application, recruit);
     }
