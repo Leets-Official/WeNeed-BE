@@ -126,6 +126,13 @@ public class S3Service {
     throw new InvalidFileException();
   }
 
+  public void deleteFile(String fileUrl) {
+    String splitStr = "files/";
+    String fileName = fileUrl.substring(fileUrl.lastIndexOf(splitStr) + splitStr.length());
+
+    amazonS3Client.deleteObject(new DeleteObjectRequest(bucketName, fileName));
+  }
+
   public String createFileName(String fileName){
     return UUID.randomUUID().toString().concat(getFileExtension(fileName));
   }
