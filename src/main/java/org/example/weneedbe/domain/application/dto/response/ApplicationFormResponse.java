@@ -2,6 +2,7 @@ package org.example.weneedbe.domain.application.dto.response;
 
 import lombok.Getter;
 import org.example.weneedbe.domain.application.domain.Application;
+import org.example.weneedbe.domain.application.domain.Recruit;
 import org.example.weneedbe.domain.user.domain.Department;
 import org.example.weneedbe.domain.user.domain.User;
 
@@ -10,15 +11,17 @@ import java.util.List;
 @Getter
 public class ApplicationFormResponse {
     private String nickname;
+    private Long userId;
     private boolean sameUser;
     private UserDetailDto user;
     private ApplicationFormDto applicationForm;
 
-    public ApplicationFormResponse(User user, Application application, String nickname, boolean sameUser){
-        this.nickname = nickname;
+    public ApplicationFormResponse(User applciationUser, Application application, User user, boolean sameUser, Recruit recruit){
+        this.nickname = user.getNickname();
+        this.userId = user.getUserId();
         this.sameUser = sameUser;
-        this.user = new UserDetailDto(user);
-        this.applicationForm = new ApplicationFormDto(application);
+        this.user = new UserDetailDto(applciationUser);
+        this.applicationForm = new ApplicationFormDto(application, recruit);
     }
 
     @Getter
@@ -52,8 +55,10 @@ public class ApplicationFormResponse {
         private List<String> keywords;
         private List<String> crewAnswers;
         private String appeal;
+        private List<String> detailTags;
+        private List<String> crewQuestions;
 
-        public ApplicationFormDto(Application application){
+        public ApplicationFormDto(Application application, Recruit recruit){
             this.name = application.getName();
             this.major = application.getMajor();
             this.doubleMajor = application.getDoubleMajor();
@@ -66,6 +71,8 @@ public class ApplicationFormResponse {
             this.keywords = application.getKeywords();
             this.crewAnswers = application.getCrewAnswers();
             this.appeal = application.getAppeal();
+            this.detailTags = recruit.getDetailTags();
+            this.crewQuestions = recruit.getCrewQuestions();
         }
     }
 
