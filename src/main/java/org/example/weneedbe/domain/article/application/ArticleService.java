@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.example.weneedbe.domain.article.domain.Article;
 import org.example.weneedbe.domain.article.domain.ArticleLike;
+import org.example.weneedbe.domain.article.domain.ContentData;
 import org.example.weneedbe.domain.article.dto.request.ArticleRequest;
 import org.example.weneedbe.domain.article.dto.response.DetailResponseDto.DetailPortfolioDto;
 import org.example.weneedbe.domain.article.dto.response.DetailResponseDto.CommentResponseDto;
@@ -56,9 +57,9 @@ public class ArticleService {
     public void createPortfolio(String authorizationHeader, MultipartFile thumbnail, List<MultipartFile> images,
                                 List<MultipartFile> files, ArticleRequest request) throws IOException {
 
-        String thumbnailUrl = s3Service.uploadImage(thumbnail);
-        List<String> imageUrls = (images != null) ? s3Service.uploadImages(images) : Collections.emptyList();
-        List<FileUploadDto> fileUrls = (files != null) ? s3Service.uploadFiles(files) : Collections.emptyList();
+        String thumbnailUrl = uploadThumbnail(thumbnail);
+        List<String> imageUrls = uploadImages(images);
+        List<FileUploadDto> fileUrls = uploadFiles(files);
 
         User user = userService.findUser(authorizationHeader);
 
@@ -73,9 +74,9 @@ public class ArticleService {
     public void createRecruit(String authorizationHeader, MultipartFile thumbnail, List<MultipartFile> images,
                               List<MultipartFile> files, ArticleRequest request) throws IOException {
 
-        String thumbnailUrl = s3Service.uploadImage(thumbnail);
-        List<String> imageUrls = (images != null) ? s3Service.uploadImages(images) : Collections.emptyList();
-        List<FileUploadDto> fileUrls = (files != null) ? s3Service.uploadFiles(files) : Collections.emptyList();
+        String thumbnailUrl = uploadThumbnail(thumbnail);
+        List<String> imageUrls = uploadImages(images);
+        List<FileUploadDto> fileUrls = uploadFiles(files);
 
         User user = userService.findUser(authorizationHeader);
 
@@ -190,14 +191,13 @@ public class ArticleService {
 
         /* 기존 데이터 삭제 */
         userArticleRepository.deleteAllByArticle_ArticleId(articleId);
+        deleteS3Thumbnail(article);
+        deleteS3ContentImages(article);
+        deleteS3Files(articleId);
 
-        List<File> fileList = fileRepository.findAllByArticle_ArticleId(articleId);
-        fileList.stream().map(File::getFileUrl).forEach(s3Service::deleteFile);
-        fileRepository.deleteAllByArticle_ArticleId(articleId);
-
-        String thumbnailUrl = s3Service.uploadImage(thumbnail);
-        List<String> imageUrls = (images != null) ? s3Service.uploadImages(images) : Collections.emptyList();
-        List<FileUploadDto> fileUrls = (files != null) ? s3Service.uploadFiles(files) : Collections.emptyList();
+        String thumbnailUrl = uploadThumbnail(thumbnail);
+        List<String> imageUrls = uploadImages(images);
+        List<FileUploadDto> fileUrls = uploadFiles(files);
 
         List<UserArticle> updatedUserArticles = setUserArticle(user, request, article);
 
@@ -217,17 +217,29 @@ public class ArticleService {
         validateUserOwnership(article, user);
 
         /* 기존 데이터 삭제 */
-        List<File> fileList = fileRepository.findAllByArticle_ArticleId(articleId);
-        fileList.stream().map(File::getFileUrl).forEach(s3Service::deleteFile);
-        fileRepository.deleteAllByArticle_ArticleId(articleId);
+        deleteS3Thumbnail(article);
+        deleteS3ContentImages(article);
+        deleteS3Files(articleId);
 
-        String thumbnailUrl = s3Service.uploadImage(thumbnail);
-        List<String> imageUrls = (images != null) ? s3Service.uploadImages(images) : Collections.emptyList();
-        List<FileUploadDto> fileUrls = (files != null) ? s3Service.uploadFiles(files) : Collections.emptyList();
+        String thumbnailUrl = uploadThumbnail(thumbnail);
+        List<String> imageUrls = uploadImages(images);
+        List<FileUploadDto> fileUrls = uploadFiles(files);
 
         article.updateRecruit(thumbnailUrl, imageUrls, fileUrls, request);
 
         articleRepository.save(article);
+    }
+
+    private String uploadThumbnail(MultipartFile thumbnail) throws IOException {
+        return s3Service.uploadImage(thumbnail);
+    }
+
+    private List<String> uploadImages(List<MultipartFile> images) throws IOException {
+        return (images != null) ? s3Service.uploadImages(images) : Collections.emptyList();
+    }
+
+    private List<FileUploadDto> uploadFiles(List<MultipartFile> files) {
+        return (files != null) ? s3Service.uploadFiles(files) : Collections.emptyList();
     }
 
     private List<UserArticle> setUserArticle(User user, ArticleRequest request, Article article) {
@@ -271,5 +283,20 @@ public class ArticleService {
 
     public int countHeartByArticle(Article article){
         return articleLikeRepository.countByArticle(article);
+    }
+
+    private void deleteS3Thumbnail(Article article) {
+        s3Service.deleteFile(article.getThumbnail());
+    }
+
+    private void deleteS3ContentImages(Article article) {
+        List<ContentData> content = article.getContent();
+        content.stream().filter(s -> "image".equals(s.getType())).map(ContentData::getData).forEach(s3Service::deleteFile);
+    }
+
+    private void deleteS3Files(Long articleId) {
+        List<File> fileList = fileRepository.findAllByArticle_ArticleId(articleId);
+        fileList.stream().map(File::getFileUrl).forEach(s3Service::deleteFile);
+        fileRepository.deleteAllByArticle_ArticleId(articleId);
     }
 }
