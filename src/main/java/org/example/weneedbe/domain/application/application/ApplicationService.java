@@ -24,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -59,9 +58,8 @@ public class ApplicationService {
 
         Recruit recruit = recruitRepository.findByArticle_ArticleId(articleId).orElseThrow(RecruitNotFoundException::new);
 
-        return new RecruitFormResponse(user, article, heartCount, bookmarkCount, recruit);
-    }
-
+        return new RecruitFormResponse(recruit.getUser(), article, heartCount, bookmarkCount, recruit, user);
+  }
     public void createApplicationForm(String authorizationHeader, Long articleId, MultipartFile appeal, ApplicationFormRequest request) throws IOException {
         User user = userService.findUser(authorizationHeader);
         Recruit recruit = recruitRepository.findByArticle_ArticleId(articleId).orElseThrow(RecruitNotFoundException::new);
