@@ -56,7 +56,7 @@ public class ArticleService {
 
         String thumbnailUrl = s3Service.uploadImage(thumbnail);
         List<String> imageUrls = (images != null) ? s3Service.uploadImages(images) : Collections.emptyList();
-        List<String> fileUrls = (files != null) ? s3Service.uploadFile(files) : Collections.emptyList();
+        List<String> fileUrls = (files != null) ? s3Service.uploadFiles(files) : Collections.emptyList();
 
         User user = userService.findUser(authorizationHeader);
 
@@ -73,7 +73,7 @@ public class ArticleService {
 
         String thumbnailUrl = s3Service.uploadImage(thumbnail);
         List<String> imageUrls = (images != null) ? s3Service.uploadImages(images) : Collections.emptyList();
-        List<String> fileUrls = (files != null) ? s3Service.uploadFile(files) : Collections.emptyList();
+        List<String> fileUrls = (files != null) ? s3Service.uploadFiles(files) : Collections.emptyList();
 
         User user = userService.findUser(authorizationHeader);
 
@@ -192,7 +192,7 @@ public class ArticleService {
 
         String thumbnailUrl = s3Service.uploadImage(thumbnail);
         List<String> imageUrls = (images != null) ? s3Service.uploadImages(images) : Collections.emptyList();
-        List<String> fileUrls = (files != null) ? s3Service.uploadFile(files) : Collections.emptyList();
+        List<String> fileUrls = (files != null) ? s3Service.uploadFiles(files) : Collections.emptyList();
 
         List<UserArticle> updatedUserArticles = setUserArticle(user, request, article);
 
@@ -216,7 +216,7 @@ public class ArticleService {
 
         String thumbnailUrl = s3Service.uploadImage(thumbnail);
         List<String> imageUrls = (images != null) ? s3Service.uploadImages(images) : Collections.emptyList();
-        List<String> fileUrls = (files != null) ? s3Service.uploadFile(files) : Collections.emptyList();
+        List<String> fileUrls = (files != null) ? s3Service.uploadFiles(files) : Collections.emptyList();
 
         article.updateRecruit(thumbnailUrl, imageUrls, fileUrls, request);
 

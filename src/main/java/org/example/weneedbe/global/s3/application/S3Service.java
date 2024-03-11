@@ -77,7 +77,7 @@ public class S3Service {
     return fileNameList;
   }
 
-  public List<String> uploadFile(List<MultipartFile> multipartFiles){
+  public List<String> uploadFiles(List<MultipartFile> multipartFiles){
     List<String> fileNameList = new ArrayList<>();
 
     // forEach 구문을 통해 multipartFiles 리스트로 넘어온 파일들을 순차적으로 fileNameList 에 추가
