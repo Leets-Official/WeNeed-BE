@@ -25,6 +25,7 @@ import org.example.weneedbe.domain.bookmark.repository.BookmarkRepository;
 import org.example.weneedbe.domain.bookmark.service.BookmarkService;
 import org.example.weneedbe.domain.comment.domain.Comment;
 import org.example.weneedbe.domain.comment.repository.CommentRepository;
+import org.example.weneedbe.domain.file.dto.FileUploadDto;
 import org.example.weneedbe.domain.file.repository.FileRepository;
 import org.example.weneedbe.domain.user.domain.User;
 import org.example.weneedbe.domain.user.domain.UserArticle;
@@ -56,7 +57,7 @@ public class ArticleService {
 
         String thumbnailUrl = s3Service.uploadImage(thumbnail);
         List<String> imageUrls = (images != null) ? s3Service.uploadImages(images) : Collections.emptyList();
-        List<String> fileUrls = (files != null) ? s3Service.uploadFiles(files) : Collections.emptyList();
+        List<FileUploadDto> fileUrls = (files != null) ? s3Service.uploadFiles(files) : Collections.emptyList();
 
         User user = userService.findUser(authorizationHeader);
 
@@ -73,7 +74,7 @@ public class ArticleService {
 
         String thumbnailUrl = s3Service.uploadImage(thumbnail);
         List<String> imageUrls = (images != null) ? s3Service.uploadImages(images) : Collections.emptyList();
-        List<String> fileUrls = (files != null) ? s3Service.uploadFiles(files) : Collections.emptyList();
+        List<FileUploadDto> fileUrls = (files != null) ? s3Service.uploadFiles(files) : Collections.emptyList();
 
         User user = userService.findUser(authorizationHeader);
 
@@ -192,7 +193,7 @@ public class ArticleService {
 
         String thumbnailUrl = s3Service.uploadImage(thumbnail);
         List<String> imageUrls = (images != null) ? s3Service.uploadImages(images) : Collections.emptyList();
-        List<String> fileUrls = (files != null) ? s3Service.uploadFiles(files) : Collections.emptyList();
+        List<FileUploadDto> fileUrls = (files != null) ? s3Service.uploadFiles(files) : Collections.emptyList();
 
         List<UserArticle> updatedUserArticles = setUserArticle(user, request, article);
 
@@ -216,7 +217,7 @@ public class ArticleService {
 
         String thumbnailUrl = s3Service.uploadImage(thumbnail);
         List<String> imageUrls = (images != null) ? s3Service.uploadImages(images) : Collections.emptyList();
-        List<String> fileUrls = (files != null) ? s3Service.uploadFiles(files) : Collections.emptyList();
+        List<FileUploadDto> fileUrls = (files != null) ? s3Service.uploadFiles(files) : Collections.emptyList();
 
         article.updateRecruit(thumbnailUrl, imageUrls, fileUrls, request);
 
