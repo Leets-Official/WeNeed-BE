@@ -11,19 +11,21 @@ import org.example.weneedbe.domain.user.domain.User;
 @Getter
 public class RecruitFormResponse {
 
+  private String nickname;
+  private Long userId;
+  private boolean sameUser;
   private UserDetailDto recruitUser;
   private ArticleDetailDto article;
   private RecruitFormDto recruitForm;
-  private UserDetailDto loggedInUser;
-  private boolean sameUser;
 
   public RecruitFormResponse(User recruitUser, Article article, int heartCount, int bookmarkCount,
       Recruit recruit, User loggedInUser) {
+    this.nickname = loggedInUser.getNickname();
+    this.userId = loggedInUser.getUserId();
+    this.sameUser = recruitUser.getUserId() == loggedInUser.getUserId();
     this.recruitUser = new UserDetailDto(recruitUser);
     this.article = new ArticleDetailDto(article, heartCount, bookmarkCount);
     this.recruitForm = new RecruitFormDto(recruit);
-    this.loggedInUser = new UserDetailDto(loggedInUser);
-    this.sameUser = recruitUser.getUserId() == loggedInUser.getUserId();
   }
 
   @Getter
