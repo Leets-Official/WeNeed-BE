@@ -1,8 +1,11 @@
 package org.example.weneedbe.domain.user.service;
 
 import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.weneedbe.domain.application.domain.Application;
+import org.example.weneedbe.domain.application.repository.ApplicationRepository;
 import org.example.weneedbe.domain.article.domain.Type;
 import org.example.weneedbe.domain.article.dto.response.main.PageableDto;
 import org.example.weneedbe.domain.article.repository.ArticleLikeRepository;
@@ -33,6 +36,7 @@ import java.io.IOException;
 
 @Service
 @Slf4j
+@Transactional
 @RequiredArgsConstructor
 public class UserService {
 
@@ -42,6 +46,7 @@ public class UserService {
     private final ArticleLikeRepository articleLikeRepository;
     private final S3Service s3Service;
     private final UserArticleRepository userArticleRepository;
+    private final ApplicationRepository applicationRepository;
 
     public Boolean checkNicknameDuplicate(String nickName) {
         return userRepository.existsByNickname(nickName);
@@ -65,56 +70,7 @@ public class UserService {
         return new ResponseEntity<>(new UserInfoResponse(true, "상세 정보 입력 성공"), HttpStatus.OK);
     }
 
-    @Transactional
-    public BasicInfoResponse getBasicInfo(int size, int page, String authorizationHeader, Long userId, Type articleType) {
-        Long userIdFromHeader = findUser(authorizationHeader).getUserId();
-        String userNickname = userRepository.findById(userIdFromHeader).orElseThrow(UserNotFoundException::new).getNickname();
-
-        Pageable pageable = PageRequest.of(page - 1, size);
-        Page<UserArticle> articlesPage = null;
-
-        User user = null;
-
-        if (userIdFromHeader.equals(userId)) {
-            // '로그인한 사용자'의 정보 + MyOutput 노출
-            user = userRepository.findById(userIdFromHeader).orElseThrow(UserNotFoundException::new);
-            articlesPage = getArticlesFromUser(pageable, user, articleType);
-            PageableDto pageableDto = new PageableDto(size, page, articlesPage.getTotalPages(), articlesPage.getTotalElements());
-            List<MyPageArticleInfoResponse> myOutputList = convertToMyOutputList(articlesPage.getContent());
-
-            return setBasicInfoResponse(userNickname, true, userIdFromHeader, myOutputList, pageableDto);
-        }
-        // 주어진 userId의 사용자 정보 + MyOutput 노출
-        user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-        articlesPage = getArticlesFromUser(pageable, user, articleType);
-        PageableDto pageableDto = new PageableDto(size, page, articlesPage.getTotalPages(), articlesPage.getTotalElements());
-        List<MyPageArticleInfoResponse> myOutputList = convertToMyOutputList(articlesPage.getContent());
-
-        return setBasicInfoResponse(userNickname, false, userId, myOutputList, pageableDto);
-    }
-
-    private Page<UserArticle> getArticlesFromUser(Pageable pageable, User user, Type articletype) {
-        return userArticleRepository.findAllByUserAndArticle_ArticleTypeOrderByArticle_CreatedAtDesc(user, articletype, pageable);
-    }
-
-    private List<MyPageArticleInfoResponse> convertToMyOutputList(List<UserArticle> myArticles) {
-        return myArticles.stream().map(s -> {
-            List<String> teamProfiles = getTeamProfiles(s.getArticle().getArticleId());
-
-            return new MyPageArticleInfoResponse(s.getArticle(),
-                    articleLikeRepository.countByArticle(s.getArticle()),
-                    teamProfiles);
-        }).toList();
-    }
-
-    private BasicInfoResponse setBasicInfoResponse(String userNickname, Boolean sameUser, Long userId, List<MyPageArticleInfoResponse> myOutputList, PageableDto pageableDto) {
-        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-        GetMyInfoResponse userInfo = GetMyInfoResponse.from(user);
-
-        return BasicInfoResponse.of(userNickname, sameUser, userInfo, myOutputList, pageableDto);
-    }
-
-    public EditMyInfoResponse editInfo(String authorizationHeader, MultipartFile profileImage, EditMyInfoRequest request) throws IOException{
+    public EditMyInfoResponse editInfo(String authorizationHeader, MultipartFile profileImage, EditMyInfoRequest request) throws IOException {
         User user = findUser(authorizationHeader);
 
         try {
@@ -137,7 +93,33 @@ public class UserService {
         return EditMyInfoResponse.from(user);
     }
 
-    @Transactional
+    public BasicInfoResponse getBasicInfo(int size, int page, String authorizationHeader, Long userId, Type articleType) {
+        Long userIdFromHeader = findUser(authorizationHeader).getUserId();
+        String userNickname = userRepository.findById(userIdFromHeader).orElseThrow(UserNotFoundException::new).getNickname();
+
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<UserArticle> articlesPage = null;
+
+        User user = null;
+
+        if (userIdFromHeader.equals(userId)) {
+            // '로그인한 사용자'의 정보 + MyOutput 노출
+            user = userRepository.findById(userIdFromHeader).orElseThrow(UserNotFoundException::new);
+            articlesPage = getPagedArticlesFromUser(pageable, user, articleType);
+            PageableDto pageableDto = new PageableDto(size, page, articlesPage.getTotalPages(), articlesPage.getTotalElements());
+            List<MyPageArticleInfoResponse> myOutputList = convertToMyArticleList(articlesPage.getContent());
+
+            return setBasicInfoResponse(userNickname, true, userIdFromHeader, myOutputList, pageableDto);
+        }
+        // 주어진 userId의 사용자 정보 + MyOutput 노출
+        user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        articlesPage = getPagedArticlesFromUser(pageable, user, articleType);
+        PageableDto pageableDto = new PageableDto(size, page, articlesPage.getTotalPages(), articlesPage.getTotalElements());
+        List<MyPageArticleInfoResponse> myOutputList = convertToMyArticleList(articlesPage.getContent());
+
+        return setBasicInfoResponse(userNickname, false, userId, myOutputList, pageableDto);
+    }
+
     public MyPageArticleListResponse getBookmarkInfo(int size, int page, String authorizationHeader, Type articleType) {
         User user = findUser(authorizationHeader);
 
@@ -159,17 +141,54 @@ public class UserService {
         return MyPageArticleListResponse.of(bookmarkList, pageableDto);
     }
 
-    public MyPageArticleListResponse getArticleInfo(int size, int page, String authorizationHeader, Type articleType) {
+    // 내가 모집하는 Crew 게시물
+    public MyPageArticleListResponse getRecruitingCrewInfo(int size, int page, String authorizationHeader, Type articleType) {
         User user = findUser(authorizationHeader);
 
         Pageable pageable = PageRequest.of(page - 1, size);
-        Page<UserArticle> articlesPage = null;
+        Page<UserArticle> recruitsPages = null;
 
-        articlesPage = getArticlesFromUser(pageable, user, articleType);
-        PageableDto pageableDto = new PageableDto(size, page, articlesPage.getTotalPages(), articlesPage.getTotalElements());
-        List<MyPageArticleInfoResponse> myOutputList = convertToMyOutputList(articlesPage.getContent());
+        recruitsPages = userArticleRepository.findAllByUserAndArticle_ArticleTypeOrderByArticle_CreatedAtDesc(user, articleType, pageable);
+        PageableDto pageableDto = new PageableDto(size, page, recruitsPages.getTotalPages(), recruitsPages.getTotalElements());
+        List<MyPageArticleInfoResponse> recruitList = convertToMyArticleList(recruitsPages.getContent());
 
-        return MyPageArticleListResponse.of(myOutputList, pageableDto);
+        return MyPageArticleListResponse.of(recruitList, pageableDto);
+    }
+
+    // 내가 지원한 Crew 게시물
+    public MyPageApplicationListResponse getAppliedCrewInfo(int size, int page, String authorizationHeader) {
+        User user = findUser(authorizationHeader);
+
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Application> applicationsPage = null;
+
+        applicationsPage = applicationRepository.findAllByUser(user, pageable);
+
+        PageableDto pageableDto = new PageableDto(size, page, applicationsPage.getTotalPages(), applicationsPage.getTotalElements());
+        List<MyPageApplicationInfoResponse> applications = convertApplicationToMyArticleList(applicationsPage.getContent());
+
+        return MyPageApplicationListResponse.of(applications, pageableDto);
+    }
+
+    private List<MyPageApplicationInfoResponse> convertApplicationToMyArticleList(List<Application> applications) {
+        return applications.stream().map(s -> {
+            List<String> teamProfiles = getTeamProfiles(s.getRecruit().getArticle().getArticleId());
+
+            return new MyPageApplicationInfoResponse(s,
+                    articleLikeRepository.countByArticle(s.getRecruit().getArticle()),
+                    teamProfiles);
+        }).toList();
+    }
+
+    private Page<UserArticle> getPagedArticlesFromUser(Pageable pageable, User user, Type articletype) {
+        return userArticleRepository.findAllByUserAndArticle_ArticleTypeOrderByArticle_CreatedAtDesc(user, articletype, pageable);
+    }
+
+    private BasicInfoResponse setBasicInfoResponse(String userNickname, Boolean sameUser, Long userId, List<MyPageArticleInfoResponse> myOutputList, PageableDto pageableDto) {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        GetMyInfoResponse userInfo = GetMyInfoResponse.from(user);
+
+        return BasicInfoResponse.of(userNickname, sameUser, userInfo, myOutputList, pageableDto);
     }
 
     // UserArticle 테이블에서 동일한 articleId에 속한 사용자들의 프로필 url을 List<String> 으로 반환하는 메서드
@@ -180,7 +199,17 @@ public class UserService {
                 .toList();
     }
 
-    public User findUser(String authorizationHeader){
+    private List<MyPageArticleInfoResponse> convertToMyArticleList(List<UserArticle> myArticles) {
+        return myArticles.stream().map(s -> {
+            List<String> teamProfiles = getTeamProfiles(s.getArticle().getArticleId());
+
+            return new MyPageArticleInfoResponse(s.getArticle(),
+                    articleLikeRepository.countByArticle(s.getArticle()),
+                    teamProfiles);
+        }).toList();
+    }
+
+    public User findUser(String authorizationHeader) {
         String token = tokenProvider.getTokenFromAuthorizationHeader(authorizationHeader);
         Long userId = tokenProvider.getUserIdFromToken(token);
         return userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
