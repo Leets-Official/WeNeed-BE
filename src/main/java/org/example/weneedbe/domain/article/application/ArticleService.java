@@ -25,6 +25,7 @@ import org.example.weneedbe.domain.bookmark.repository.BookmarkRepository;
 import org.example.weneedbe.domain.bookmark.service.BookmarkService;
 import org.example.weneedbe.domain.comment.domain.Comment;
 import org.example.weneedbe.domain.comment.repository.CommentRepository;
+import org.example.weneedbe.domain.file.domain.File;
 import org.example.weneedbe.domain.file.dto.FileUploadDto;
 import org.example.weneedbe.domain.file.repository.FileRepository;
 import org.example.weneedbe.domain.user.domain.User;
@@ -189,6 +190,9 @@ public class ArticleService {
 
         /* 기존 데이터 삭제 */
         userArticleRepository.deleteAllByArticle_ArticleId(articleId);
+
+        List<File> fileList = fileRepository.findAllByArticle_ArticleId(articleId);
+        fileList.stream().map(File::getFileUrl).forEach(s3Service::deleteFile);
         fileRepository.deleteAllByArticle_ArticleId(articleId);
 
         String thumbnailUrl = s3Service.uploadImage(thumbnail);
@@ -213,6 +217,8 @@ public class ArticleService {
         validateUserOwnership(article, user);
 
         /* 기존 데이터 삭제 */
+        List<File> fileList = fileRepository.findAllByArticle_ArticleId(articleId);
+        fileList.stream().map(File::getFileUrl).forEach(s3Service::deleteFile);
         fileRepository.deleteAllByArticle_ArticleId(articleId);
 
         String thumbnailUrl = s3Service.uploadImage(thumbnail);
