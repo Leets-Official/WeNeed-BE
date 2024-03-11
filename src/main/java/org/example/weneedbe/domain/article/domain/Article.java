@@ -15,6 +15,7 @@ import org.example.weneedbe.domain.article.dto.request.ArticleRequest;
 import org.example.weneedbe.domain.bookmark.domain.Bookmark;
 import org.example.weneedbe.domain.comment.domain.Comment;
 import org.example.weneedbe.domain.file.domain.File;
+import org.example.weneedbe.domain.file.dto.FileUploadDto;
 import org.example.weneedbe.domain.user.domain.User;
 import org.example.weneedbe.domain.user.domain.UserArticle;
 import org.example.weneedbe.global.shared.entity.BaseTimeEntity;
@@ -83,7 +84,7 @@ public class Article extends BaseTimeEntity {
 
     private String sharedText;
 
-    public static Article of(String thumbnail, List<String> images, List<String> files,
+    public static Article of(String thumbnail, List<String> images, List<FileUploadDto> files,
         ArticleRequest request, User user) {
 
         Article article = Article.builder()
@@ -107,7 +108,7 @@ public class Article extends BaseTimeEntity {
         this.viewCount = view;
     }
 
-    public void updatePortfolio(String thumbnail, List<String> images, List<String> files, ArticleRequest request,
+    public void updatePortfolio(String thumbnail, List<String> images, List<FileUploadDto> files, ArticleRequest request,
         List<UserArticle> userArticles) {
         this.articleType = request.getArticleType();
         this.thumbnail = thumbnail;
@@ -119,7 +120,7 @@ public class Article extends BaseTimeEntity {
         this.userArticles = userArticles;
     }
 
-    public void updateRecruit(String thumbnail, List<String> images, List<String> files,
+    public void updateRecruit(String thumbnail, List<String> images, List<FileUploadDto> files,
         ArticleRequest request) {
         this.articleType = request.getArticleType();
         this.thumbnail = thumbnail;
@@ -145,12 +146,12 @@ public class Article extends BaseTimeEntity {
         return contentDatas;
     }
 
-    private static List<File> convertFilesToEntity(List<String> files, Article article) {
+    private static List<File> convertFilesToEntity(List<FileUploadDto> files, Article article) {
 
         List<File> fileList = new ArrayList<>();
 
-        for (String fileUrl : files) {
-            File file = new File(fileUrl, article);
+        for (FileUploadDto fileUrl : files) {
+            File file = new File(fileUrl.getFileUrl(), fileUrl.getFileName(), article);
             fileList.add(file);
         }
         return fileList;
