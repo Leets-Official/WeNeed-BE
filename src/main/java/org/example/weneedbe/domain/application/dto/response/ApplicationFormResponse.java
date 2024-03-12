@@ -44,8 +44,8 @@ public class ApplicationFormResponse {
     @Getter
     public static class ApplicationFormDto{
         private String name;
-        private Department major;
-        private Department doubleMajor;
+        private String major;
+        private String  doubleMajor;
         private boolean international;
         private Integer grade;
         private String status;
