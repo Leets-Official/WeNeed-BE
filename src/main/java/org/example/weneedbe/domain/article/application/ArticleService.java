@@ -235,11 +235,17 @@ public class ArticleService {
     }
 
     private List<String> uploadImages(List<MultipartFile> images) throws IOException {
-        return (images != null) ? s3Service.uploadImages(images) : Collections.emptyList();
+        if (images == null) {
+            return Collections.emptyList();
+        }
+        return s3Service.uploadImages(images);
     }
 
     private List<FileUploadDto> uploadFiles(List<MultipartFile> files) {
-        return (files != null) ? s3Service.uploadFiles(files) : Collections.emptyList();
+        if (files == null) {
+            return Collections.emptyList();
+        }
+        return s3Service.uploadFiles(files);
     }
 
     private List<UserArticle> setUserArticle(User user, ArticleRequest request, Article article) {
