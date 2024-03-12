@@ -7,6 +7,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public class FileUploadDto {
 
-  private String fileName;
-  private String fileUrl;
+  private final String fileName;
+  private final String fileUrl;
 }
