@@ -2,6 +2,7 @@ package org.example.weneedbe.global.s3.application;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import java.io.IOException;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.weneedbe.domain.file.dto.FileUploadDto;
 import org.example.weneedbe.global.s3.exception.FileUploadErrorException;
 import org.example.weneedbe.global.s3.exception.InvalidFileException;
 import org.example.weneedbe.global.s3.exception.InvalidImageFileException;
@@ -77,12 +79,14 @@ public class S3Service {
     return fileNameList;
   }
 
-  public List<String> uploadFile(List<MultipartFile> multipartFiles){
-    List<String> fileNameList = new ArrayList<>();
+  public List<FileUploadDto> uploadFiles(List<MultipartFile> multipartFiles){
+    List<FileUploadDto> uploadResults = new ArrayList<>();
 
     // forEach 구문을 통해 multipartFiles 리스트로 넘어온 파일들을 순차적으로 fileNameList 에 추가
     multipartFiles.forEach(file -> {
-      String fileName = createFileName(file.getOriginalFilename());
+      String originalFileName = file.getOriginalFilename();
+      String fileName = createFileName(originalFileName);
+
       ObjectMetadata objectMetadata = new ObjectMetadata();
       objectMetadata.setContentLength(file.getSize());
       objectMetadata.setContentType(file.getContentType());
@@ -94,9 +98,11 @@ public class S3Service {
       } catch (IOException e) {
         throw new FileUploadErrorException();
       }
-      fileNameList.add(getS3(bucketName, fileName));
+
+      FileUploadDto uploadDto = new FileUploadDto(originalFileName, getS3(bucketName, fileName));
+      uploadResults.add(uploadDto);
     });
-    return fileNameList;
+    return uploadResults;
   }
 
   public String uploadFile(MultipartFile file){
@@ -118,6 +124,13 @@ public class S3Service {
       return getS3(bucketName, fileName);
     }
     throw new InvalidFileException();
+  }
+
+  public void deleteFile(String fileUrl) {
+    String splitStr = "files/";
+    String fileName = fileUrl.substring(fileUrl.lastIndexOf(splitStr) + splitStr.length());
+
+    amazonS3Client.deleteObject(new DeleteObjectRequest(bucketName, fileName));
   }
 
   public String createFileName(String fileName){

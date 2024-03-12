@@ -20,12 +20,16 @@ public class File {
     @Column(name = "file_url")
     private String fileUrl;
 
+    @Column(name = "file_name")
+    private String fileName;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "article_id")
     private Article article;
 
-    public File(String fileUrl, Article article) {
+    public File(String fileUrl, String fileName, Article article) {
         this.fileUrl = fileUrl;
+        this.fileName = fileName;
         this.article = article;
     }
 
