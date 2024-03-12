@@ -28,13 +28,11 @@ public class Application extends BaseTimeEntity {
     @Column(nullable = false)
     private String name;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Department major;
+    private String major;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Department doubleMajor;
+    private String doubleMajor;
 
     @Column(nullable = false)
     private boolean international;
