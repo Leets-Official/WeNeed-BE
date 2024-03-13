@@ -45,12 +45,12 @@ public class TokenProvider {
 
     public String returnRefreshToken(User user) {
         String newRefreshToken = generateRefreshToken(user);
-        return refreshTokenService.returnRefreshToken(user.getUserId(), newRefreshToken);
+        return refreshTokenService.returnRefreshToken(user, newRefreshToken);
     }
 
     public String generateNewRefreshToken(User user) {
         String newRefreshToken = makeToken(REFRESH_TOKEN_DURATION, user);
-        RefreshToken existingRefreshToken = refreshTokenRepository.findByUserId(user.getUserId())
+        RefreshToken existingRefreshToken = refreshTokenRepository.findByUser(user)
                 .orElseThrow(TokenNotFoundException::new);
 
         refreshTokenRepository.save(existingRefreshToken.update(newRefreshToken));
