@@ -4,7 +4,7 @@ import lombok.*;
 import org.example.weneedbe.domain.article.domain.Article;
 import org.example.weneedbe.domain.article.domain.ContentData;
 import org.example.weneedbe.domain.comment.domain.Comment;
-import org.example.weneedbe.domain.file.domain.File;
+import org.example.weneedbe.domain.file.dto.FileUploadDto;
 import org.example.weneedbe.domain.user.domain.Department;
 import org.example.weneedbe.domain.user.domain.User;
 
@@ -67,7 +67,7 @@ public class DetailResponseDto {
         private int commentCount;
         private List<String> skills;
         private List<String> tags;
-        private List<String> files;
+        private List<FileUploadDto> files;
         private String sharedText;
         private DetailWriterDto writer;
         private List<DetailPortfolioContentDto> contents;
@@ -84,8 +84,7 @@ public class DetailResponseDto {
             this.skills = article.getDetailSkills();
             this.tags = article.getDetailTags();
             this.files = article.getFiles().stream()
-                    .map(File::getFileUrl)
-                    .collect(Collectors.toList());
+                .map(s -> new FileUploadDto(s.getFileName(), s.getFileUrl())).toList();
             this.sharedText = article.getSharedText();
             this.writer = new DetailWriterDto(article);
             this.contents = getPortfolioContents(article.getContent());

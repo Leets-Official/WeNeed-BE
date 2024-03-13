@@ -3,6 +3,7 @@ package org.example.weneedbe.domain.file.domain;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.weneedbe.domain.article.domain.Article;
 
@@ -10,6 +11,7 @@ import org.example.weneedbe.domain.article.domain.Article;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Getter
 @Table(name = "file")
 public class File {
     @Id
@@ -31,9 +33,5 @@ public class File {
         this.fileUrl = fileUrl;
         this.fileName = fileName;
         this.article = article;
-    }
-
-    public String getFileUrl() {
-        return this.fileUrl;
     }
 }
