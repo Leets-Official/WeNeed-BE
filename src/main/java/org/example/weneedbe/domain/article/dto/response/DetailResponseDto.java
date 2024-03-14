@@ -29,9 +29,9 @@ public class DetailResponseDto {
 
 
         public DetailPortfolioDto(Article article, User user, int heartCount, int bookmarkCount, List<WorkPortfolioArticleDto> workList,
-                                  boolean isHearted, boolean isBookmarked, List<CommentResponseDto> commentList) {
+                                  boolean isHearted, boolean isBookmarked, List<CommentResponseDto> commentList, boolean isRecruiting) {
             this.user = new DetailUserDto(user, user.getUserId().equals(article.getUser().getUserId()), isHearted, isBookmarked);
-            this.portfolio = new DetailArticleDto(article, heartCount, bookmarkCount);
+            this.portfolio = new DetailArticleDto(article, heartCount, bookmarkCount, isRecruiting);
             this.workList = workList;
             this.comments = commentList;
         }
@@ -72,8 +72,9 @@ public class DetailResponseDto {
         private DetailWriterDto writer;
         private List<DetailPortfolioContentDto> contents;
         private List<DetailTeamMemberDto> teamMembers;
+        private boolean isRecruiting;
 
-        public DetailArticleDto(Article article, int heartCount, int bookmarkCount) {
+        public DetailArticleDto(Article article, int heartCount, int bookmarkCount, boolean isRecruiting) {
             this.thumbnail = article.getThumbnail();
             this.title = article.getTitle();
             this.createdAt = article.getCreatedAt();
@@ -91,6 +92,7 @@ public class DetailResponseDto {
             this.teamMembers = article.getUserArticles().stream()
                     .map(userArticle -> new DetailTeamMemberDto(userArticle.getUser()))
                     .collect(Collectors.toList());
+            this.isRecruiting = isRecruiting;
         }
     }
 
@@ -155,9 +157,9 @@ public class DetailResponseDto {
         private DetailArticleDto recruit;
         private List<CommentResponseDto> comments;
 
-        public DetailRecruitDto(Article article, User user, int heartCount, int bookmarkCount, boolean isHearted, boolean isBookmarked, List<CommentResponseDto> commentList) {
+        public DetailRecruitDto(Article article, User user, int heartCount, int bookmarkCount, boolean isHearted, boolean isBookmarked, List<CommentResponseDto> commentList, boolean isRecruiting) {
             this.user = new DetailUserDto(user, user.getUserId().equals(article.getUser().getUserId()), isHearted, isBookmarked);
-            this.recruit = new DetailArticleDto(article, heartCount, bookmarkCount);
+            this.recruit = new DetailArticleDto(article, heartCount, bookmarkCount, isRecruiting);
             this.comments = commentList;
         }
 

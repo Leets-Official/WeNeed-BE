@@ -8,6 +8,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
+import org.example.weneedbe.domain.application.domain.Recruit;
+import org.example.weneedbe.domain.application.exception.RecruitNotFoundException;
+import org.example.weneedbe.domain.application.repository.RecruitRepository;
 import org.example.weneedbe.domain.article.domain.Article;
 import org.example.weneedbe.domain.article.domain.ArticleLike;
 import org.example.weneedbe.domain.article.domain.ContentData;
@@ -53,6 +56,7 @@ public class ArticleService {
     private final UserService userService;
     private final BookmarkService bookmarkService;
     private final BookmarkRepository bookmarkRepository;
+    private final RecruitRepository recruitRepository;
 
     public void createPortfolio(String authorizationHeader, MultipartFile thumbnail, List<MultipartFile> images,
                                 List<MultipartFile> files, ArticleRequest request) throws IOException {
@@ -139,7 +143,9 @@ public class ArticleService {
 
         List<WorkPortfolioArticleDto> workList = initializeWorkList(portfolioArticlesByUser, article, user);
 
-        return new DetailPortfolioDto(article, user, heartCount, bookmarkCount, workList, isHearted, isBookmarked, commentResponseDtos);
+        boolean isRecruiting = recruitRepository.existsByArticle_ArticleId(articleId);
+
+        return new DetailPortfolioDto(article, user, heartCount, bookmarkCount, workList, isHearted, isBookmarked, commentResponseDtos, isRecruiting);
     }
     private List<WorkPortfolioArticleDto> initializeWorkList(List<Article> userPortfolio, Article article, User user) {
         List<WorkPortfolioArticleDto> workList = new ArrayList<>();
@@ -169,7 +175,9 @@ public class ArticleService {
         List<Comment> commentList = commentRepository.findAllByArticle(article);
         List<CommentResponseDto> commentResponseDtos = mapToResponseDto(commentList);
 
-        return new DetailRecruitDto(article, user, heartCount, bookmarkCount, isHearted, isBookmarked, commentResponseDtos);
+        boolean isRecruiting = recruitRepository.existsByArticle_ArticleId(articleId);
+
+        return new DetailRecruitDto(article, user, heartCount, bookmarkCount, isHearted, isBookmarked, commentResponseDtos, isRecruiting);
     }
 
     public static List<CommentResponseDto> mapToResponseDto(List<Comment> commentList) {
