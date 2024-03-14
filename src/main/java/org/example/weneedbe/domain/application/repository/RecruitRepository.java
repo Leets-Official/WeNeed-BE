@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface RecruitRepository extends JpaRepository<Recruit, Long> {
 
   Optional<Recruit> findByArticle_ArticleId(Long article_articleId);
+  boolean existsByArticle_ArticleId(Long article_articleId);
+
 }
