@@ -25,4 +25,5 @@ public class RecruitArticleDto {
     private int viewCount;
     private int heartCount;
     private int bookmarkCount;
+    private boolean isRecruiting;
 }

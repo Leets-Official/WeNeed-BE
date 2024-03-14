@@ -2,6 +2,7 @@ package org.example.weneedbe.domain.article.application;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.weneedbe.domain.application.repository.RecruitRepository;
 import org.example.weneedbe.domain.article.domain.Article;
 import org.example.weneedbe.domain.article.domain.ContentData;
 import org.example.weneedbe.domain.article.domain.Type;
@@ -31,6 +32,7 @@ public class MainService {
     private final ArticleService articleService;
     private final UserService userService;
     private final BookmarkService bookmarkService;
+    private final RecruitRepository recruitRepository;
     private final static String SORT_BY_RECENT = "DESC";
     private final static String SORT_BY_HEARTS = "HEART";
     private final static String SORT_BY_VIEWS = "VIEW";
@@ -192,6 +194,8 @@ public class MainService {
         int heartCount = articleService.countHeartByArticle(article);
         int bookmarkCount = bookmarkService.countBookmarkByArticle(article);
         String contentByListContent = getContentByListContent(article.getContent());
+        boolean isRecruiting = recruitRepository.existsByArticle_ArticleId(article.getArticleId());
+
         return RecruitArticleDto.builder()
                 .articleId(article.getArticleId())
                 .nickname(article.getUser().getNickname())
@@ -206,7 +210,8 @@ public class MainService {
                 .viewCount(article.getViewCount())
                 .bookmarkCount(bookmarkCount)
                 .commentCount(article.getCommentList().size())
-                .heartCount(heartCount).build();
+                .heartCount(heartCount)
+                .isRecruiting(isRecruiting).build();
     }
 
     private String getContentByListContent(List<ContentData> contentData) {
