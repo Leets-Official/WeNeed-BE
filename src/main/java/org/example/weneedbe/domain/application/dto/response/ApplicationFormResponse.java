@@ -71,7 +71,7 @@ public class ApplicationFormResponse {
             this.keywords = application.getKeywords();
             this.crewAnswers = application.getCrewAnswers();
             this.appeal = application.getAppeal();
-            this.detailTags = recruit.getDetailTags();
+            this.detailTags = recruit.getArticle().getDetailTags();
             this.crewQuestions = recruit.getCrewQuestions();
         }
     }

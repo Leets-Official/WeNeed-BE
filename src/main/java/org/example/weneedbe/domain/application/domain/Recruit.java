@@ -34,10 +34,6 @@ public class Recruit extends BaseTimeEntity {
 
   private String category;
 
-  @ElementCollection
-  @CollectionTable(name = "recruit_detail_tags", joinColumns = @JoinColumn(name = "recruit_id"))
-  private List<String> detailTags = new ArrayList<>();
-
   private String deadline;
 
   private String description;
@@ -69,7 +65,6 @@ public class Recruit extends BaseTimeEntity {
   public static Recruit of(Article article, User user, RecruitFormRequest request) {
     return Recruit.builder()
         .category(request.getCategory())
-        .detailTags(request.getDetailTags())
         .deadline(request.getDeadline())
         .description(request.getDescription())
         .taskNeed(request.getTaskNeed())

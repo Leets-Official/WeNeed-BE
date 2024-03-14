@@ -75,7 +75,7 @@ public class RecruitFormResponse {
 
     public RecruitFormDto(Recruit recruit) {
       this.category = recruit.getCategory();
-      this.detailTags = recruit.getDetailTags();
+      this.detailTags = recruit.getArticle().getDetailTags();
       this.deadline = recruit.getDeadline();
       this.description = recruit.getDescription();
       this.taskNeed = recruit.getTaskNeed();

@@ -7,7 +7,6 @@ import lombok.Getter;
 public class RecruitFormRequest {
 
   private String category;
-  private List<String> detailTags;
   private String deadline;
   private String description;
   private String taskNeed;
