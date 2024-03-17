@@ -198,6 +198,7 @@ public class MainService {
 
         return RecruitArticleDto.builder()
                 .articleId(article.getArticleId())
+                .userId(article.getUser().getUserId())
                 .nickname(article.getUser().getNickname())
                 .profile(article.getUser().getProfile())
                 .grade(article.getUser().getGrade())

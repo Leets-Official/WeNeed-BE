@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class RecruitArticleDto {
     private Long articleId;
+    private Long userId;
     private String nickname;
     private String profile;
     private Department major;
