@@ -90,6 +90,7 @@ public class DetailResponseDto {
             this.writer = new DetailWriterDto(article);
             this.contents = getPortfolioContents(article.getContent());
             this.teamMembers = article.getUserArticles().stream()
+                    .filter(userArticle -> !userArticle.getUser().getUserId().equals(article.getUser().getUserId()))
                     .map(userArticle -> new DetailTeamMemberDto(userArticle.getUser()))
                     .collect(Collectors.toList());
             this.isRecruiting = isRecruiting;
