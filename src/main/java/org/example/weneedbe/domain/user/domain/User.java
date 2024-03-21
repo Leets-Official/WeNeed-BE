@@ -10,6 +10,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.weneedbe.domain.bookmark.domain.Bookmark;
+import org.example.weneedbe.domain.token.domain.RefreshToken;
 import org.example.weneedbe.global.shared.entity.BaseTimeEntity;
 
 @Entity
@@ -65,15 +66,11 @@ public class User extends BaseTimeEntity {
     @JsonIgnore
     private List<UserArticle> userArticles = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
     private List<Bookmark> bookmarks = new ArrayList<>();
 
-    public User update(String nickname) {
-        this.nickname = nickname;
-
-        return this;
-    }
-
+    @OneToOne(mappedBy = "user", orphanRemoval = true)
+    private RefreshToken refreshToken;
 
     public void setUserInfo(Department major,
                             Department doubleMajor,
