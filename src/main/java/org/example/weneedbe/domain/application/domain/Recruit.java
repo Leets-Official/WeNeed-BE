@@ -1,5 +1,6 @@
 package org.example.weneedbe.domain.application.domain;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
@@ -9,7 +10,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -26,6 +29,7 @@ import org.example.weneedbe.global.shared.entity.BaseTimeEntity;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "recruits")
 public class Recruit extends BaseTimeEntity {
 
   @Id
@@ -51,7 +55,7 @@ public class Recruit extends BaseTimeEntity {
   private String content;
 
   @ElementCollection
-  @CollectionTable(name = "recruit_keywords", joinColumns = @JoinColumn(name = "recruit_id"))
+  @CollectionTable(name = "recruits_keywords", joinColumns = @JoinColumn(name = "recruit_id"))
   private List<String> keywords = new ArrayList<>();
 
   @OneToOne(fetch = FetchType.LAZY)
@@ -61,6 +65,9 @@ public class Recruit extends BaseTimeEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
   private User user;
+
+  @OneToMany(mappedBy = "recruit", cascade = CascadeType.REMOVE)
+  private List<Application> applications = new ArrayList<>();
 
   public static Recruit of(Article article, User user, RecruitFormRequest request) {
     return Recruit.builder()
