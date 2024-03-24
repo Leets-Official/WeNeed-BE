@@ -16,8 +16,8 @@ spring:
 
   servlet:
     multipart:
-      max-file-size: 100MB
-      max-request-size: 101MB
+      max-file-size: 50MB
+      max-request-size: 50MB
 
   security:
     oauth2:
@@ -46,3 +46,7 @@ jwt:
   secret_key: ENC(3P9HeDamaRYl9h4zz9M7Vy7xoQZ23d4t)
 
 univcertKey: ENC(qv85ftlYv6nJRP/yWbWsLuFbZCsNQVzoHAs5ioRaG0StCAWs7XaPq8qiYvqkDte6)
+
+server:
+  tomcat:
+    max-http-form-post-size: 50MB
