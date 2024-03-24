@@ -15,6 +15,7 @@ import org.example.weneedbe.domain.user.dto.request.EditMyInfoRequest;
 import org.example.weneedbe.domain.user.dto.response.mypage.*;
 import org.example.weneedbe.domain.user.service.UserService;
 import org.example.weneedbe.global.error.ErrorResponse;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -49,9 +50,9 @@ public class MyPageController {
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @PatchMapping("/my-info")
+    @PatchMapping(value = "/my-info", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<EditMyInfoResponse> editInfo(@RequestHeader("Authorization") String authorizationHeader,
-                                                       @RequestPart MultipartFile profileImage,
+                                                       @RequestPart(required = false) MultipartFile profileImage,
                                                        @RequestPart EditMyInfoRequest request) throws IOException {
         return ResponseEntity.ok(userService.editInfo(authorizationHeader, profileImage, request));
     }
