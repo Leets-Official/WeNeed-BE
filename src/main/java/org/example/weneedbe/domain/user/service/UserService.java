@@ -72,11 +72,15 @@ public class UserService {
 
     public EditMyInfoResponse editInfo(String authorizationHeader, MultipartFile profileImage, EditMyInfoRequest request) throws IOException {
         User user = findUser(authorizationHeader);
-        s3Service.deleteFile(user.getProfile());
+        String profileImageUrl = user.getProfile();
 
         try {
-            String profileImageUrl = s3Service.uploadImage(profileImage);
-
+            if (profileImage != null) {
+                if (profileImageUrl != null) {
+                    s3Service.deleteFile(user.getProfile());
+                }
+                profileImageUrl = s3Service.uploadImage(profileImage);
+            }
             user.editUserInfo(profileImageUrl,
                     request.getNickname(),
                     request.getUserGrade(),
