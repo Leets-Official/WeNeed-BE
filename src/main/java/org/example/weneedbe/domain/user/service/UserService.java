@@ -110,7 +110,7 @@ public class UserService {
             PageableDto pageableDto = new PageableDto(size, page, articlesPage.getTotalPages(), articlesPage.getTotalElements());
             List<MyPageArticleInfoResponse> myOutputList = convertToMyArticleList(articlesPage.getContent());
 
-            return setBasicInfoResponse(userNickname, true, userIdFromHeader, myOutputList, pageableDto);
+            return setBasicInfoResponse(userNickname, true, userIdFromHeader, myOutputList, pageableDto, userIdFromHeader);
         }
         // 주어진 userId의 사용자 정보 + MyOutput 노출
         user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
@@ -118,7 +118,7 @@ public class UserService {
         PageableDto pageableDto = new PageableDto(size, page, articlesPage.getTotalPages(), articlesPage.getTotalElements());
         List<MyPageArticleInfoResponse> myOutputList = convertToMyArticleList(articlesPage.getContent());
 
-        return setBasicInfoResponse(userNickname, false, userId, myOutputList, pageableDto);
+        return setBasicInfoResponse(userNickname, false, userId, myOutputList, pageableDto, userIdFromHeader);
     }
 
     public MyPageArticleListResponse getBookmarkInfo(int size, int page, String authorizationHeader, Type articleType) {
@@ -185,11 +185,11 @@ public class UserService {
         return userArticleRepository.findAllByUserAndArticle_ArticleTypeOrderByArticle_CreatedAtDesc(user, articletype, pageable);
     }
 
-    private BasicInfoResponse setBasicInfoResponse(String userNickname, Boolean sameUser, Long userId, List<MyPageArticleInfoResponse> myOutputList, PageableDto pageableDto) {
+    private BasicInfoResponse setBasicInfoResponse(String userNickname, Boolean sameUser, Long userId, List<MyPageArticleInfoResponse> myOutputList, PageableDto pageableDto, Long userIdFromHeader) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         GetMyInfoResponse userInfo = GetMyInfoResponse.from(user);
 
-        return BasicInfoResponse.of(userNickname, sameUser, userInfo, myOutputList, pageableDto);
+        return BasicInfoResponse.of(userNickname, sameUser, userInfo, myOutputList, pageableDto, userIdFromHeader);
     }
 
     // UserArticle 테이블에서 동일한 articleId에 속한 사용자들의 프로필 url을 List<String> 으로 반환하는 메서드

@@ -16,14 +16,16 @@ public class BasicInfoResponse {
     private GetMyInfoResponse userInfo;
     private List<MyPageArticleInfoResponse> myOutputList;
     private PageableDto pageableDto;
+    private Long userIdFromHeader;
 
-    public static BasicInfoResponse of(String userNickname, Boolean sameUser, GetMyInfoResponse userInfo, List<MyPageArticleInfoResponse> myOutputList, PageableDto pageableDto) {
+    public static BasicInfoResponse of(String userNickname, Boolean sameUser, GetMyInfoResponse userInfo, List<MyPageArticleInfoResponse> myOutputList, PageableDto pageableDto, Long userIdFromHeader) {
         return BasicInfoResponse.builder()
                 .userNickname(userNickname)
                 .sameUser(sameUser)
                 .userInfo(userInfo)
                 .myOutputList(myOutputList)
                 .pageableDto(pageableDto)
+                .userIdFromHeader(userIdFromHeader)
                 .build();
     }
 }
