@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.example.weneedbe.domain.application.domain.Recruit;
 import org.example.weneedbe.domain.article.dto.request.ArticleRequest;
 import org.example.weneedbe.domain.bookmark.domain.Bookmark;
 import org.example.weneedbe.domain.comment.domain.Comment;
@@ -83,6 +84,9 @@ public class Article extends BaseTimeEntity {
     private List<Bookmark> bookmarkList = new ArrayList<>();
 
     private String sharedText;
+
+    @OneToOne(mappedBy = "article", cascade = CascadeType.REMOVE)
+    private Recruit recruit;
 
     public static Article of(String thumbnail, List<String> images, List<FileUploadDto> files,
         ArticleRequest request, User user) {
