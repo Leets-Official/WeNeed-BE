@@ -10,14 +10,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.weneedbe.domain.bookmark.domain.Bookmark;
+import org.example.weneedbe.domain.token.domain.RefreshToken;
 import org.example.weneedbe.global.shared.entity.BaseTimeEntity;
 
-@Entity
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name="users")
+@Entity(name="users")
 public class User extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -65,15 +65,11 @@ public class User extends BaseTimeEntity {
     @JsonIgnore
     private List<UserArticle> userArticles = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
     private List<Bookmark> bookmarks = new ArrayList<>();
 
-    public User update(String nickname) {
-        this.nickname = nickname;
-
-        return this;
-    }
-
+    @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private RefreshToken refreshToken;
 
     public void setUserInfo(Department major,
                             Department doubleMajor,
