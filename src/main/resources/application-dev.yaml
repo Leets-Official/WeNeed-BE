@@ -50,3 +50,4 @@ univcertKey: ENC(qv85ftlYv6nJRP/yWbWsLuFbZCsNQVzoHAs5ioRaG0StCAWs7XaPq8qiYvqkDte
 server:
   tomcat:
     max-http-form-post-size: 50MB
+    max-swallow-size: 50MB
